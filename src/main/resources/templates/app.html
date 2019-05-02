@@ -1,0 +1,33 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Budget</title>
+</head>
+<body>
+        <table >
+            <thead>
+            <tr>
+                <th> User </th>
+                <th> Type </th>
+                <th> Item </th>
+                <th> Date </th>
+                <th> Description </th>
+                <th> Price </th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--/*--><!--@thymesVar id="listBudget" type="java.util.List"--><!--*/-->
+            <tr th:if="${listBudget.isEmpty()}">
+                <td colspan="2"> No Budget Available </td>
+            </tr>
+            <tr th:each="budget : ${listBudget}" >
+                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
+                <td><span th:text="${budget.user.name}"> User </span></td>
+                <td><span th:text="${budget.type}"> Type </span></td>
+                <td><span th:text="${budget.item.name}"> Item </span></td>
+                <td><span th:text="${budget.description}"> Description </span></td>
+                <td><span th:text="${budget.localDate}"> Date </span></td>
+                <td><span th:text="${budget.price}"> Price </span></td>
+            </tr>
+        </table>
+</body>
+</html>
