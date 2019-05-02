@@ -10,17 +10,18 @@ import com.gorbatenko.budget.repository.UserGroupRepository;
 import com.gorbatenko.budget.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 
 import java.time.LocalDate;
 
 @SpringBootApplication
-public class BudgetApplication {
+public class BudgetApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(BudgetApplication.class, args);
-
-        BudgetRepository budgetRepository = ctx.getBean(BudgetRepository.class);
+        /*TEST DATA*/
+        /*BudgetRepository budgetRepository = ctx.getBean(BudgetRepository.class);
         ItemRepository itemRepository = ctx.getBean(ItemRepository.class);
         UserRepository userRepository = ctx.getBean(UserRepository.class);
         UserGroupRepository userGroupRepository = ctx.getBean(UserGroupRepository.class);
@@ -58,7 +59,7 @@ public class BudgetApplication {
 
         for (Budget b : budgetRepository.findAll()) {
             System.out.println(b);
-        }
+        }*/
     }
 
 }
