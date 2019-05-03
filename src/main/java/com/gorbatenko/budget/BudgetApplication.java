@@ -8,11 +8,13 @@ import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.ItemRepository;
 import com.gorbatenko.budget.repository.UserGroupRepository;
 import com.gorbatenko.budget.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 
 @SpringBootApplication
@@ -20,16 +22,23 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(BudgetApplication.class, args);
-        /*TEST DATA*/
-        /*BudgetRepository budgetRepository = ctx.getBean(BudgetRepository.class);
-        ItemRepository itemRepository = ctx.getBean(ItemRepository.class);
-        UserRepository userRepository = ctx.getBean(UserRepository.class);
-        UserGroupRepository userGroupRepository = ctx.getBean(UserGroupRepository.class);
+    }
 
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+
+    @PostConstruct
+    public void init() {
         budgetRepository.deleteAll();
         itemRepository.deleteAll();
         userRepository.deleteAll();
-
 
         User user = new User(null, "Vladimir", "mail@gmail.com");
         userRepository.save(user);
@@ -59,7 +68,6 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
         for (Budget b : budgetRepository.findAll()) {
             System.out.println(b);
-        }*/
+        }
     }
-
 }
