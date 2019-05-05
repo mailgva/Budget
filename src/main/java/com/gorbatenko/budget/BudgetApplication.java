@@ -1,12 +1,8 @@
 package com.gorbatenko.budget;
 
-import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.Item;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.ItemRepository;
-import com.gorbatenko.budget.repository.UserGroupRepository;
 import com.gorbatenko.budget.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -31,8 +27,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
     private ItemRepository itemRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private UserGroupRepository userGroupRepository;
+
 
     @PostConstruct
     public void init() {
@@ -40,12 +35,16 @@ public class BudgetApplication extends SpringBootServletInitializer {
         itemRepository.deleteAll();
         userRepository.deleteAll();
 
-        User user = new User(null, "Vladimir", "mail@gmail.com");
-        userRepository.save(user);
+        User user1 = new User("Vladimir", "mail@gmail.com");
+        user1 = userRepository.saveUser(user1);
 
-        for(User u : userRepository.findAll()) {
-            System.out.println(u);
-        }
+        User user2 = new User("Yana", "mail@ya.ru");
+        user2.setGroup(user1.getGroup());
+        user2 = userRepository.saveUser(user2);
+
+        User user3 = new User("Test", "test@gmail.com");
+        user3 = userRepository.saveUser(user3);
+
 
         Item item = new Item("Basic ZP");
         item = itemRepository.save(item);
@@ -56,18 +55,24 @@ public class BudgetApplication extends SpringBootServletInitializer {
         Item item2 = new Item("Transport");
         item2 = itemRepository.save(item2);
 
-        Budget budget = new Budget(user, Type.PROFIT, item, LocalDate.now(), "ZP", 1000.0);
-        Budget budget1 = new Budget(user, Type.SPENDING, item1, LocalDate.now(), "broad", 8.0);
-        Budget budget2 = new Budget(user, Type.SPENDING, item1, LocalDate.now(),"buter", 10.0);
-        Budget budget3 = new Budget(user, Type.SPENDING, item2, LocalDate.now(),"Fuel", 500.0);
+        Budget budget = new Budget(user1, Type.PROFIT, item, LocalDate.now(), "ZP", 1000.0);
+        Budget budget1 = new Budget(user1, Type.SPENDING, item1, LocalDate.now(), "broad", 9.0);
+        Budget budget2 = new Budget(user1, Type.SPENDING, item1, LocalDate.now(),"buter", 10.0);
+        Budget budget3 = new Budget(user2, Type.SPENDING, item2, LocalDate.now(),"Fuel", 500.0);
 
-        budgetRepository.save(budget);
-        budgetRepository.save(budget1);
-        budgetRepository.save(budget2);
-        budgetRepository.save(budget3);
+        Budget budget4 = new Budget(user3, Type.SPENDING, item2, LocalDate.now(),"Diesel", 220.0);
+
+        budgetRepository.saveBudget(budget);
+        budgetRepository.saveBudget(budget3);
+        budgetRepository.saveBudget(budget1);
+        budgetRepository.saveBudget(budget2);
+
+        budgetRepository.saveBudget(budget4);
+
 
         for (Budget b : budgetRepository.findAll()) {
             System.out.println(b);
         }
+
     }
 }

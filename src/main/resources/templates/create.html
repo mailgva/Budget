@@ -1,0 +1,51 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+        <div class="col-sm-8 mx-auto">
+            <h2>Create new budget item</h2>
+
+            <form id="form" name="form" th:action="@{/}" method="post">
+                <div class="form-group ">
+                    <label class="col-form-label" th:text="Type"></label>
+                    <select name="type">
+                        <option>PROFIT</option>
+                        <option selected>SPENDING</option>
+                    </select>
+                </div>
+
+                <div class="form-group ">
+                    <label class="col-form-label" th:text="Item"></label>
+                    <select name="item">
+                        <option selected>Eda</option>
+                        <option>Transport</option>
+                    </select>
+                </div>
+
+                <div class="form-group ">
+                    <label class="col-form-label" th:text="Date"></label>
+                    <input type="date" name="date">
+                </div>
+
+                <div class="form-group ">
+                    <label class="col-form-label" th:text="Description"></label>
+                    <input type="text" name="description">
+                </div>
+
+                <div class="form-group ">
+                    <label class="col-form-label" th:text="Price"></label>
+                    <input type="number" name="price">
+                </div>
+                <input name="submit" type="submit" value="submit"/>
+            </form>
+        </div>
+    </div>
+</main>
+</div>
+</body>
+</html>

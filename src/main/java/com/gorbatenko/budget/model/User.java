@@ -3,6 +3,7 @@ package com.gorbatenko.budget.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,17 +14,17 @@ import javax.validation.constraints.Email;
 @Document(collection = "user")
 public class User extends BaseEntity {
 
-    private UserGroup userGroup;
-
     private String name;
+
+    // By default contains self id. If user is a member group, then field will be contains id group owner.
+    private String group;
 
     @Email
     @Indexed /*(unique=true)*/
     private String email;
 
 
-    public User(UserGroup userGroup, String name, @Email String email) {
-        this.userGroup = userGroup;
+    public User(String name, @Email String email) {
         this.name = name;
         this.email = email;
     }
@@ -32,7 +33,7 @@ public class User extends BaseEntity {
     public String toString() {
         return "User{" +
                 "id='" + getId() + '\'' +
-                ", userGroup='" + userGroup + '\'' +
+                ", group='" + group + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
