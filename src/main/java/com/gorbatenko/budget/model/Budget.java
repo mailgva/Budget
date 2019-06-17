@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -25,6 +26,7 @@ public class Budget extends BaseEntity {
 
     private String description;
 
+    @NotNull
     private Double price;
 
     public Budget(User user, Kind kind, LocalDateTime date, String description, Double price) {

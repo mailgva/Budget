@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -59,9 +63,10 @@ public class UIController {
 
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model) {
-        model.addAttribute("type",  Type.valueOf(type.toUpperCase())); //type.toUpperCase()
-        model.addAttribute("kinds",
-                kindRepository.findByType(Type.valueOf(type.toUpperCase())));
+        model.addAttribute("type",  Type.valueOf(type.toUpperCase()));
+        List<Kind> kinds = kindRepository.findByType(Type.valueOf(type.toUpperCase()));
+        Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
+        model.addAttribute("kinds", kinds);
         return "create";
     }
 
@@ -69,8 +74,9 @@ public class UIController {
     public String edit(@PathVariable("id") String id, Model model) {
         Budget budget = repository.findById(id).get();
         model.addAttribute("budget", budget );
-        model.addAttribute("kinds",
-                kindRepository.findByType(budget.getKind().getType()));
+        List<Kind> kinds = kindRepository.findByType(budget.getKind().getType());
+        Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
+        model.addAttribute("kinds", kinds);
         return "edit";
     }
 
@@ -88,8 +94,9 @@ public class UIController {
     @GetMapping("/dictionary/{name}")
     public String getDictionary(@PathVariable("name") String name, Model model) {
         if(name.equalsIgnoreCase("KINDS")) {
-            model.addAttribute("kinds",
-                    kindRepository.findAll());
+            List<Kind> kinds = kindRepository.findAll();
+            Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
+            model.addAttribute("kinds", kinds);
         }
         return "kinds";
     }
@@ -132,7 +139,7 @@ public class UIController {
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {
-        Kind kind = new Kind(Type.valueOf(kindTo.getType()), kindTo.getName());
+        Kind kind = new Kind(kindTo.getType(), kindTo.getName());
         return kind;
     }
 

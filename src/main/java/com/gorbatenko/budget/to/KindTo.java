@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class KindTo extends BaseEntity {
     private String name;
 
-    private String type;
+    private Type type;
 
-    public KindTo(String type, String name) {
+    public KindTo(Type type, String name) {
         this.type = type;
         this.name = name;
     }

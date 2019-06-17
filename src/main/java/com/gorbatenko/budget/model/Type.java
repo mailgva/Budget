@@ -14,10 +14,10 @@ public enum Type {
         return value;
     }
 
-    @Override
+    /*@Override
     public String toString() {
         return "Type{" +
                 "value='" + value + '\'' +
                 '}';
-    }
+    }*/
 }

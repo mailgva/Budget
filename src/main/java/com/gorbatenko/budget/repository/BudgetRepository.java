@@ -20,5 +20,4 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
     List<Budget> getBudgetByKindTypeOrderByCreateDateTime(Type type);
 
     List<Budget> getBudgetByUserGroup(String group);
-
 }
