@@ -29,7 +29,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
     private UserRepository userRepository;
 
 
-    @PostConstruct
+    //@PostConstruct
     public void init() {
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
@@ -67,7 +67,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
         User user3 = new User("Test", "test@gmail.com");
         user3 = userRepository.saveUser(user3);
 
-
+/*
         Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
         Budget budget1 = new Budget(user1, kind1, LocalDateTime.now(), "broad", 9.0);
         Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);
@@ -85,6 +85,6 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
         for (Budget b : budgetRepository.findAll()) {
             System.out.println(b);
-        }
+        }*/
     }
 }
