@@ -8,43 +8,47 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <div class="col-sm-8 mx-auto">
-            <h2 th:text="'Добавление статьи ' + ${type.getValue()}"> </h2>
+            <h2>Изменение</h2>
 
             <form id="form" name="form" th:action="@{/}" method="post">
+                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
+                <input type="hidden" name="id" th:value="${budget.id}">
                 <table>
-                    <!--<tr>
-                        <td><label class="col-form-label" th:text="Type"></label></td>
+                    <tr>
+                        <td style="width: 200px;"><label class="col-form-label" th:text="Тип"></label></td>
                         <td>
-                            <select name="type" readonly>
+                            <select name="type" readonly style="width: 200px;">
                                 <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
                                         th:value="${val}"
                                         th:text="${val.value}"
-                                        th:selected="${type.name().equalsIgnoreCase(val)}">
+                                        th:selected="${budget.kind.getType().name().equalsIgnoreCase(val)}">
                                 </option>
                             </select>
                         </td>
-                    </tr>-->
+                    </tr>
                     <tr>
-                        <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
+                        <td><label class="col-form-label" th:text="Вид"></label></td>
                         <td>
                             <select name="kind" style="width: 200px;">
                                 <option th:each="kind : ${kinds}"
                                         th:value="${kind.name}"
-                                        th:text="${kind.name}"></option>
+                                        th:text="${kind.name}"
+                                        th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
+                                </option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td><label class="col-form-label" th:text="Дата"></label></td>
-                        <td><input type="date" name="date" placeholder="Дата" style="width: 200px;"></td>
+                        <td><input type="date" name="date" readonly th:value="${budget.getStrDate()}" style="width: 200px;"></td>
                     </tr>
                     <tr>
-                        <td><label class="col-form-label" th:text="Описание"></label></td>
-                        <td><input type="text" name="description" placeholder="Описание" style="width: 200px;"></td>
+                        <td><label class="col-form-label" th:text="Описание" ></label></td>
+                        <td><input type="text" name="description" placeholder="Описание" th:value="${budget.description}" style="width: 200px;"></td>
                     </tr>
                     <tr>
                         <td><label class="col-form-label" th:text="Сумма"></label></td>
-                        <td><input type="number" step=0.01 name="price" placeholder="Сумма" style="width: 200px;"></td>
+                        <td><input type="number" step=0.01 name="price" placeholder="Сумма" th:value="${budget.price}" style="width: 200px;"></td>
                     </tr>
                 </table>
                 <input name="submit" type="submit" value="Сохранить"/>

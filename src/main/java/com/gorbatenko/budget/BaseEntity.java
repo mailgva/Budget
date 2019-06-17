@@ -1,4 +1,4 @@
-package com.gorbatenko.budget.model;
+package com.gorbatenko.budget;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,12 +1,13 @@
 package com.gorbatenko.budget.model;
 
+import com.gorbatenko.budget.BaseEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -15,12 +16,10 @@ public class Budget extends BaseEntity {
 
     private User user;
 
-    private Type type;
+    private Kind kind;
 
-    private Item item;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime date;
 
     private LocalDateTime createDateTime;
 
@@ -28,10 +27,9 @@ public class Budget extends BaseEntity {
 
     private Double price;
 
-    public Budget(User user, Type type, Item item, LocalDate date, String description, Double price) {
+    public Budget(User user, Kind kind, LocalDateTime date, String description, Double price) {
         this.user = user;
-        this.type = type;
-        this.item = item;
+        this.kind = kind;
         this.date = date;
         this.description = description;
         this.price = price;
@@ -42,12 +40,22 @@ public class Budget extends BaseEntity {
         return "Budget{" +
                 "id=" + getId() +
                 ", user=" + user +
-                ", type=" + type +
-                ", item=" + item +
+                ", kind=" + kind +
                 ", date=" + date +
                 ", createDateTime=" + createDateTime +
-                ", description='" + description + '\'' +
+                ", description='" + description +
                 ", price=" + price +
                 '}';
     }
+
+    public String getStrDateTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return date.format(formatter);
+    }
+
+    public String getStrDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return date.format(formatter);
+    }
+
 }

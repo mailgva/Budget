@@ -1,25 +1,21 @@
 package com.gorbatenko.budget.to;
 
-import com.gorbatenko.budget.model.BaseEntity;
-import com.gorbatenko.budget.model.Item;
+import com.gorbatenko.budget.BaseEntity;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "budget")
-public class BudgetTo {
+//@Document(collection = "budget")
+public class BudgetTo extends BaseEntity {
 
-    private Type type;
-
-    private String item;
+    private String kind;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
@@ -28,9 +24,8 @@ public class BudgetTo {
 
     private Double price;
 
-    public BudgetTo(Type type, String item, LocalDate date, String description, Double price) {
-        this.type = type;
-        this.item = item;
+    public BudgetTo(String kind, LocalDate date, String description, Double price) {
+        this.kind = kind;
         this.date = date;
         this.description = description;
         this.price = price;
@@ -39,11 +34,16 @@ public class BudgetTo {
     @Override
     public String toString() {
         return "Budget{" +
-                ", type=" + type +
-                ", item=" + item +
+                ", kind=" + kind +
                 ", date=" + date +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 '}';
+    }
+
+
+    public String getStrDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return date.format(formatter);
     }
 }

@@ -1,0 +1,38 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body style="background: #c2ff8e">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron"  style="background: #c2ff8e">
+        <!--<div class="col-sm-8 mx-auto">-->
+        <a href="/dictionary/kinds/create" class="btn btn-primary" role="button" aria-pressed="true">Создать</a>
+        <table class="table table-striped table-active" >
+            <thead>
+            <tr>
+                <th>Тип (Приход/Расход)</th>
+                <th>Вид </th>
+                <th> </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr th:each="kind : ${ kinds}">
+                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"--><!--*/-->
+                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+                <td><span th:text="${kind.getType().getValue()}"> Type </span></td>
+                <td><span th:text="${kind.getName()}"> Name </span></td>
+                <td>
+                    <a th:href="@{'/dictionary/edit/'+${kind.id}}"  class="btn btn-primary" role="button" aria-pressed="true">Изменить</a>
+                    <a th:href="@{'/dictionary/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
+                </td>
+
+            </tr>
+        </table>
+        <!--</div>-->
+    </div>
+</main>
+</div>
+</body>
+</html>

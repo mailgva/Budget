@@ -1,7 +1,9 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Type;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,11 +17,8 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
         return save(budget);
     };
 
-    default List<Budget> getBudgetByType(String type) {
-        return getBudgetByTypeOrderByCreateDateTimeAsc(type);
-    };
-
-    List<Budget> getBudgetByTypeOrderByCreateDateTimeAsc(String type);
+    List<Budget> getBudgetByKindTypeOrderByCreateDateTime(Type type);
 
     List<Budget> getBudgetByUserGroup(String group);
+
 }
