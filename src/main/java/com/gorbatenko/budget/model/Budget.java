@@ -22,6 +22,7 @@ public class Budget extends BaseEntity {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime date;
 
+
     private LocalDateTime createDateTime;
 
     private String description;
@@ -33,6 +34,7 @@ public class Budget extends BaseEntity {
         this.user = user;
         this.kind = kind;
         this.date = date;
+        this.createDateTime = LocalDateTime.now();
         this.description = description;
         this.price = price;
     }
@@ -45,7 +47,7 @@ public class Budget extends BaseEntity {
                 ", kind=" + kind +
                 ", date=" + date +
                 ", createDateTime=" + createDateTime +
-                ", description='" + description +
+                ", description='" + description + '\'' +
                 ", price=" + price +
                 '}';
     }

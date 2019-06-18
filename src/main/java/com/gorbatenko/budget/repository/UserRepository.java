@@ -13,4 +13,6 @@ public interface UserRepository extends MongoRepository<User, String> {
         }
         return user;
     };
+
+    User findByNameIgnoreCase(String name);
 }

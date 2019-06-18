@@ -1,0 +1,43 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+
+</head>
+<body style="background: #c2ff8e">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+  <div class="jumbotron" style="background: #c2ff8e">
+    <div class="col-sm-8 mx-auto">
+      <h2 th:text="'Добавление вида прихода/расхода'"> </h2>
+      <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+      <form id="form" name="form" th:action="@{dictionary/kinds/create}" method="post">
+        <table>
+          <tr>
+            <td><label class="col-form-label" th:text="Type"></label></td>
+            <td>
+              <select name="type" readonly>
+                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
+                        th:value="${val}"
+                        th:text="${val.value}"
+                        th:selected="${kind.getType().name().equalsIgnoreCase(val)}"
+                >
+                </option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
+            <td>
+              <input type="text" name="name" th:value="${kind.getName()}" placeholder="Наименование" style="width: 200px;"></td>
+            </td>
+          </tr>
+
+        </table>
+        <input name="submit" type="submit" value="Сохранить"/>
+      </form>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>

@@ -35,7 +35,7 @@ public class BudgetTo extends BaseEntity {
     @Override
     public String toString() {
         return "Budget{" +
-                ", kind=" + kind +
+                "kind=" + kind +
                 ", date=" + date +
                 ", description='" + description + '\'' +
                 ", price=" + price +

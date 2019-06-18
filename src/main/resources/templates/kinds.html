@@ -24,8 +24,8 @@
                 <td><span th:text="${kind.getType().getValue()}"> Type </span></td>
                 <td><span th:text="${kind.getName()}"> Name </span></td>
                 <td>
-                    <a th:href="@{'/dictionary/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
-                    <a th:href="@{'/dictionary/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
+                    <a th:href="@{'/dictionary/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
+                    <a th:href="@{'/dictionary/kinds/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
                 </td>
 
             </tr>

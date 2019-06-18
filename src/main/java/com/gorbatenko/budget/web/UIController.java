@@ -3,10 +3,14 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.KindRepository;
+import com.gorbatenko.budget.repository.UserRepository;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.to.KindTo;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +30,12 @@ public class UIController {
 
     @Autowired
     BudgetRepository repository;
+
+    @Autowired
+    private KindRepository kindRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
     public String getMain(Model model) {
@@ -67,6 +77,11 @@ public class UIController {
         List<Kind> kinds = kindRepository.findByType(Type.valueOf(type.toUpperCase()));
         Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
         model.addAttribute("kinds", kinds);
+
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        model.addAttribute("date", localDate.format(formatter));
+
         return "create";
     }
 
@@ -106,6 +121,18 @@ public class UIController {
         return "createDicKind";
     }
 
+    @GetMapping("/dictionary/kinds/edit/{id}")
+    public String editDicKind(@PathVariable("id") String id, Model model) {
+        model.addAttribute("kind", kindRepository.findById(id).get());
+        return "editDicKind";
+    }
+
+    @GetMapping("/dictionary/kinds/delete/{id}")
+    public String deleteDicKind(@PathVariable("id") String id, Model model) {
+        kindRepository.deleteById(id);
+        return "redirect:/dictionary/kinds";
+    }
+
     @PostMapping("/dictionary/kinds/create")
     public String createNewDicKind(@ModelAttribute KindTo kindTo) {
         Kind kind = createKindFromKindTo(kindTo);
@@ -118,7 +145,9 @@ public class UIController {
     @PostMapping("/")
     public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
-        budget.setUser(repository.findAll().stream().findFirst().get().getUser());
+        User user = userRepository.findAll().stream().findFirst().get();
+        System.out.println(user);
+        budget.setUser(user);
         budget.setId(budgetTo.getId());
         repository.save(budget);
         return "redirect:/statistic";
@@ -130,12 +159,12 @@ public class UIController {
         return "statistic";
     }
 
-    @Autowired
-    private KindRepository kindRepository;
+
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
         Kind kind = kindRepository.findByNameIgnoreCase(b.getKind());
-        return new Budget(null, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
+        Budget budget = new Budget(null, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
+        return budget;
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {

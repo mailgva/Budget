@@ -29,7 +29,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
     private UserRepository userRepository;
 
 
-    //@PostConstruct
+    @PostConstruct
     public void init() {
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
@@ -67,19 +67,27 @@ public class BudgetApplication extends SpringBootServletInitializer {
         User user3 = new User("Test", "test@gmail.com");
         user3 = userRepository.saveUser(user3);
 
-/*
-        Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
+
+        /*Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
         Budget budget1 = new Budget(user1, kind1, LocalDateTime.now(), "broad", 9.0);
         Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);
         Budget budget3 = new Budget(user2, kind4, LocalDateTime.now(),"Fuel", 500.0);
-
         Budget budget4 = new Budget(user3, kind4, LocalDateTime.now(),"Diesel", 220.0);
+*/
 
-        budgetRepository.saveBudget(budget);
-        budgetRepository.saveBudget(budget3);
+       /* User user1 = userRepository.findByNameIgnoreCase("Vladimir");
+        Kind kind = kindRepository.findByNameIgnoreCase("Зарплата");
+        Kind kind1 = kindRepository.findByNameIgnoreCase("Продукты");
+
+        Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
+        Budget budget1 = new Budget(user1, kind1, LocalDateTime.now(), "broad", 9.0);
+        Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);*/
+
+
+        /*budgetRepository.saveBudget(budget);
         budgetRepository.saveBudget(budget1);
         budgetRepository.saveBudget(budget2);
-
+        budgetRepository.saveBudget(budget3);
         budgetRepository.saveBudget(budget4);
 
 
