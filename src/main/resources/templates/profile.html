@@ -1,0 +1,32 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body style="background: #c2ff8e">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+        <div class="col-sm-8 mx-auto">
+            <h2 th:text="'Профиль'"></h2>
+            <!--/*--><!--@thymesVar id="user" type="com.gorbatenko.budget.model.User"--><!--*/-->
+                <table>
+                    <tr>
+                        <td><label class="col-form-label" th:text="Имя"></label></td>
+                        <td><input type="text" name="name" th:value="${user.getName()}" style="width: 200px;"></td>
+                    </tr>
+                    <tr>
+                        <td><label class="col-form-label" th:text="Email"></label></td>
+                        <td><input type="text" name="email" th:value="${user.getEmail()}" style="width: 200px;"></td>
+                    </tr>
+                    <tr>
+                        <td><label class="col-form-label" th:text="Группа"></label></td>
+                        <td><input type="text" name="group" th:value="${user.getGroup()}" style="width: 200px;"></td>
+                    </tr>
+                </table>
+
+        </div>
+    </div>
+</main>
+</div>
+</body>
+</html>

@@ -1,12 +1,12 @@
 package com.gorbatenko.budget;
 
-import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
-
-import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Role;
+import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
-import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,8 +14,6 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class BudgetApplication extends SpringBootServletInitializer {
@@ -66,11 +64,11 @@ public class BudgetApplication extends SpringBootServletInitializer {
         User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
         user1 = userRepository.saveUser((user1));
 
-        User user2 = new User("Yana", "mail@ya.ru", "123", Role.ROLE_USER);
+        User user2 = new User("Yana", "mail@ya.ru", "{noop}123", Role.ROLE_USER);
         user2.setGroup(user1.getGroup());
         user2 = userRepository.saveUser((user2));
 
-        User user3 = new User("Test", "test@gmail.com", "123", Role.ROLE_USER);
+        User user3 = new User("Test", "test@gmail.com", "{noop}123", Role.ROLE_USER);
         user3 = userRepository.saveUser((user3));
 
 

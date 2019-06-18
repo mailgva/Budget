@@ -14,6 +14,4 @@ public interface KindRepository extends MongoRepository<Kind, String > {
 
     List<Kind> findByType(Type type);
 
-    //List<Kind> find();
-
 }

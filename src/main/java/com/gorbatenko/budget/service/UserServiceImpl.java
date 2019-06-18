@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-@Transactional
+import java.util.List;
+
 @Service("userService")
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthorizedUser loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = repository.getByEmailIgnoreCase(email.toLowerCase());
+        User user = repository.getByEmail(email.toLowerCase());
         if (user == null) {
             throw new UsernameNotFoundException("User " + email + " is not found");
         }
@@ -38,6 +39,15 @@ public class UserServiceImpl implements UserService {
     public User create(User user) {
         Assert.notNull(user, "user must not be null");
         return repository.save(prepareToSave(user, passwordEncoder));
+    }
+
+    public User save(User user) {
+        return repository.save(user);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return repository.findAll();
     }
 }
 

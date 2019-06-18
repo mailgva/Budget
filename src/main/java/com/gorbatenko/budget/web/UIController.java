@@ -8,11 +8,13 @@ import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
+import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.to.KindTo;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +28,6 @@ import java.util.stream.Collectors;
 
 
 @Controller
-@RequestMapping("/")
 public class UIController {
 
     @Autowired
@@ -36,7 +37,7 @@ public class UIController {
     private KindRepository kindRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
 
     @GetMapping("/")
@@ -50,11 +51,11 @@ public class UIController {
         return "login";
     }
 
-    /*@PostMapping("/login")
-    public String login(@ModelAttribute User user) {
-        User u = userRepository.getByEmailIgnoreCase(user.getEmail());
-        return (user.getPassword().equals(u.getPassword()) ? "redirect:/menu" : "login");
-    }*/
+    @RequestMapping("/login-error")
+    public String loginError(Model model) {
+        model.addAttribute("loginError", true);
+        return "login";
+    }
 
     @GetMapping("/register")
     public String register() {
@@ -63,9 +64,8 @@ public class UIController {
 
     @PostMapping("/register")
     public String newUser(@ModelAttribute User user) {
-        System.out.println(user);
         user.setRoles(Collections.singleton(Role.ROLE_USER));
-        userRepository.saveUser(user);
+        userService.create(user);
         return "redirect:login";
     }
 
@@ -78,6 +78,25 @@ public class UIController {
         model.addAttribute("remain", remain);
         return "menu";
     }
+
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/jointogroup/{id}")
+    public String joinToGroup(@PathVariable("id") String id) {
+        User user = SecurityUtil.get().getUser();
+        user.setGroup(id);
+        userService.save(user);
+        return "/menu";
+    }
+
+
+    @GetMapping("/profile")
+    public String profile(Model model) {
+        User user = SecurityUtil.get().getUser();
+        model.addAttribute("user", user);
+        return "/profile";
+    }
+
 
     @GetMapping("/statistic")
     public String getStatistic(Model model) {
@@ -182,7 +201,7 @@ public class UIController {
     @PostMapping("/")
     public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
-        User user = userRepository.findAll().stream().findFirst().get();
+        User user = userService.findAll().stream().findFirst().get();
         System.out.println(user);
         budget.setUser(user);
         budget.setId(budgetTo.getId());
@@ -207,6 +226,15 @@ public class UIController {
     private Kind createKindFromKindTo(KindTo kindTo) {
         Kind kind = new Kind(kindTo.getType(), kindTo.getName());
         return kind;
+    }
+
+    @ModelAttribute("userName")
+    private String getUserName(){
+        try {
+            return  SecurityUtil.authUserName();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

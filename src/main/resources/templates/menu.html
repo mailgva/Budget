@@ -6,6 +6,7 @@
 </div>
 <main role="main">
   <div class="jumbotron"  style="background: #c2ff8e">
+    <h2 id="loggedUser" >Пользователь: <span th:text="${userName}"></span></h2>
     <div class="form-group ">
       <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
       <input type="text" name="text" readonly th:value="${remain}" style="text-align:right;">
@@ -14,6 +15,8 @@
     <a href="/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Расход</a>
     <a href="/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Статистика</a>
     <a href="/dictionaries" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Справочники</a>
+    <a href="/profile" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Профиль</a>
+    <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Выход</a>
   </div>
 </main>
 </div>
