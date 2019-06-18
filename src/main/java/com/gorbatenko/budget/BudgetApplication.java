@@ -63,7 +63,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
         kind5 = kindRepository.save(kind5);
 
 
-        User user1 = new User("Vladimir", "mail@gmail.com", "123", Role.ROLE_ADMIN);
+        User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
         user1 = userRepository.saveUser(prepareToSave(user1, passwordEncoder));
 
         User user2 = new User("Yana", "mail@ya.ru", "123", Role.ROLE_USER);
