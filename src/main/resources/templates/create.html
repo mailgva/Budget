@@ -1,6 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: head">
-
 </head>
 <body style="background: #c2ff8e">
 <div th:replace="fragments/bodyHeader :: div">
@@ -12,18 +11,6 @@
 
             <form id="form" name="form" th:action="@{/}" method="post">
                 <table>
-                    <!--<tr>
-                        <td><label class="col-form-label" th:text="Type"></label></td>
-                        <td>
-                            <select name="type" readonly>
-                                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                                        th:value="${val}"
-                                        th:text="${val.value}"
-                                        th:selected="${type.name().equalsIgnoreCase(val)}">
-                                </option>
-                            </select>
-                        </td>
-                    </tr>-->
                     <tr>
                         <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
                         <td>

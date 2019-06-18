@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
@@ -37,13 +38,45 @@ public class UIController {
     @Autowired
     private UserRepository userRepository;
 
+
     @GetMapping("/")
-    public String getMain(Model model) {
+    public String getMain() {
+        return "main";
+    }
+
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    /*@PostMapping("/login")
+    public String login(@ModelAttribute User user) {
+        User u = userRepository.getByEmailIgnoreCase(user.getEmail());
+        return (user.getPassword().equals(u.getPassword()) ? "redirect:/menu" : "login");
+    }*/
+
+    @GetMapping("/register")
+    public String register() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String newUser(@ModelAttribute User user) {
+        System.out.println(user);
+        user.setRoles(Collections.singleton(Role.ROLE_USER));
+        userRepository.saveUser(user);
+        return "redirect:login";
+    }
+
+
+    @GetMapping("/menu")
+    public String getMenu(Model model) {
         Double remain = repository.findAll().stream()
                     .mapToDouble(budget -> (budget.getKind().getType().equals(Type.SPENDING) ? -1.0 : 1.0) * budget.getPrice())
                     .sum();
         model.addAttribute("remain", remain);
-        return "main";
+        return "menu";
     }
 
     @GetMapping("/statistic")
@@ -66,10 +99,6 @@ public class UIController {
         return "statistic";
     }
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login";
-    }
 
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model) {

@@ -1,0 +1,21 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body style="background: #c2ff8e">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+  <div class="jumbotron"  style="background: #c2ff8e">
+    <div class="form-group ">
+      <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
+      <input type="text" name="text" readonly th:value="${remain}" style="text-align:right;">
+    </div>
+    <a href="/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Приход</a>
+    <a href="/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Расход</a>
+    <a href="/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Статистика</a>
+    <a href="/dictionaries" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Справочники</a>
+  </div>
+</main>
+</div>
+</body>
+</html>

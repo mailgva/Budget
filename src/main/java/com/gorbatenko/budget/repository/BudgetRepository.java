@@ -7,7 +7,9 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     default Budget saveBudget(Budget budget) {

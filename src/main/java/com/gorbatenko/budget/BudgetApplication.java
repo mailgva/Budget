@@ -1,9 +1,12 @@
 package com.gorbatenko.budget;
 
+import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
+
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class BudgetApplication extends SpringBootServletInitializer {
@@ -29,8 +33,10 @@ public class BudgetApplication extends SpringBootServletInitializer {
     private UserRepository userRepository;
 
 
+
     @PostConstruct
     public void init() {
+
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
         userRepository.deleteAll();
@@ -57,15 +63,15 @@ public class BudgetApplication extends SpringBootServletInitializer {
         kind5 = kindRepository.save(kind5);
 
 
-        User user1 = new User("Vladimir", "mail@gmail.com");
-        user1 = userRepository.saveUser(user1);
+        User user1 = new User("Vladimir", "mail@gmail.com", "123", Role.ROLE_ADMIN);
+        user1 = userRepository.saveUser(prepareToSave(user1, passwordEncoder));
 
-        User user2 = new User("Yana", "mail@ya.ru");
+        User user2 = new User("Yana", "mail@ya.ru", "123", Role.ROLE_USER);
         user2.setGroup(user1.getGroup());
-        user2 = userRepository.saveUser(user2);
+        user2 = userRepository.saveUser(prepareToSave(user2, passwordEncoder));
 
-        User user3 = new User("Test", "test@gmail.com");
-        user3 = userRepository.saveUser(user3);
+        User user3 = new User("Test", "test@gmail.com", "123", Role.ROLE_USER);
+        user3 = userRepository.saveUser(prepareToSave(user3, passwordEncoder));
 
 
         /*Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
@@ -73,9 +79,9 @@ public class BudgetApplication extends SpringBootServletInitializer {
         Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);
         Budget budget3 = new Budget(user2, kind4, LocalDateTime.now(),"Fuel", 500.0);
         Budget budget4 = new Budget(user3, kind4, LocalDateTime.now(),"Diesel", 220.0);
-*/
+        */
 
-       /* User user1 = userRepository.findByNameIgnoreCase("Vladimir");
+        /* User user1 = userRepository.findByNameIgnoreCase("Vladimir");
         Kind kind = kindRepository.findByNameIgnoreCase("Зарплата");
         Kind kind1 = kindRepository.findByNameIgnoreCase("Продукты");
 
