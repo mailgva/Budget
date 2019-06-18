@@ -64,14 +64,14 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
 
         User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
-        user1 = userRepository.saveUser(prepareToSave(user1, passwordEncoder));
+        user1 = userRepository.saveUser((user1));
 
         User user2 = new User("Yana", "mail@ya.ru", "123", Role.ROLE_USER);
         user2.setGroup(user1.getGroup());
-        user2 = userRepository.saveUser(prepareToSave(user2, passwordEncoder));
+        user2 = userRepository.saveUser((user2));
 
         User user3 = new User("Test", "test@gmail.com", "123", Role.ROLE_USER);
-        user3 = userRepository.saveUser(prepareToSave(user3, passwordEncoder));
+        user3 = userRepository.saveUser((user3));
 
 
         /*Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
