@@ -1,0 +1,307 @@
+Index: src/main/java/com/gorbatenko/budget/repository/UserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/gorbatenko/budget/repository/UserRepository.java	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/java/com/gorbatenko/budget/repository/UserRepository.java	(date 1560841827014)
+@@ -13,4 +13,6 @@
+         }
+         return user;
+     };
++
++    User findByNameIgnoreCase(String name);
+ }
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- pom.xml	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ pom.xml	(date 1560841227578)
+@@ -6,7 +6,7 @@
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-parent</artifactId>
+         <version>2.1.4.RELEASE</version>
+-        <relativePath/> <!-- lookup parent from repository -->
++        <relativePath/>
+     </parent>
+     <groupId>com.gorbatenko</groupId>
+     <artifactId>budget</artifactId>
+Index: src/main/java/com/gorbatenko/budget/BudgetApplication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/gorbatenko/budget/BudgetApplication.java	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/java/com/gorbatenko/budget/BudgetApplication.java	(date 1560842749110)
+@@ -29,7 +29,7 @@
+     private UserRepository userRepository;
+ 
+ 
+-    //@PostConstruct
++    @PostConstruct
+     public void init() {
+         budgetRepository.deleteAll();
+         kindRepository.deleteAll();
+@@ -67,19 +67,27 @@
+         User user3 = new User("Test", "test@gmail.com");
+         user3 = userRepository.saveUser(user3);
+ 
+-/*
+-        Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
++
++        /*Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
+         Budget budget1 = new Budget(user1, kind1, LocalDateTime.now(), "broad", 9.0);
+         Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);
+         Budget budget3 = new Budget(user2, kind4, LocalDateTime.now(),"Fuel", 500.0);
+-
+         Budget budget4 = new Budget(user3, kind4, LocalDateTime.now(),"Diesel", 220.0);
++*/
++
++       /* User user1 = userRepository.findByNameIgnoreCase("Vladimir");
++        Kind kind = kindRepository.findByNameIgnoreCase("Зарплата");
++        Kind kind1 = kindRepository.findByNameIgnoreCase("Продукты");
+ 
+-        budgetRepository.saveBudget(budget);
+-        budgetRepository.saveBudget(budget3);
++        Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);
++        Budget budget1 = new Budget(user1, kind1, LocalDateTime.now(), "broad", 9.0);
++        Budget budget2 = new Budget(user1, kind1, LocalDateTime.now(),"buter", 10.0);*/
++
++
++        /*budgetRepository.saveBudget(budget);
+         budgetRepository.saveBudget(budget1);
+         budgetRepository.saveBudget(budget2);
+-
++        budgetRepository.saveBudget(budget3);
+         budgetRepository.saveBudget(budget4);
+ 
+ 
+Index: src/main/java/com/gorbatenko/budget/web/UIController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/gorbatenko/budget/web/UIController.java	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/java/com/gorbatenko/budget/web/UIController.java	(date 1560844732727)
+@@ -3,10 +3,14 @@
+ import com.gorbatenko.budget.model.Budget;
+ import com.gorbatenko.budget.model.Kind;
+ import com.gorbatenko.budget.model.Type;
++import com.gorbatenko.budget.model.User;
+ import com.gorbatenko.budget.repository.BudgetRepository;
+ import com.gorbatenko.budget.repository.KindRepository;
++import com.gorbatenko.budget.repository.UserRepository;
+ import com.gorbatenko.budget.to.BudgetTo;
+ import com.gorbatenko.budget.to.KindTo;
++import java.time.LocalDate;
++import java.time.format.DateTimeFormatter;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Controller;
+ import org.springframework.ui.Model;
+@@ -27,6 +31,12 @@
+     @Autowired
+     BudgetRepository repository;
+ 
++    @Autowired
++    private KindRepository kindRepository;
++
++    @Autowired
++    private UserRepository userRepository;
++
+     @GetMapping("/")
+     public String getMain(Model model) {
+         Double remain = repository.findAll().stream()
+@@ -67,6 +77,11 @@
+         List<Kind> kinds = kindRepository.findByType(Type.valueOf(type.toUpperCase()));
+         Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
+         model.addAttribute("kinds", kinds);
++
++        LocalDate localDate = LocalDate.now();
++        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
++        model.addAttribute("date", localDate.format(formatter));
++
+         return "create";
+     }
+ 
+@@ -106,6 +121,18 @@
+         return "createDicKind";
+     }
+ 
++    @GetMapping("/dictionary/kinds/edit/{id}")
++    public String editDicKind(@PathVariable("id") String id, Model model) {
++        model.addAttribute("kind", kindRepository.findById(id).get());
++        return "editDicKind";
++    }
++
++    @GetMapping("/dictionary/kinds/delete/{id}")
++    public String deleteDicKind(@PathVariable("id") String id, Model model) {
++        kindRepository.deleteById(id);
++        return "redirect:/dictionary/kinds";
++    }
++
+     @PostMapping("/dictionary/kinds/create")
+     public String createNewDicKind(@ModelAttribute KindTo kindTo) {
+         Kind kind = createKindFromKindTo(kindTo);
+@@ -118,7 +145,9 @@
+     @PostMapping("/")
+     public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
+         Budget budget = createBudgetFromBudgetTo(budgetTo);
+-        budget.setUser(repository.findAll().stream().findFirst().get().getUser());
++        User user = userRepository.findAll().stream().findFirst().get();
++        System.out.println(user);
++        budget.setUser(user);
+         budget.setId(budgetTo.getId());
+         repository.save(budget);
+         return "redirect:/statistic";
+@@ -130,12 +159,12 @@
+         return "statistic";
+     }
+ 
+-    @Autowired
+-    private KindRepository kindRepository;
++
+ 
+     public Budget createBudgetFromBudgetTo(BudgetTo b) {
+         Kind kind = kindRepository.findByNameIgnoreCase(b.getKind());
+-        return new Budget(null, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
++        Budget budget = new Budget(null, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
++        return budget;
+     }
+ 
+     private Kind createKindFromKindTo(KindTo kindTo) {
+Index: src/main/resources/templates/editDicKind.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/templates/editDicKind.html	(date 1560844310085)
++++ src/main/resources/templates/editDicKind.html	(date 1560844310085)
+@@ -0,0 +1,43 @@
++<html xmlns:th="http://www.thymeleaf.org">
++<head th:replace="fragments/header :: head">
++
++</head>
++<body style="background: #c2ff8e">
++<div th:replace="fragments/bodyHeader :: div">
++</div>
++<main role="main">
++  <div class="jumbotron" style="background: #c2ff8e">
++    <div class="col-sm-8 mx-auto">
++      <h2 th:text="'Добавление вида прихода/расхода'"> </h2>
++      <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
++      <form id="form" name="form" th:action="@{dictionary/kinds/create}" method="post">
++        <table>
++          <tr>
++            <td><label class="col-form-label" th:text="Type"></label></td>
++            <td>
++              <select name="type" readonly>
++                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
++                        th:value="${val}"
++                        th:text="${val.value}"
++                        th:selected="${kind.getType().name().equalsIgnoreCase(val)}"
++                >
++                </option>
++              </select>
++            </td>
++          </tr>
++          <tr>
++            <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
++            <td>
++              <input type="text" name="name" th:value="${kind.getName()}" placeholder="Наименование" style="width: 200px;"></td>
++            </td>
++          </tr>
++
++        </table>
++        <input name="submit" type="submit" value="Сохранить"/>
++      </form>
++    </div>
++  </div>
++</main>
++</div>
++</body>
++</html>
+\ No newline at end of file
+Index: src/main/resources/templates/kinds.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/templates/kinds.html	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/resources/templates/kinds.html	(date 1560844546290)
+@@ -24,8 +24,8 @@
+                 <td><span th:text="${kind.getType().getValue()}"> Type </span></td>
+                 <td><span th:text="${kind.getName()}"> Name </span></td>
+                 <td>
+-                    <a th:href="@{'/dictionary/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
+-                    <a th:href="@{'/dictionary/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
++                    <a th:href="@{'/dictionary/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
++                    <a th:href="@{'/dictionary/kinds/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
+                 </td>
+ 
+             </tr>
+Index: src/main/java/com/gorbatenko/budget/to/BudgetTo.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/gorbatenko/budget/to/BudgetTo.java	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/java/com/gorbatenko/budget/to/BudgetTo.java	(date 1560843344208)
+@@ -35,7 +35,7 @@
+     @Override
+     public String toString() {
+         return "Budget{" +
+-                ", kind=" + kind +
++                "kind=" + kind +
+                 ", date=" + date +
+                 ", description='" + description + '\'' +
+                 ", price=" + price +
+Index: src/main/java/com/gorbatenko/budget/model/Budget.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/gorbatenko/budget/model/Budget.java	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/java/com/gorbatenko/budget/model/Budget.java	(date 1560843746141)
+@@ -22,6 +22,7 @@
+     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+     private LocalDateTime date;
+ 
++
+     private LocalDateTime createDateTime;
+ 
+     private String description;
+@@ -33,6 +34,7 @@
+         this.user = user;
+         this.kind = kind;
+         this.date = date;
++        this.createDateTime = LocalDateTime.now();
+         this.description = description;
+         this.price = price;
+     }
+@@ -45,7 +47,7 @@
+                 ", kind=" + kind +
+                 ", date=" + date +
+                 ", createDateTime=" + createDateTime +
+-                ", description='" + description +
++                ", description='" + description + '\'' +
+                 ", price=" + price +
+                 '}';
+     }
+Index: src/main/resources/templates/create.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/templates/create.html	(revision 1bac25e4c31197387bd7ae9e289563ff854ebc32)
++++ src/main/resources/templates/create.html	(date 1560843104897)
+@@ -36,7 +36,7 @@
+                     </tr>
+                     <tr>
+                         <td><label class="col-form-label" th:text="Дата"></label></td>
+-                        <td><input type="date" name="date" placeholder="Дата" style="width: 200px;"></td>
++                        <td><input type="date" name="date" th:value="${date}" placeholder="Дата" style="width: 200px;"></td>
+                     </tr>
+                     <tr>
+                         <td><label class="col-form-label" th:text="Описание"></label></td>

@@ -142,6 +142,14 @@ public class UIController {
         return "redirect:/dictionary/kinds";
     }
 
+    @PostMapping("/dictionary/kinds/edit")
+    public String editNewDicKind(@ModelAttribute KindTo kindTo) {
+        Kind kind = createKindFromKindTo(kindTo);
+        kind.setId(kindTo.getId());
+        kindRepository.save(kind);
+        return "redirect:/dictionary/kinds";
+    }
+
     @PostMapping("/")
     public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
