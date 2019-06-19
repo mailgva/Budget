@@ -13,6 +13,10 @@ import org.springframework.stereotype.Repository;
 public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     default Budget saveBudget(Budget budget) {
+        if(budget.getUserGroup() == null) {
+            budget.setUserGroup(budget.getUser().getGroup());
+        }
+
         if(budget.getId() == null) {
             budget.setCreateDateTime(LocalDateTime.now());
         }
@@ -21,5 +25,9 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     List<Budget> getBudgetByKindTypeOrderByCreateDateTime(Type type);
 
-    List<Budget> getBudgetByUserGroup(String group);
+
+    List<Budget> getBudgetByKindTypeAndUser_GroupOrderByCreateDateTime(Type type, String userGroup);
+
+    List<Budget> getBudgetByUser_Group(String userGroup);
+
 }

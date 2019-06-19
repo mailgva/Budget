@@ -32,33 +32,12 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
 
 
-    @PostConstruct
+    //@PostConstruct
     public void init() {
-
+      /*
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
         userRepository.deleteAll();
-
-        Kind kind = new Kind(Type.PROFIT, "Зарплата");
-        kind = kindRepository.save(kind);
-
-        Kind kind0 = new Kind(Type.PROFIT, "Доп. доход");
-        kind0 = kindRepository.save(kind0);
-
-        Kind kind1 = new Kind(Type.SPENDING, "Продукты");
-        kind1 = kindRepository.save(kind1);
-
-        Kind kind2 = new Kind(Type.SPENDING, "Транспорт");
-        kind2 = kindRepository.save(kind2);
-
-        Kind kind3 = new Kind(Type.SPENDING, "Комуналка");
-        kind3 = kindRepository.save(kind3);
-
-        Kind kind4 = new Kind(Type.SPENDING, "Авто заправка");
-        kind4 = kindRepository.save(kind4);
-
-        Kind kind5 = new Kind(Type.SPENDING, "Авто ремонт");
-        kind5 = kindRepository.save(kind5);
 
 
         User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
@@ -70,6 +49,30 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
         User user3 = new User("Test", "test@gmail.com", "{noop}123", Role.ROLE_USER);
         user3 = userRepository.saveUser((user3));
+
+        Kind kind = new Kind(Type.PROFIT, "Зарплата", user1.getGroup());
+        kind = kindRepository.save(kind);
+
+        Kind kind0 = new Kind(Type.PROFIT, "Доп. доход", user1.getGroup());
+        kind0 = kindRepository.save(kind0);
+
+        Kind kind1 = new Kind(Type.SPENDING, "Продукты", user1.getGroup());
+        kind1 = kindRepository.save(kind1);
+
+        Kind kind2 = new Kind(Type.SPENDING, "Транспорт", user1.getGroup());
+        kind2 = kindRepository.save(kind2);
+
+        Kind kind3 = new Kind(Type.SPENDING, "Комуналка", user1.getGroup());
+        kind3 = kindRepository.save(kind3);
+
+        Kind kind4 = new Kind(Type.SPENDING, "Авто заправка", user1.getGroup());
+        kind4 = kindRepository.save(kind4);
+
+        Kind kind5 = new Kind(Type.SPENDING, "Авто ремонт", user1.getGroup());
+        kind5 = kindRepository.save(kind5);
+
+*/
+
 
 
         /*Budget budget = new Budget(user1, kind, LocalDateTime.now(), "ZP", 1000.0);

@@ -17,6 +17,8 @@ public class Budget extends BaseEntity {
 
     private User user;
 
+    private String userGroup;
+
     private Kind kind;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -39,11 +41,22 @@ public class Budget extends BaseEntity {
         this.price = price;
     }
 
+    public Budget(User user, String userGroup, Kind kind, LocalDateTime date, String description, Double price) {
+        this.user = user;
+        this.userGroup = userGroup;
+        this.kind = kind;
+        this.date = date;
+        this.createDateTime = LocalDateTime.now();
+        this.description = description;
+        this.price = price;
+    }
+
     @Override
     public String toString() {
         return "Budget{" +
                 "id=" + getId() +
                 ", user=" + user +
+                ", userGroup=" + userGroup +
                 ", kind=" + kind +
                 ", date=" + date +
                 ", createDateTime=" + createDateTime +

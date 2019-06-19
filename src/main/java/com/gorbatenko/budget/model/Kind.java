@@ -15,9 +15,12 @@ public class Kind extends BaseEntity {
 
     private Type type;
 
-    public Kind(Type type, String name) {
+    private String userGroup;
+
+    public Kind(Type type, String name, String userGroup) {
         this.type = type;
         this.name = name;
+        this.userGroup = userGroup;
     }
 
     @Override
@@ -26,6 +29,7 @@ public class Kind extends BaseEntity {
                 "id=" + getId() +
                 ", name='" + name +
                 ", type=" + type +
+                ", userGroup=" + userGroup +
                 '}';
     }
 }

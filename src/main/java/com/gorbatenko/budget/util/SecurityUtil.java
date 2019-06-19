@@ -1,4 +1,4 @@
-package com.gorbatenko.budget.web;
+package com.gorbatenko.budget.util;
 
 import static java.util.Objects.requireNonNull;
 

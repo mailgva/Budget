@@ -8,8 +8,16 @@
   <div class="jumbotron"  style="background: #c2ff8e">
     <h2 id="loggedUser" >Пользователь: <span th:text="${userName}"></span></h2>
     <div class="form-group ">
+      <label class="col-form-label" style="width: 120px;" th:text="'Всего прихода'"></label>
+      <input type="number" name="profit" readonly th:value="${profit}" style="text-align:right;">
+    </div>
+    <div class="form-group ">
+      <label class="col-form-label" style="width: 120px;" th:text="'Всего расхода'"></label>
+      <input type="number" name="spending" readonly th:value="${spending}" style="text-align:right;">
+    </div>
+    <div class="form-group ">
       <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
-      <input type="text" name="text" readonly th:value="${remain}" style="text-align:right;">
+      <input type="number" name="remain" readonly th:value="${remain}" style="text-align:right;">
     </div>
     <a href="/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Приход</a>
     <a href="/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Расход</a>

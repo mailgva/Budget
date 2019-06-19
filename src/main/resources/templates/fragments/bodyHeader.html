@@ -1,11 +1,13 @@
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <div  style="background: #c2ff8e">
     <nav class="navbar navbar-expand-lg navbar-light bg-warning rounded">
         <div sec:authorize="isAuthenticated()">
-          <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}">Budget</a>
+          <a href="/menu" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}">Budget</a>
         </div>
-
+        <div sec:authorize="isAnonymous()">
+            <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}">Budget</a>
+        </div>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample10" aria-controls="navbarsExample10" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

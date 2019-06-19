@@ -11,4 +11,6 @@ public interface UserService extends UserDetailsService {
     User save(User user);
 
     List<User> findAll();
+
+    List<User> getByGroup(String name);
 }

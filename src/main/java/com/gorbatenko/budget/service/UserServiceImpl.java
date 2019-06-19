@@ -49,6 +49,11 @@ public class UserServiceImpl implements UserService {
     public List<User> findAll() {
         return repository.findAll();
     }
+
+    @Override
+    public List<User> getByGroup(String name) {
+        return repository.getByGroupIgnoreCase(name);
+    }
 }
 
 

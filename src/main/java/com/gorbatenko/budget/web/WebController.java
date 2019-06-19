@@ -7,12 +7,13 @@ import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.KindRepository;
-import com.gorbatenko.budget.repository.UserRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.to.KindTo;
+import com.gorbatenko.budget.util.SecurityUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -24,11 +25,10 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Controller
-public class UIController {
+public class WebController {
 
     @Autowired
     BudgetRepository repository;
@@ -72,9 +72,22 @@ public class UIController {
 
     @GetMapping("/menu")
     public String getMenu(Model model) {
-        Double remain = repository.findAll().stream()
+        User user = SecurityUtil.get().getUser();
+        List<Budget> budgets = repository.getBudgetByUser_Group(user.getGroup());
+        Double profit = budgets.stream()
+            .mapToDouble(budget -> (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : 0.0))
+            .sum();
+
+        Double spending = budgets.stream()
+            .mapToDouble(budget -> (budget.getKind().getType().equals(Type.SPENDING) ? budget.getPrice() : 0.0))
+            .sum();
+
+        Double remain = budgets.stream()
                     .mapToDouble(budget -> (budget.getKind().getType().equals(Type.SPENDING) ? -1.0 : 1.0) * budget.getPrice())
                     .sum();
+
+        model.addAttribute("profit", profit);
+        model.addAttribute("spending", spending);
         model.addAttribute("remain", remain);
         return "menu";
     }
@@ -93,14 +106,23 @@ public class UIController {
     @GetMapping("/profile")
     public String profile(Model model) {
         User user = SecurityUtil.get().getUser();
+
+        List<User> usersGroup = userService.getByGroup(user.getGroup());
+        String groupMembers = usersGroup.stream()
+            .map(u -> u.getName())
+            .collect(Collectors.joining(","));
+
         model.addAttribute("user", user);
+        model.addAttribute("groupMembers", groupMembers);
         return "/profile";
     }
 
 
     @GetMapping("/statistic")
     public String getStatistic(Model model) {
-        model.addAttribute("listBudget", repository.findAll());
+        User user = SecurityUtil.get().getUser();
+        List<Budget> listBudget = repository.getBudgetByUser_Group(user.getGroup());
+        model.addAttribute("listBudget", listBudget);
         return "statistic";
     }
 
@@ -113,16 +135,18 @@ public class UIController {
             value = Type.SPENDING;
         }
 
+        User user = SecurityUtil.get().getUser();
         model.addAttribute("listBudget",
-                repository.getBudgetByKindTypeOrderByCreateDateTime(value));
+                repository.getBudgetByKindTypeAndUser_GroupOrderByCreateDateTime(value, user.getGroup()));
         return "statistic";
     }
 
 
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model) {
+        User user = SecurityUtil.get().getUser();
         model.addAttribute("type",  Type.valueOf(type.toUpperCase()));
-        List<Kind> kinds = kindRepository.findByType(Type.valueOf(type.toUpperCase()));
+        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(Type.valueOf(type.toUpperCase()), user.getGroup());
         Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
         model.addAttribute("kinds", kinds);
 
@@ -136,8 +160,9 @@ public class UIController {
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         Budget budget = repository.findById(id).get();
+        User user = SecurityUtil.get().getUser();
         model.addAttribute("budget", budget );
-        List<Kind> kinds = kindRepository.findByType(budget.getKind().getType());
+        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(budget.getKind().getType(), user.getGroup());
         Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
         model.addAttribute("kinds", kinds);
         return "edit";
@@ -157,7 +182,8 @@ public class UIController {
     @GetMapping("/dictionary/{name}")
     public String getDictionary(@PathVariable("name") String name, Model model) {
         if(name.equalsIgnoreCase("KINDS")) {
-            List<Kind> kinds = kindRepository.findAll();
+            User user = SecurityUtil.get().getUser();
+            List<Kind> kinds = kindRepository.findByUserGroup(user.getGroup());
             Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
             model.addAttribute("kinds", kinds);
         }
@@ -184,7 +210,6 @@ public class UIController {
     @PostMapping("/dictionary/kinds/create")
     public String createNewDicKind(@ModelAttribute KindTo kindTo) {
         Kind kind = createKindFromKindTo(kindTo);
-        //kind.setUser(repository.findAll().stream().findFirst().get().getUser());
         kind.setId(kindTo.getId());
         kindRepository.save(kind);
         return "redirect:/dictionary/kinds";
@@ -201,9 +226,6 @@ public class UIController {
     @PostMapping("/")
     public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
-        User user = userService.findAll().stream().findFirst().get();
-        System.out.println(user);
-        budget.setUser(user);
         budget.setId(budgetTo.getId());
         repository.save(budget);
         return "redirect:/statistic";
@@ -211,20 +233,20 @@ public class UIController {
 
     @GetMapping("/bygroup/{group}")
     public String getBudgetByGroup(@PathVariable("group") String group,  Model model) {
-        model.addAttribute("listBudget", repository.getBudgetByUserGroup(group));
+        model.addAttribute("listBudget", repository.getBudgetByUser_Group(group));
         return "statistic";
     }
 
-
-
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
         Kind kind = kindRepository.findByNameIgnoreCase(b.getKind());
-        Budget budget = new Budget(null, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
+        User user = SecurityUtil.get().getUser();
+        Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
         return budget;
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {
-        Kind kind = new Kind(kindTo.getType(), kindTo.getName());
+        User user = SecurityUtil.get().getUser();
+        Kind kind = new Kind(kindTo.getType(), kindTo.getName(), user.getGroup());
         return kind;
     }
 

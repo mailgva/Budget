@@ -14,10 +14,4 @@ public enum Type {
         return value;
     }
 
-    /*@Override
-    public String toString() {
-        return "Type{" +
-                "value='" + value + '\'' +
-                '}';
-    }*/
 }
