@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     public User create(User user) {
         Assert.notNull(user, "user must not be null");
-        return repository.save(prepareToSave(user, passwordEncoder));
+        return repository.saveUser(prepareToSave(user, passwordEncoder));
     }
 
     public User save(User user) {

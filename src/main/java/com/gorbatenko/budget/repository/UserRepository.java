@@ -14,7 +14,7 @@ public interface UserRepository extends MongoRepository<User, String> {
             user.setGroup(user.getId());
             user = save(user);
         }
-        return user;
+        return save(user);
     };
 
     User findByNameIgnoreCase(String name);

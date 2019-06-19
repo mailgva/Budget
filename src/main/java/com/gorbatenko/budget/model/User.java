@@ -89,6 +89,7 @@ public class User extends BaseEntity {
             ", name='" + name + '\'' +
             ", email='" + email + '\'' +
             ", password='" + password + '\'' +
+            ", group='" + group + '\'' +
             '}';
     }
 

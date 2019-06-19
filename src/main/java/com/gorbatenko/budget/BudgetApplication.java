@@ -34,11 +34,10 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
     //@PostConstruct
     public void init() {
-      /*
+        /*
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
         userRepository.deleteAll();
-
 
         User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
         user1 = userRepository.saveUser((user1));
@@ -71,7 +70,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
         Kind kind5 = new Kind(Type.SPENDING, "Авто ремонт", user1.getGroup());
         kind5 = kindRepository.save(kind5);
 
-*/
+        */
 
 
 
