@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public User create(User user) {
+    public User create(User user) throws Exception {
         Assert.notNull(user, "user must not be null");
         return repository.saveUser(prepareToSave(user, passwordEncoder));
     }

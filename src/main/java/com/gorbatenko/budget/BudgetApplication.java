@@ -34,43 +34,48 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
     //@PostConstruct
     public void init() {
-        /*
+/*
         budgetRepository.deleteAll();
         kindRepository.deleteAll();
         userRepository.deleteAll();
 
-        User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
-        user1 = userRepository.saveUser((user1));
+        try {
+            User user1 = new User("Vladimir", "mail@gmail.com", "{noop}123", Role.ROLE_ADMIN);
+            user1 = userRepository.saveUser((user1));
 
-        User user2 = new User("Yana", "mail@ya.ru", "{noop}123", Role.ROLE_USER);
-        user2.setGroup(user1.getGroup());
-        user2 = userRepository.saveUser((user2));
+            User user2 = new User("Yana", "mail@ya.ru", "{noop}123", Role.ROLE_USER);
+            user2.setGroup(user1.getGroup());
+            user2 = userRepository.saveUser((user2));
 
-        User user3 = new User("Test", "test@gmail.com", "{noop}123", Role.ROLE_USER);
-        user3 = userRepository.saveUser((user3));
+            User user3 = new User("Test", "test@gmail.com", "{noop}123", Role.ROLE_USER);
+            user3 = userRepository.saveUser((user3));
 
-        Kind kind = new Kind(Type.PROFIT, "Зарплата", user1.getGroup());
-        kind = kindRepository.save(kind);
 
-        Kind kind0 = new Kind(Type.PROFIT, "Доп. доход", user1.getGroup());
-        kind0 = kindRepository.save(kind0);
+            Kind kind = new Kind(Type.PROFIT, "Зарплата", user1.getGroup());
+            kind = kindRepository.save(kind);
 
-        Kind kind1 = new Kind(Type.SPENDING, "Продукты", user1.getGroup());
-        kind1 = kindRepository.save(kind1);
+            Kind kind0 = new Kind(Type.PROFIT, "Доп. доход", user1.getGroup());
+            kind0 = kindRepository.save(kind0);
 
-        Kind kind2 = new Kind(Type.SPENDING, "Транспорт", user1.getGroup());
-        kind2 = kindRepository.save(kind2);
+            Kind kind1 = new Kind(Type.SPENDING, "Продукты", user1.getGroup());
+            kind1 = kindRepository.save(kind1);
 
-        Kind kind3 = new Kind(Type.SPENDING, "Комуналка", user1.getGroup());
-        kind3 = kindRepository.save(kind3);
+            Kind kind2 = new Kind(Type.SPENDING, "Транспорт", user1.getGroup());
+            kind2 = kindRepository.save(kind2);
 
-        Kind kind4 = new Kind(Type.SPENDING, "Авто заправка", user1.getGroup());
-        kind4 = kindRepository.save(kind4);
+            Kind kind3 = new Kind(Type.SPENDING, "Комуналка", user1.getGroup());
+            kind3 = kindRepository.save(kind3);
 
-        Kind kind5 = new Kind(Type.SPENDING, "Авто ремонт", user1.getGroup());
-        kind5 = kindRepository.save(kind5);
+            Kind kind4 = new Kind(Type.SPENDING, "Авто заправка", user1.getGroup());
+            kind4 = kindRepository.save(kind4);
 
-        */
+            Kind kind5 = new Kind(Type.SPENDING, "Авто ремонт", user1.getGroup());
+            kind5 = kindRepository.save(kind5);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }*/
+
 
 
 

@@ -53,7 +53,7 @@ public class WebController {
 
     @RequestMapping("/login-error")
     public String loginError(Model model) {
-        model.addAttribute("loginError", true);
+        model.addAttribute("error", true);
         return "login";
     }
 
@@ -63,9 +63,15 @@ public class WebController {
     }
 
     @PostMapping("/register")
-    public String newUser(@ModelAttribute User user) {
+    public String newUser(@ModelAttribute User user, Model model) throws Exception{
         user.setRoles(Collections.singleton(Role.ROLE_USER));
-        userService.create(user);
+        try {
+            userService.create(user);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "/register";
+        }
+
         return "redirect:login";
     }
 

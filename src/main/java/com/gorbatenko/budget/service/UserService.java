@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    User create(User user);
+    User create(User user) throws Exception;
 
     User save(User user);
 

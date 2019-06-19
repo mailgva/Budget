@@ -8,6 +8,8 @@
   <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
       <h2 th:text="'Логин'"></h2>
+      <div style="border-style: solid; border-color: red white;" th:if="${error}" th:text="'Неверно указан email или пароль'">
+      </div>
       <form id="form" name="form" th:action="@{/login}" method="post">
         <table>
           <tr>
