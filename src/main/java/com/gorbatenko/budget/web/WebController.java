@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Role;
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +43,12 @@ public class WebController {
 
 
     @GetMapping("/")
-    public String getMain() {
-        return "main";
+    public String getMain(@AuthenticationPrincipal AuthorizedUser authUser) {
+        if(authUser == null) {
+            return "main";
+        } else {
+            return "redirect:menu";
+        }
     }
 
 
