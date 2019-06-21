@@ -61,10 +61,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/menu")
                 .permitAll()
                 .and()
-                .logout()
+                .logout().deleteCookies("JSESSIONID")
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login")
-                .permitAll();
+                .permitAll()
+                .and()
+                .rememberMe().key("uniqueAndSecret");
     }
 
 }
