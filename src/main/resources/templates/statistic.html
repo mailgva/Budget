@@ -38,7 +38,7 @@
                 <td colspan="2"> Бюджет не доступен</td>
             </tr>
             <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
-            <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-primary'}" th:each="budget : ${listBudget}">
+            <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}" th:each="budget : ${listBudget}">
                 <td><span th:text="${budget.getStrDate()}"> Date </span></td>
                 <td><span th:text="${budget.user.name}"> User </span></td>
                 <td><span th:text="${budget.kind.getType().getValue()}"> Type </span></td>
