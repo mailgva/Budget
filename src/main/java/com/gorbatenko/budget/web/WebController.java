@@ -218,7 +218,7 @@ public class WebController {
     }
 
     @GetMapping("/dictionary/kinds/delete/{id}")
-    public String deleteDicKind(@PathVariable("id") String id, Model model, RedirectAttributes rm) {
+    public String deleteDicKind(@PathVariable("id") String id, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
         if (repository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
