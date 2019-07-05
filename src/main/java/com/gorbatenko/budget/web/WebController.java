@@ -21,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -85,7 +86,7 @@ public class WebController {
     @GetMapping("/menu")
     public String getMenu(Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> budgets = repository.getBudgetByUser_Group(user.getGroup());
+        List<Budget> budgets = repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
         Double profit = budgets.stream()
             .mapToDouble(budget -> (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : 0.0))
             .sum();
@@ -133,7 +134,7 @@ public class WebController {
     @GetMapping("/statistic")
     public String getStatistic(Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = repository.getBudgetByUser_Group(user.getGroup());
+        List<Budget> listBudget = repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
         model.addAttribute("listBudget", listBudget);
         return "statistic";
     }
@@ -149,7 +150,7 @@ public class WebController {
 
         User user = SecurityUtil.get().getUser();
         model.addAttribute("listBudget",
-                repository.getBudgetByKindTypeAndUser_GroupOrderByCreateDateTime(value, user.getGroup()));
+                repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
         return "statistic";
     }
 
@@ -208,13 +209,23 @@ public class WebController {
     }
 
     @GetMapping("/dictionary/kinds/edit/{id}")
-    public String editDicKind(@PathVariable("id") String id, Model model) {
+    public String editDicKind(@PathVariable("id") String id, @RequestParam(name="error", defaultValue = "") String error, Model model) {
+        if(!error.isEmpty()) {
+            model.addAttribute("error", error);
+        }
         model.addAttribute("kind", kindRepository.findById(id).get());
         return "editDicKind";
     }
 
     @GetMapping("/dictionary/kinds/delete/{id}")
-    public String deleteDicKind(@PathVariable("id") String id, Model model) {
+    public String deleteDicKind(@PathVariable("id") String id, Model model, RedirectAttributes rm) {
+        User user = SecurityUtil.get().getUser();
+        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+        if (repository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
+            rm.addFlashAttribute("error", "Невозможно удалить статью, так как она уже используется");
+            return String.format("redirect:/dictionary/kinds/edit/%s", id);
+        }
+
         kindRepository.deleteById(id);
         return "redirect:/dictionary/kinds";
     }
@@ -241,12 +252,6 @@ public class WebController {
         budget.setId(budgetTo.getId());
         repository.save(budget);
         return "redirect:/statistic";
-    }
-
-    @GetMapping("/bygroup/{group}")
-    public String getBudgetByGroup(@PathVariable("group") String group,  Model model) {
-        model.addAttribute("listBudget", repository.getBudgetByUser_Group(group));
-        return "statistic";
     }
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {

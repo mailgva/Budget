@@ -9,6 +9,10 @@
   <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
       <h2 th:text="'Добавление вида прихода/расхода'"> </h2>
+
+      <div class="error" role="alert" th:if="${error}" th:text="${error}">
+      </div>
+
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
       <form id="form" name="form" th:action="@{dictionary/kinds/edit}" method="post">
         <input type="hidden" name="id" th:value="${kind.getId()}">
@@ -34,7 +38,8 @@
           </tr>
 
         </table>
-        <input name="submit" type="submit" value="Сохранить"/>
+        <input class="btn btn-primary" name="submit" type="submit" value="Сохранить"/>
+        <a th:href="@{'/dictionary/kinds/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
       </form>
     </div>
   </div>

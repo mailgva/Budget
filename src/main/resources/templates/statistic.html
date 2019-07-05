@@ -6,14 +6,23 @@
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
-        <!--<div class="col-sm-8 mx-auto">-->
+        <div class="nav justify-content-center">
+            <div class="btn-group btn-group-lg" role="group">
+                <a href="/statistic" class="btn btn-warning" role="button" aria-pressed="true">Все</a>
+                <a href="/statistic/profit" class="btn btn-success" role="button" aria-pressed="true">Приходы</a>
+                <a href="/statistic/spending" class="btn btn-primary" role="button"
+                   aria-pressed="false">Расходы</a>
+            </div>
+        </div>
+
+
         <div class="form-group ">
             <a href="/create/profit" class="btn btn-success" role="button" aria-pressed="true">Создать приход</a>
             <a href="/create/spending" class="btn btn-primary" role="button" aria-pressed="true">Создать расход</a>
         </div>
-        <table class="table table-striped table-active">
+        <table class="table table-active ">
             <thead>
-            <tr>
+            <tr class="table-active">
                 <th> Дата</th>
                 <th> Пользователь</th>
                 <th> Приход/Расход</th>
@@ -28,9 +37,9 @@
             <tr th:if="${listBudget.isEmpty()}">
                 <td colspan="2"> Бюджет не доступен</td>
             </tr>
-            <tr th:each="budget : ${listBudget}">
-                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
-                <td><span th:text="${budget.getStrDateTime()}"> Date </span></td>
+            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
+            <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-primary'}" th:each="budget : ${listBudget}">
+                <td><span th:text="${budget.getStrDate()}"> Date </span></td>
                 <td><span th:text="${budget.user.name}"> User </span></td>
                 <td><span th:text="${budget.kind.getType().getValue()}"> Type </span></td>
                 <td><span th:text="${budget.kind.name}"> Item </span></td>
@@ -38,7 +47,6 @@
                 <td><span th:text="${budget.price}"> Price </span></td>
                 <td>
                     <a th:href="@{'/edit/'+${budget.id}}" class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
-                    <a th:href="@{'/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true">Удалить</a>
                 </td>
 
             </tr>
