@@ -3,10 +3,10 @@
 <div  style="background: #c2ff8e">
     <nav class="navbar navbar-expand-lg navbar-light bg-warning rounded">
         <div sec:authorize="isAuthenticated()">
-          <a href="/menu" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}">Budget</a>
+          <a href="/menu" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}"/><h2 style="display: inline-block;"> Budget</h2></a>
         </div>
         <div sec:authorize="isAnonymous()">
-            <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}">Budget</a>
+            <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}"/><h2 style="display: inline-block;"> Budget</h2></a>
         </div>
 
     </nav>

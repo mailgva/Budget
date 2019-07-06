@@ -19,12 +19,12 @@
       <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
       <input type="number" name="remain" readonly th:value="${remain}" style="text-align:right;">
     </div>
-    <a href="/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Приход</a>
-    <a href="/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Расход</a>
-    <a href="/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Статистика</a>
-    <a href="/dictionaries" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Справочники</a>
-    <a href="/profile" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Профиль</a>
-    <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">Выход</a>
+    <a href="/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Приход</a>
+    <a href="/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Расход</a>
+    <a href="/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-list"></i> Статистика</a>
+    <a href="/dictionaries" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-book"></i> Справочники</a>
+    <a href="/profile" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-user"></i> Профиль</a>
+    <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-sign-out"></i> Выход</a>
   </div>
 </main>
 </div>

@@ -17,8 +17,8 @@
 
 
         <div class="form-group ">
-            <a href="/create/profit" class="btn btn-success" role="button" aria-pressed="true">Создать приход</a>
-            <a href="/create/spending" class="btn btn-primary" role="button" aria-pressed="true">Создать расход</a>
+            <a href="/create/profit" class="btn btn-success" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать приход</a>
+            <a href="/create/spending" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Создать расход</a>
         </div>
         <table class="table table-active ">
             <thead>
@@ -46,11 +46,12 @@
                 <td><span th:text="${budget.description}"> Description </span></td>
                 <td><span th:text="${budget.price}"> Price </span></td>
                 <td>
-                    <a th:href="@{'/edit/'+${budget.id}}" class="btn btn-warning" role="button" aria-pressed="true">Изменить</a>
+                    <a th:href="@{'/edit/'+${budget.id}}" class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>
 
             </tr>
         </table>
+
         <!--</div>-->
     </div>
 </main>
