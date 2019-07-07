@@ -22,4 +22,6 @@ public interface KindRepository extends MongoRepository<Kind, String > {
 
     List<Kind> findByUserGroup(String userGroup);
 
+    List<Kind> findByUserGroupOrderByTypeAscNameAsc(String userGroup);
+
 }

@@ -11,21 +11,18 @@
       <div class="error" th:if="${error}" th:text="${error}">
       </div>
       <form id="form" name="form" th:action="@{/register}" method="post">
-        <table>
-          <tr>
-            <td><label class="col-form-label" th:text="Имя"></label></td>
-            <td><input type="text" name="name" placeholder="name" style="width: 200px;"></td>
-          </tr>
-          <tr>
-            <td><label class="col-form-label" th:text="Email"></label></td>
-            <td><input type="text" name="email" placeholder="Email" style="width: 200px;"></td>
-          </tr>
-          <tr>
-            <td><label class="col-form-label" th:text="Пароль"></label></td>
-            <td><input type="password" name="password" placeholder="Пароль" style="width: 200px;">
-            </td>
-          </tr>
-        </table>
+        <div class="form-group">
+          <label for="name">Имя</label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label for="username">Email</label>
+          <input type="email" class="form-control" id="username" name="username" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+        </div>
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Регистрация</button>
       </form>
     </div>

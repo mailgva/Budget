@@ -1,6 +1,7 @@
 package com.gorbatenko.budget;
 
 import com.gorbatenko.budget.repository.BudgetRepository;
+import com.gorbatenko.budget.repository.KindRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,14 @@ public class BudgetApplicationTests {
     @Autowired
     private BudgetRepository budgetRepository;
 
+    @Autowired
+    private KindRepository kindRepository;
+
     @Test
     public void testGetByDate() {
+
+        //kindRepository.findByUserGroupOrderByTypeAscNameAsc("5d09fea5141c180004c77965").forEach(System.out::println);
+
         /*
         TimeZone timeZone = TimeZone.getDefault();
         long hours = TimeUnit.MILLISECONDS.toHours(timeZone.getOffset(System.currentTimeMillis()));

@@ -141,6 +141,7 @@ public class WebController {
         List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
         TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
+        model.addAttribute("kindList", getKinds());
         return "statistic";
     }
 
@@ -157,19 +158,35 @@ public class WebController {
         List<Budget> listBudget = hidePassword(repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
         TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
+        model.addAttribute("kindList", getKinds());
         return "statistic";
     }
 
-    @PostMapping("/statistic/date")
+    @GetMapping("/statistic/date")
     public String getBudgetByDate(@RequestParam(value = "date") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, Model model) {
         User user = SecurityUtil.get().getUser();
+        if (date == null) {
+            date = LocalDate.now();
+        }
         model.addAttribute("date", BaseUtil.dateToStr(date));
         List<Budget> listBudget = hidePassword(repository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
         TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
+        model.addAttribute("kindList", getKinds());
         return "statistic";
     }
 
+    @GetMapping("/statistic/kind")
+    public String getBudgetByKind(@RequestParam(value = "kindId") String id, Model model) {
+        System.out.println(id);
+        User user = SecurityUtil.get().getUser();
+        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+        List<Budget> listBudget = hidePassword(repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("listBudget", map);
+        model.addAttribute("kindList", getKinds());
+        return "statistic";
+    }
 
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model) {
@@ -211,8 +228,8 @@ public class WebController {
     @GetMapping("/dictionary/{name}")
     public String getDictionary(@PathVariable("name") String name, Model model) {
         if(name.equalsIgnoreCase("KINDS")) {
-            User user = SecurityUtil.get().getUser();
-            List<Kind> kinds = kindRepository.findByUserGroup(user.getGroup());
+            //User user = SecurityUtil.get().getUser();
+            List<Kind> kinds = getKinds(); // kindRepository.findByUserGroup(user.getGroup());
             Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
             model.addAttribute("kinds", kinds);
         }
@@ -290,6 +307,11 @@ public class WebController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private List<Kind> getKinds() {
+        User user = SecurityUtil.get().getUser();
+        return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
 }

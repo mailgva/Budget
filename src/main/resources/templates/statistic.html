@@ -20,13 +20,33 @@
             <a href="/create/spending" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Создать расход</a>
         </div>
 
-        <form th:action="@{/statistic/date}" method="post">
-            <div class="form-group">
-                <label for="date">Дата:</label>
-                <input type="date" id="date" name="date" th:value="${date}">
-                <button type="submit" class="btn btn-default"><i class="fa fa-calendar"></i> </button>
-            </div>
-        </form>
+        <div class="form-group ">
+            <form th:action="@{/statistic/date}" method="get">
+                <div class="form-group row">
+                    <label for="date" class="col-1 col-form-label">Дата</label>
+                    <div class="col-3">
+                        <input class="form-control" type="date" id="date" name="date" th:value="${date}">
+                    </div>
+                    <button type="submit" class="btn btn-dark"><i class="fa fa-calendar"></i></button>
+                </div>
+
+            </form>
+            <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+            <form th:action="@{/statistic/kind}" method="get">
+                <div class="form-group row">
+                    <label for="kindId" class="col-1 col-form-label">Вид</label>
+                    <div class="col-3">
+                        <select id="kindId" name="kindId" class="form-control">
+                            <option th:each="kind : ${kindList}"
+                                    th:value="${kind.id}"
+                                    th:text="${kind.type.getValue() + ' / ' + kind.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-dark"><i class="fa fa-arrow-right"></i></button>
+                </div>
+
+            </form>
+        </div>
         <!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->
         <table>
             <tbody>
@@ -56,7 +76,7 @@
                         <tr class="table-active">
                             <th style="width: 5%"> #</th>
                             <th style="width: 15%"> Пользователь</th>
-                            <th style="width: 10%"> Приход/Расход</th>
+                            <th style="width: 10%"> Операция</th>
                             <th style="width: 20%"> Вид</th>
                             <th style="width: 20%"> Описание</th>
                             <th style="width: 10%"> Сумма</th>
