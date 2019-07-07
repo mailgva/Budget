@@ -7,8 +7,11 @@ import com.gorbatenko.budget.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,6 +32,10 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
 
     List<Budget> getBudgetByKindTypeAndUser_GroupOrderByDateDesc(Type type, String userGroup);
+
+    List<Budget> getBudgetByDateAndUser_Group(LocalDateTime date, String userGroup);
+
+    List<Budget> findAllByDate(LocalDateTime date);
 
     List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
 

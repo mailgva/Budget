@@ -1,4 +1,4 @@
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:ht="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: head">
 </head>
 <body style="background: #c2ff8e">
@@ -14,45 +14,81 @@
                    aria-pressed="false">Расходы</a>
             </div>
         </div>
-
-
+        <br>
         <div class="form-group ">
             <a href="/create/profit" class="btn btn-success" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать приход</a>
             <a href="/create/spending" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Создать расход</a>
         </div>
-        <table class="table table-active ">
-            <thead>
-            <tr class="table-active">
-                <th> Дата</th>
-                <th> Пользователь</th>
-                <th> Приход/Расход</th>
-                <th> Вид</th>
-                <th> Описание</th>
-                <th> Сумма</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <!--/*--><!--@thymesVar id="listBudget" type="java.util.List"--><!--*/-->
-            <tr th:if="${listBudget.isEmpty()}">
-                <td colspan="2"> Бюджет не доступен</td>
-            </tr>
-            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
-            <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}" th:each="budget : ${listBudget}">
-                <td><span th:text="${budget.getStrDate()}"> Date </span></td>
-                <td><span th:text="${budget.user.name}"> User </span></td>
-                <td><span th:text="${budget.kind.getType().getValue()}"> Type </span></td>
-                <td><span th:text="${budget.kind.name}"> Item </span></td>
-                <td><span th:text="${budget.description}"> Description </span></td>
-                <td><span th:text="${budget.price}"> Price </span></td>
-                <td>
-                    <a th:href="@{'/edit/'+${budget.id}}" class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
-                </td>
 
+        <form th:action="@{/statistic/date}" method="post">
+            <div class="form-group">
+                <label for="date">Дата:</label>
+                <input type="date" id="date" name="date" th:value="${date}">
+                <button type="submit" class="btn btn-default"><i class="fa fa-calendar"></i> </button>
+            </div>
+        </form>
+        <!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->
+        <table>
+            <tbody>
+            <tr th:if="${listBudget.isEmpty()}">
+                <td colspan="7"> Бюджет не доступен</td>
             </tr>
+
+            <th:block th:each="element : ${listBudget}">
+                <tr>
+                    <td colspan="7"><h4 th:text="${element.key}"> Date </h4></td>
+                </tr>
+                <tr>
+                    <td> Приход: </td>
+                    <td><b>
+                        <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)])}"></span></b>
+                    </td>
+                    <td style="width: 50px"></td>
+                    <td> Расход: </td>
+                    <td><b>
+                        <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)])}"></span></b>
+                    </td>
+                </tr>
+
+                <tr>
+                    <table class="table table-active ">
+                        <thead>
+                        <tr class="table-active">
+                            <th style="width: 5%"> #</th>
+                            <th style="width: 15%"> Пользователь</th>
+                            <th style="width: 10%"> Приход/Расход</th>
+                            <th style="width: 20%"> Вид</th>
+                            <th style="width: 20%"> Описание</th>
+                            <th style="width: 10%"> Сумма</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
+                        <th:block th:each="budget,row : ${element.value}">
+
+                            <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                                <!--<tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}" th:each="budget,row : *{listBudget}">-->
+                                <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
+                                <td style="width: 15%"><span th:text="${budget.user.name}"> User </span></td>
+                                <td style="width: 10%"><span th:text="${budget.kind.getType().getValue()}"> Type </span>
+                                </td>
+                                <td style="width: 20%"><span th:text="${budget.kind.name}"> Item </span></td>
+                                <td style="width: 20%"><span th:text="${budget.description}"> Description </span></td>
+                                <td style="width: 10%"><span th:text="${budget.price}"> Price </span></td>
+                                <td style="width: 5%">
+                                    <a th:href="@{'/edit/'+${budget.id}}" class="btn btn-warning" role="button"
+                                       aria-pressed="true"><i
+                                            class="fa fa-pencil"></i></a>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </table>
+                </tr>
+            </th:block>
+            <tbody>
         </table>
 
-        <!--</div>-->
     </div>
 </main>
 </div>

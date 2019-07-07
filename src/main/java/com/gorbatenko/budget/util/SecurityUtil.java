@@ -3,8 +3,12 @@ package com.gorbatenko.budget.util;
 import static java.util.Objects.requireNonNull;
 
 import com.gorbatenko.budget.AuthorizedUser;
+import com.gorbatenko.budget.model.Budget;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SecurityUtil {
 
@@ -32,6 +36,15 @@ public class SecurityUtil {
 
     public static String authUserEmail() {
         return get().getUsername();
+    }
+
+    public static List<Budget> hidePassword(List<Budget> budgetList) {
+        return budgetList.stream()
+                .map(budget -> {
+                    budget.getUser().setPassword("");
+                    return budget;
+                })
+                .collect(Collectors.toList());
     }
 
 }

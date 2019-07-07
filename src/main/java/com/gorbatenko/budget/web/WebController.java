@@ -11,11 +11,14 @@ import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.to.KindTo;
+import com.gorbatenko.budget.util.BaseUtil;
 import com.gorbatenko.budget.util.SecurityUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -25,9 +28,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+
+import static com.gorbatenko.budget.util.BaseUtil.listBudgetToTreeMap;
+import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
+import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
 
 
 @Controller
@@ -134,8 +138,9 @@ public class WebController {
     @GetMapping("/statistic")
     public String getStatistic(Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
-        model.addAttribute("listBudget", listBudget);
+        List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("listBudget", map);
         return "statistic";
     }
 
@@ -149,8 +154,19 @@ public class WebController {
         }
 
         User user = SecurityUtil.get().getUser();
-        model.addAttribute("listBudget",
-                repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
+        List<Budget> listBudget = hidePassword(repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
+        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("listBudget", map);
+        return "statistic";
+    }
+
+    @PostMapping("/statistic/date")
+    public String getBudgetByDate(@RequestParam(value = "date") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, Model model) {
+        User user = SecurityUtil.get().getUser();
+        model.addAttribute("date", BaseUtil.dateToStr(date));
+        List<Budget> listBudget = hidePassword(repository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
+        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("listBudget", map);
         return "statistic";
     }
 
