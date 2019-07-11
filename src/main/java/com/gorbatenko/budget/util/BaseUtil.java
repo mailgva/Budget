@@ -22,12 +22,12 @@ public class BaseUtil {
         return ldt;
     }
 
-    public static TreeMap<String, List<Budget>> listBudgetToTreeMap(List<Budget> listBudget) {
-        TreeMap<String, List<Budget>> map = new TreeMap<>(Collections.reverseOrder());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static TreeMap<LocalDateTime, List<Budget>> listBudgetToTreeMap(List<Budget> listBudget) {
+        TreeMap<LocalDateTime, List<Budget>> map = new TreeMap<>(Collections.reverseOrder());
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         listBudget.stream()
                 .forEach(budget -> {
-                    String key = budget.getDate().format(formatter);
+                    LocalDateTime key = budget.getDate(); // budget.getDate().format(formatter);
                     if(map.containsKey(key)) {
                         map.get(key).add(budget);
                     } else {

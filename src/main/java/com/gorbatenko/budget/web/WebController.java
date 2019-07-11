@@ -139,7 +139,7 @@ public class WebController {
     public String getStatistic(Model model) {
         User user = SecurityUtil.get().getUser();
         List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
-        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -156,7 +156,7 @@ public class WebController {
 
         User user = SecurityUtil.get().getUser();
         List<Budget> listBudget = hidePassword(repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
-        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -170,7 +170,7 @@ public class WebController {
         }
         model.addAttribute("date", BaseUtil.dateToStr(date));
         List<Budget> listBudget = hidePassword(repository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
-        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -182,7 +182,7 @@ public class WebController {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
         List<Budget> listBudget = hidePassword(repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
-        TreeMap<String, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";

@@ -10,30 +10,27 @@
             <h2 th:text="'Добавление статьи ' + ${type.getValue()}"> </h2>
 
             <form id="form" name="form" th:action="@{/}" method="post">
-                <table>
-                    <tr>
-                        <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
-                        <td>
-                            <select name="kind" style="width: 200px;">
-                                <option th:each="kind : ${kinds}"
-                                        th:value="${kind.name}"
-                                        th:text="${kind.name}"></option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Дата"></label></td>
-                        <td><input type="date" name="date" th:value="${date}" placeholder="Дата" style="width: 200px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Описание"></label></td>
-                        <td><input type="text" name="description" placeholder="Описание" style="width: 200px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Сумма"></label></td>
-                        <td><input type="number" step=0.01 name="price" placeholder="Сумма" style="width: 200px;"></td>
-                    </tr>
-                </table>
+                <div class="form-group">
+                    <label for="kind">Вид</label>
+                    <select id="kind" name="kind" class="form-control">
+                        <option th:each="kind : ${kinds}"
+                                th:value="${kind.name}"
+                                th:text="${kind.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date">Дата</label>
+                    <input type="date" name="date" id="date" class="form-control" th:value="${date}">
+                </div>
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <input type="text" name="description" id="description" class="form-control" placeholder="Описание">
+                </div>
+                <div class="form-group">
+                    <label for="price">Сумма</label>
+                    <input type="number" step=0.01 name="price" id="price" class="form-control" placeholder="Сумма" >
+                </div>
+
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
             </form>
         </div>
