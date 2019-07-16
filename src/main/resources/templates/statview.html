@@ -1,0 +1,34 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:ht="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body style="background: #c2ff8e">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+
+        <table class="table">
+            <th:block th:each="element : ${mapKind}">
+                <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                    <td colspan="2"><h4 th:text="${element.key.getValue()}"></h4></td>
+                </tr>
+                <th:block th:each="map : ${element.value}">
+                    <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                        <td style="padding-left: 50px"><span th:text="${map.key.name}">  </span></td>
+                        <td><span th:text="${map.value.doubleValue()}">  </span></td>
+                    </tr>
+                </th:block>
+                <tr>
+                    <td><b>Итого:</b></td>
+                    <td colspan="2"><b>
+                        <span th:text="*{#aggregates.sum(element.value.![(value)])}"></span></b>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+
+    </div>
+</main>
+</div>
+</body>
+</html>

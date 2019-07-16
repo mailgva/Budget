@@ -16,6 +16,7 @@ import com.gorbatenko.budget.util.SecurityUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -147,8 +148,27 @@ public class WebController {
         return "statistic";
     }
 
-    @GetMapping("/statistic/{type}")
-    public String getBudgetByType(@PathVariable("type") String type,  Model model) {
+    @GetMapping("/statistic/view/group")
+    public String getStatisticView(Model model) {
+        User user = SecurityUtil.get().getUser();
+        List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        Map<Type, Map<Kind, Double>> mapKind = listBudget.stream()
+                .collect(Collectors.groupingBy(
+                        budget ->
+                            budget.getKind().getType(),(
+                            Collectors.groupingBy(
+                                    budget -> budget.getKind(),
+                                    Collectors.summingDouble(Budget::getPrice)))));
+
+        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
+        mapKindSort.putAll(mapKind);
+        model.addAttribute("mapKind", mapKindSort);
+        return "statview";
+    }
+
+
+    @GetMapping("/statistic/bytype/{type}")
+    public String getStatisticByType(@PathVariable("type") String type,  Model model) {
         Type value;
         try {
             value = Type.valueOf(type.toUpperCase());
@@ -165,7 +185,7 @@ public class WebController {
     }
 
     @GetMapping("/statistic/date")
-    public String getBudgetByDate(@RequestParam(value = "date") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, Model model) {
+    public String getStatisticByDate(@RequestParam(value = "date") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, Model model) {
         User user = SecurityUtil.get().getUser();
         if (date == null) {
             date = LocalDate.now();
@@ -179,7 +199,7 @@ public class WebController {
     }
 
     @GetMapping("/statistic/kind")
-    public String getBudgetByKind(@RequestParam(value = "kindId") String id, Model model) {
+    public String getStatisticByKind(@RequestParam(value = "kindId") String id, Model model) {
         System.out.println(id);
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
