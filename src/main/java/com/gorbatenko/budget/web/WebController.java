@@ -26,6 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -91,17 +92,18 @@ public class WebController {
     public String getMenu(Model model) {
         User user = SecurityUtil.get().getUser();
         List<Budget> budgets = repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
+
         Double profit = budgets.stream()
-            .mapToDouble(budget -> (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : 0.0))
-            .sum();
+                .filter(b -> b.getKind().getType().equals(Type.PROFIT))
+                .mapToDouble(budget -> budget.getPrice())
+                .sum();
 
         Double spending = budgets.stream()
-            .mapToDouble(budget -> (budget.getKind().getType().equals(Type.SPENDING) ? budget.getPrice() : 0.0))
-            .sum();
+                .filter(b -> b.getKind().getType().equals(Type.SPENDING))
+                .mapToDouble(budget -> budget.getPrice())
+                .sum();
 
-        Double remain = budgets.stream()
-                    .mapToDouble(budget -> (budget.getKind().getType().equals(Type.SPENDING) ? -1.0 : 1.0) * budget.getPrice())
-                    .sum();
+        Double remain = profit - spending;
 
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
@@ -139,7 +141,7 @@ public class WebController {
     public String getStatistic(Model model) {
         User user = SecurityUtil.get().getUser();
         List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
-        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -156,7 +158,7 @@ public class WebController {
 
         User user = SecurityUtil.get().getUser();
         List<Budget> listBudget = hidePassword(repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
-        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -170,7 +172,7 @@ public class WebController {
         }
         model.addAttribute("date", BaseUtil.dateToStr(date));
         List<Budget> listBudget = hidePassword(repository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
-        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -182,7 +184,7 @@ public class WebController {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
         List<Budget> listBudget = hidePassword(repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
-        TreeMap<LocalDateTime, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -228,8 +230,7 @@ public class WebController {
     @GetMapping("/dictionary/{name}")
     public String getDictionary(@PathVariable("name") String name, Model model) {
         if(name.equalsIgnoreCase("KINDS")) {
-            //User user = SecurityUtil.get().getUser();
-            List<Kind> kinds = getKinds(); // kindRepository.findByUserGroup(user.getGroup());
+            List<Kind> kinds = getKinds();
             Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
             model.addAttribute("kinds", kinds);
         }
@@ -280,7 +281,7 @@ public class WebController {
     }
 
     @PostMapping("/")
-    public String createNewBudgetItem(@ModelAttribute BudgetTo budgetTo) {
+    public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setId(budgetTo.getId());
         repository.save(budget);

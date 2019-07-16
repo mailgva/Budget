@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 public class BudgetTo extends BaseEntity {
 
+    @NotNull
     private String kind;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
