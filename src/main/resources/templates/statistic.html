@@ -58,7 +58,7 @@
 
             <th:block th:each="element : ${listBudget}">
                 <tr>
-                    <td colspan="7"><h4 th:text="${#temporals.format(element.key, 'dd-MM-yyyy')}"> Date </h4></td>
+                    <td colspan="7"><h4 th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4></td>
                     <!--"${element.key}"-->
                 </tr>
                 <tr>

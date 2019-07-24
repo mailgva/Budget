@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @Document(collection = "kind")
-public class Kind extends BaseEntity {
+public class Kind extends BaseEntity implements Comparable {
     @Indexed
     private String name;
 
@@ -21,6 +21,12 @@ public class Kind extends BaseEntity {
         this.type = type;
         this.name = name;
         this.userGroup = userGroup;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Kind other = (Kind) o;
+        return this.getName().compareTo(other.getName());
     }
 
     @Override

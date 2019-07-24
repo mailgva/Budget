@@ -157,7 +157,8 @@ public class WebController {
                         budget ->
                             budget.getKind().getType(),(
                             Collectors.groupingBy(
-                                    budget -> budget.getKind(),
+                                    Budget::getKind,
+                                    TreeMap::new,
                                     Collectors.summingDouble(Budget::getPrice)))));
 
         TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
@@ -200,7 +201,6 @@ public class WebController {
 
     @GetMapping("/statistic/kind")
     public String getStatisticByKind(@RequestParam(value = "kindId") String id, Model model) {
-        System.out.println(id);
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
         List<Budget> listBudget = hidePassword(repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
