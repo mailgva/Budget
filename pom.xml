@@ -16,7 +16,7 @@
     <description>Accounting profits and spending</description>
 
     <properties>
-        <java.version>12</java.version>
+        <java.version>11</java.version>
         <webjars-bootstrap.version>4.3.1</webjars-bootstrap.version>
         <webjars-font-awesome.version>4.3.0-1</webjars-font-awesome.version>
     </properties>
