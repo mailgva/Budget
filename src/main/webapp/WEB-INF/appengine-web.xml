@@ -2,5 +2,5 @@
   <application>angelic-shift-230909</application>
   <version>1</version>
   <threadsafe>true</threadsafe>
-  <runtime>java12</runtime>
+  <runtime>java11</runtime>
 </appengine-web-app>
