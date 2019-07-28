@@ -24,27 +24,7 @@
                     <label for="name">Вид</label>
                     <input type="text" name="name" id="name" class="form-control" placeholder="Наименование">
                 </div>
-                <!--<table>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Type"></label></td>
-                        <td>
-                            <select name="type" readonly>
-                                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                                        th:value="${val}"
-                                        th:text="${val.value}"
-                                        >
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
-                        <td>
-                            <input type="text" name="name" placeholder="Наименование" style="width: 200px;"></td>
-                        </td>
-                    </tr>
 
-                </table>-->
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
             </form>
         </div>
