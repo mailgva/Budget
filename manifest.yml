@@ -1,8 +1,12 @@
----
 applications:
-- name: budget
-  memory: 1GB
-  instances: 1
-  random-route: true
-  buildpacks:
-  - https://github.com/mailgva/Budget.git
+  - name: budget
+    disk_quota: 1G
+    env:
+      MONGODB_URI: mongodb://localhost:27017/budget
+    instances: 1
+    memory: 768M
+    routes:
+      - route: budget-impressive-wolf.cfapps.io
+    stack: cflinuxfs3
+    buildpacks:
+      - https://github.com/cloudfoundry/java-buildpack.git
