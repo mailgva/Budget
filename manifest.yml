@@ -1,0 +1,8 @@
+---
+applications:
+- name: budget
+  memory: 1GB
+  instances: 1
+  random-route: true
+  buildpacks:
+  - https://github.com/mailgva/Budget.git

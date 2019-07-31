@@ -20,3 +20,4 @@ instance_class: F2
 env_variables:
   JAVA_TOOL_OPTIONS: "-XX:MaxRAM=256m -XX:ActiveProcessorCount=2 -Xmx32m"
 # [END gae_java11_helloworld_yaml]
+
