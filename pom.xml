@@ -115,23 +115,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>appengine-maven-plugin</artifactId>
-                <version>2.0.0</version>
-                <configuration>
-                    <version>budget</version>
-                    <deploy.projectId>budget-248211</deploy.projectId>
-                </configuration>
             </plugin>
         </plugins>
 
