@@ -202,8 +202,15 @@ public class WebController {
     @GetMapping("/statistic/kind")
     public String getStatisticByKind(@RequestParam(value = "kindId") String id, Model model) {
         User user = SecurityUtil.get().getUser();
-        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
-        List<Budget> listBudget = hidePassword(repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+        List<Budget> listBudget = new ArrayList<>();
+        if ("-1".equals(id)) {
+            listBudget = hidePassword(
+                repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        } else {
+            Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+            listBudget = hidePassword(
+                repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+        }
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
