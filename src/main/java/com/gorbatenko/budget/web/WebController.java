@@ -16,7 +16,6 @@ import com.gorbatenko.budget.util.SecurityUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -40,7 +39,7 @@ import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
 public class WebController {
 
     @Autowired
-    BudgetRepository repository;
+    BudgetRepository budgetRepository;
 
     @Autowired
     private KindRepository kindRepository;
@@ -48,6 +47,8 @@ public class WebController {
     @Autowired
     private UserService userService;
 
+    private static final LocalDateTime DATE_MIN = LocalDateTime.MIN;
+    private static final LocalDateTime DATE_MAX = LocalDateTime.MAX;
 
     @GetMapping("/")
     public String getMain(@AuthenticationPrincipal AuthorizedUser authUser) {
@@ -92,23 +93,7 @@ public class WebController {
     @GetMapping("/menu")
     public String getMenu(Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> budgets = repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
-
-        Double profit = budgets.stream()
-                .filter(b -> b.getKind().getType().equals(Type.PROFIT))
-                .mapToDouble(budget -> budget.getPrice())
-                .sum();
-
-        Double spending = budgets.stream()
-                .filter(b -> b.getKind().getType().equals(Type.SPENDING))
-                .mapToDouble(budget -> budget.getPrice())
-                .sum();
-
-        Double remain = profit - spending;
-
-        model.addAttribute("profit", profit);
-        model.addAttribute("spending", spending);
-        model.addAttribute("remain", remain);
+        model = getBalanceParts(model, budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
         return "menu";
     }
 
@@ -141,17 +126,31 @@ public class WebController {
     @GetMapping("/statistic")
     public String getStatistic(Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model = getBalanceParts(model, listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
     }
 
     @GetMapping("/statistic/view/group")
-    public String getStatisticView(Model model) {
+    public String getStatisticView(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
+                                   @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
+                                   Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = hidePassword(repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        List<Budget> listBudget;
+        if ((startDate == null) || (endDate == null)) {
+            startDate = LocalDate.MIN;
+            endDate = LocalDate.MAX;
+            listBudget = hidePassword(budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        } else {
+            listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                    setTimeZoneOffset(startDate.minusDays(1)), setTimeZoneOffset(endDate.plusDays(1)), user.getGroup()));
+        }
+
+        model = getBalanceParts(model, listBudget);
+
         Map<Type, Map<Kind, Double>> mapKind = listBudget.stream()
                 .collect(Collectors.groupingBy(
                         budget ->
@@ -163,6 +162,8 @@ public class WebController {
 
         TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
         mapKindSort.putAll(mapKind);
+        model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
+        model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
         model.addAttribute("mapKind", mapKindSort);
         return "statview";
     }
@@ -178,12 +179,30 @@ public class WebController {
         }
 
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = hidePassword(repository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
+        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByKindTypeAndUser_GroupOrderByDateDesc(value, user.getGroup()));
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model = getBalanceParts(model, listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
     }
+
+    @GetMapping("/statistic/period")
+    public String getPeriod(@RequestParam(value = "startDate") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
+                            @RequestParam(value = "endDate") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
+                            Model model) {
+        User user = SecurityUtil.get().getUser();
+        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                setTimeZoneOffset(startDate.minusDays(1)), setTimeZoneOffset(endDate.plusDays(1)), user.getGroup()));
+        model = getBalanceParts(model, listBudget);
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
+        model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
+        model.addAttribute("listBudget", map);
+        model.addAttribute("kindList", getKinds());
+        return "statistic";
+    }
+
 
     @GetMapping("/statistic/date")
     public String getStatisticByDate(@RequestParam(value = "date") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, Model model) {
@@ -192,7 +211,8 @@ public class WebController {
             date = LocalDate.now();
         }
         model.addAttribute("date", BaseUtil.dateToStr(date));
-        List<Budget> listBudget = hidePassword(repository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
+        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
+        model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
@@ -202,16 +222,19 @@ public class WebController {
     @GetMapping("/statistic/kind")
     public String getStatisticByKind(@RequestParam(value = "kindId") String id, Model model) {
         User user = SecurityUtil.get().getUser();
+        Kind kind = new Kind();
         List<Budget> listBudget = new ArrayList<>();
         if ("-1".equals(id)) {
             listBudget = hidePassword(
-                repository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+                budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
         } else {
-            Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+            kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
             listBudget = hidePassword(
-                repository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+                budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
         }
+        model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("kindName", kind.getName());
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         return "statistic";
@@ -234,7 +257,7 @@ public class WebController {
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
-        Budget budget = repository.findById(id).get();
+        Budget budget = budgetRepository.findById(id).get();
         User user = SecurityUtil.get().getUser();
         model.addAttribute("budget", budget );
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(budget.getKind().getType(), user.getGroup());
@@ -245,7 +268,7 @@ public class WebController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
-        repository.deleteById(id);
+        budgetRepository.deleteById(id);
         return getStatistic(model);
     }
 
@@ -282,7 +305,7 @@ public class WebController {
     public String deleteDicKind(@PathVariable("id") String id, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
-        if (repository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
+        if (budgetRepository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
             rm.addFlashAttribute("error", "Невозможно удалить статью, так как она уже используется");
             return String.format("redirect:/dictionary/kinds/edit/%s", id);
         }
@@ -292,7 +315,15 @@ public class WebController {
     }
 
     @PostMapping("/dictionary/kinds/create")
-    public String createNewDicKind(@ModelAttribute KindTo kindTo) {
+    public String createNewDicKind(@ModelAttribute KindTo kindTo, RedirectAttributes rm) {
+        User user = SecurityUtil.get().getUser();
+        Kind check = kindRepository.findKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
+        if(check != null) {
+            rm.addFlashAttribute("error", "Создание невозможно! Статья с наименованием '" + kindTo.getName() + "'" +
+                    " уже используется в '" + kindTo.getType().getValue() + "'!");
+            return "redirect:/dictionary/kinds/create";
+        }
+
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
         kindRepository.save(kind);
@@ -300,10 +331,24 @@ public class WebController {
     }
 
     @PostMapping("/dictionary/kinds/edit")
-    public String editNewDicKind(@ModelAttribute KindTo kindTo) {
+    public String editNewDicKind(@ModelAttribute KindTo kindTo, RedirectAttributes rm) {
+        User user = SecurityUtil.get().getUser();
+        Kind check = kindRepository.findKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
+        if(check != null) {
+            rm.addFlashAttribute("error", "Изменение невозможно! Статья с наименованием '" + kindTo.getName() + "'" +
+                    " уже используется в '" + kindTo.getType().getValue() + "'!");
+            return String.format("redirect:/dictionary/kinds/edit/%s", kindTo.getId());
+        }
+
+        Kind kindOld = kindRepository.findKindByUserGroupAndId(user.getGroup(), kindTo.getId());
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
-        kindRepository.save(kind);
+        kind = kindRepository.save(kind);
+        List<Budget> budgets = budgetRepository.getBudgetBykindAndUser_Group(kindOld, user.getGroup());
+        for(Budget budget : budgets) {
+            budget.setKind(kind);
+            budgetRepository.save(budget);
+        }
         return "redirect:/dictionary/kinds";
     }
 
@@ -311,13 +356,13 @@ public class WebController {
     public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setId(budgetTo.getId());
-        repository.save(budget);
+        budgetRepository.save(budget);
         return "redirect:/statistic";
     }
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
-        Kind kind = kindRepository.findByNameIgnoreCase(b.getKind());
         User user = SecurityUtil.get().getUser();
+        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), b.getKindId());
         Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
         return budget;
     }
@@ -342,4 +387,35 @@ public class WebController {
         return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
+
+    private Model getBalanceByKind(Model model, Kind kind) {
+        User user = SecurityUtil.get().getUser();
+        return getBalanceParts(model, budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+
+    }
+
+    private Model getBalanceByDate(Model model, LocalDate date) {
+        User user = SecurityUtil.get().getUser();
+        return getBalanceParts(model, budgetRepository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
+    }
+
+    private Model getBalanceParts(Model model, List<Budget> budgets) {
+        Double profit = budgets.stream()
+                .filter(b -> b.getKind().getType().equals(Type.PROFIT))
+                .mapToDouble(budget -> budget.getPrice())
+                .sum();
+
+        Double spending = budgets.stream()
+                .filter(b -> b.getKind().getType().equals(Type.SPENDING))
+                .mapToDouble(budget -> budget.getPrice())
+                .sum();
+
+        Double remain = profit - spending;
+
+        model.addAttribute("profit", profit);
+        model.addAttribute("spending", spending);
+        model.addAttribute("remain", remain);
+
+        return model;
+    }
 }

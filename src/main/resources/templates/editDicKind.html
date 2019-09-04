@@ -16,7 +16,7 @@
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
       <form id="form" name="form" th:action="@{dictionary/kinds/edit}" method="post">
         <input type="hidden" name="id" th:value="${kind.getId()}">
-        <fieldset disabled>
+        <!--<fieldset disabled>-->
           <div class="form-group">
             <!--<label for="type">Тип</label>-->
             <select id="type" name="type" readonly class="form-control">
@@ -28,34 +28,12 @@
               </option>
             </select>
           </div>
-        </fieldset>
+        <!--</fieldset>-->
         <div class="form-group">
           <label for="name">Вид</label>
           <input type="text" name="name" id="name" class="form-control" th:value="${kind.getName()}" placeholder="Наименование" >
         </div>
 
-        <!--<table>
-          <tr>
-            <td><label class="col-form-label" th:text="Type"></label></td>
-            <td>
-              <select name="type" readonly>
-                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                        th:value="${val}"
-                        th:text="${val.value}"
-                        th:selected="${kind.getType().name().equalsIgnoreCase(val)}"
-                >
-                </option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td style="width: 200px;"><label class="col-form-label" th:text="Вид"></label></td>
-            <td>
-              <input type="text" name="name" th:value="${kind.getName()}" placeholder="Наименование" style="width: 200px;"></td>
-            </td>
-          </tr>
-
-        </table>-->
         <input class="btn btn-primary" name="submit" type="submit" value="Сохранить"/>
         <a th:href="@{'/dictionary/kinds/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
       </form>

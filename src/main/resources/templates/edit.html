@@ -25,10 +25,10 @@
                     </div>
                 </fieldset>
                 <div class="form-group">
-                    <label for="kind">Вид</label>
-                    <select id="kind" name="kind" class="form-control">
+                    <label for="kindId">Вид</label>
+                    <select id="kindId" name="kindId" class="form-control">
                         <option th:each="kind : ${kinds}"
-                                th:value="${kind.name}"
+                                th:value="${kind.id}"
                                 th:text="${kind.name}"
                                 th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
                         </option>
@@ -48,47 +48,6 @@
                     <input type="number" step=0.01 name="price" id="price" class="form-control" placeholder="Сумма"
                            th:value="${budget.price}">
                 </div>
-
-
-                <!--
-                <table>
-                    <tr>
-                        <td style="width: 200px;"><label class="col-form-label" th:text="Тип"></label></td>
-                        <td>
-                            <select name="type" readonly style="width: 200px;">
-                                <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                                        th:value="${val}"
-                                        th:text="${val.value}"
-                                        th:selected="${budget.kind.getType().name().equalsIgnoreCase(val)}">
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Вид"></label></td>
-                        <td>
-                            <select name="kind" style="width: 200px;">
-                                <option th:each="kind : ${kinds}"
-                                        th:value="${kind.name}"
-                                        th:text="${kind.name}"
-                                        th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Дата"></label></td>
-                        <td><input type="date" name="date" th:value="${budget.getStrDate()}" style="width: 200px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Описание" ></label></td>
-                        <td><input type="text" name="description" placeholder="Описание" th:value="${budget.description}" style="width: 200px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Сумма"></label></td>
-                        <td><input type="number" step=0.01 name="price" placeholder="Сумма" th:value="${budget.price}" style="width: 200px;"></td>
-                    </tr>
-                </table>-->
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
                 <a th:href="@{'/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
             </form>

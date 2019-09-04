@@ -22,7 +22,23 @@
                     class="fa fa-minus"></i> Создать расход</a>
         </div>
 
+
         <div class="form-group ">
+            <form th:action="@{/statistic/period}" method="get">
+                <div class="form-group row ">
+                    <div class="col-2">
+                        <label for="startDate">Дата начала</label>
+                        <input class="form-control" name="startDate" id="startDate" type="date"
+                               th:value="${startDate}">
+                    </div>
+                    <div class="col-2">
+                        <label for="endDate">Дата конца</label>
+                        <input class="form-control" name="endDate" id="endDate" type="date" th:value="${endDate}">
+                    </div>
+                    <button id="btnsub" type="submit" class="btn btn-dark"><i class="fa fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
             <form th:action="@{/statistic/date}" method="get">
                 <div class="form-group row">
                     <label for="date" class="col-1 col-form-label">Дата</label>
@@ -30,7 +46,6 @@
                         <input class="form-control" type="date" id="date" name="date" th:value="${date}"
                                onchange="this.form.submit()">
                     </div>
-                    <!--<button type="submit" class="btn btn-dark"><i class="fa fa-calendar"></i></button>-->
                 </div>
 
             </form>
@@ -40,17 +55,32 @@
                     <label for="kindId" class="col-1 col-form-label">Вид</label>
                     <div class="col-3">
                         <select id="kindId" name="kindId" class="form-control" onchange="this.form.submit()">
-                            <option th:value="-1"> Все </option>
+                            <option th:value="-1"> Все</option>
                             <option th:each="kind : ${kindList}"
                                     th:value="${kind.id}"
-                                    th:text="${kind.type.getValue() + ' / ' + kind.name}"></option>
+                                    th:text="${kind.type.getValue() + ' / ' + kind.name}"
+                                    th:selected="${kind.getName().equalsIgnoreCase(kindName)}">
+                            </option>
                         </select>
                     </div>
-                    <!--<button type="submit" class="btn btn-dark"><i class="fa fa-arrow-right"></i></button>-->
                 </div>
 
             </form>
         </div>
+        <table class="table">
+            <tr class="bg-warning">
+                <td style="width: 200px"> Всего приход: <b>
+                    <span th:text="${profit}"></span></b>
+                </td>
+                <td style="width: 200px"> Всего расход: <b>
+                    <span th:text="${spending}"></span></b>
+                </td>
+                <td style="width: 200px"> Всего Итог: <b>
+                    <span th:text="${remain}"></span></b>
+                </td>
+            </tr>
+        </table>
+
         <!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->
         <table class="table">
             <tbody>

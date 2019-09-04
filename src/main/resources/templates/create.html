@@ -11,10 +11,10 @@
 
             <form id="form" name="form" th:action="@{/}" method="post">
                 <div class="form-group">
-                    <label for="kind">Вид</label>
-                    <select id="kind" name="kind" class="form-control">
+                    <label for="kindId">Вид</label>
+                    <select id="kindId" name="kindId" class="form-control">
                         <option th:each="kind : ${kinds}"
-                                th:value="${kind.name}"
+                                th:value="${kind.id}"
                                 th:text="${kind.name}"></option>
                     </select>
                 </div>

@@ -16,6 +16,8 @@ public interface KindRepository extends MongoRepository<Kind, String > {
 
     Kind findKindByUserGroupAndId(String userGroup, String id);
 
+    Kind findKindByUserGroupAndTypeAndNameIgnoreCase(String userGroup, Type type, String name);
+
     List<Kind> findByType(Type type);
 
     List<Kind> findByTypeAndUserGroup(Type type, String userGroup);
