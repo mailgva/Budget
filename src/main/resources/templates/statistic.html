@@ -16,24 +16,29 @@
         <div class="card" style="background: #c2ff8e">
             <div class="card-body">
 
-                <div class="form-group ">
+                <div class="form-group  ">
                     <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"-->
                     <!--*/-->
                     <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"-->
                     <!--*/-->
                     <form th:action="@{/statistic}" method="get">
-                        <div class="form-group row ">
+                        <div class="form-group row">
+
                             <div class="col-2">
                                 <label for="startDate">Дата начала</label>
                                 <input class="form-control" name="startDate" id="startDate"
                                        type="date"
                                        th:value="${startDate}">
                             </div>
+
+
                             <div class="col-2">
                                 <label for="endDate">Дата конца</label>
-                                <input class="form-control" name="endDate" id="endDate" type="date"
+                                <input class="form-control" name="endDate" id="endDate"
+                                       type="date"
                                        th:value="${endDate}">
                             </div>
+
 
                             <div class="col-2">
                                 <label for="type">Тип</label>
@@ -48,7 +53,8 @@
                                 </select>
                             </div>
 
-                            <div class="col-2">
+
+                            <div class="col-3">
                                 <label for="kindId">Вид</label>
                                 <select id="kindId" name="kindId" class="form-control">
                                     <option th:value="-1"> Все</option>
@@ -60,11 +66,13 @@
                                 </select>
                             </div>
 
-
-                            <button id="btnsub" type="submit" class="btn btn-dark"><i
-                                class="fa fa-arrow-right"></i>
-                            </button>
+                            <div class="form-group col-1 flex-bottom">
+                                <button id="btnsub" type="submit" class="btn btn-dark">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+                            </div>
                         </div>
+
                     </form>
 
 
