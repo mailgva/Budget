@@ -6,6 +6,15 @@
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
+        <div class="nav justify-content-center">
+            <div class="btn-group btn-group-lg" role="group">
+                <a href="/statistic" class="btn btn-warning" role="button" aria-pressed="true">Все</a>
+                <a href="/statistic/bytype/profit" class="btn btn-success" role="button" aria-pressed="true">Приходы</a>
+                <a href="/statistic/bytype/spending" class="btn btn-primary" role="button"
+                   aria-pressed="false">Расходы</a>
+            </div>
+        </div>
+        <br>
         <div class="form-group ">
             <a href="/create/profit" class="btn btn-success" role="button" aria-pressed="true"><i
                     class="fa fa-plus"></i> Создать приход</a>
@@ -15,9 +24,7 @@
 
 
         <div class="form-group ">
-            <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
-            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"--><!--*/-->
-            <form th:action="@{/statistic}" method="get">
+            <form th:action="@{/statistic/period}" method="get">
                 <div class="form-group row ">
                     <div class="col-2">
                         <label for="startDate">Дата начала</label>
@@ -28,22 +35,26 @@
                         <label for="endDate">Дата конца</label>
                         <input class="form-control" name="endDate" id="endDate" type="date" th:value="${endDate}">
                     </div>
-
-                    <div class="col-2">
-                        <label for="type">Тип</label>
-                        <select id="type" name="type" class="form-control">
-                            <option th:value="allTypes"> Все</option>
-                            <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                                    th:value="${val}"
-                                    th:text="${val.value}"
-                                    th:selected="${val.value.equalsIgnoreCase(typeName)}">
-                            </option>
-                        </select>
+                    <button id="btnsub" type="submit" class="btn btn-dark"><i class="fa fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+            <form th:action="@{/statistic/date}" method="get">
+                <div class="form-group row">
+                    <label for="date" class="col-1 col-form-label">Дата</label>
+                    <div class="col-3">
+                        <input class="form-control" type="date" id="date" name="date" th:value="${date}"
+                               onchange="this.form.submit()">
                     </div>
+                </div>
 
-                    <div class="col-2">
-                        <label for="kindId">Вид</label>
-                        <select id="kindId" name="kindId" class="form-control">
+            </form>
+            <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+            <form th:action="@{/statistic/kind}" method="get">
+                <div class="form-group row">
+                    <label for="kindId" class="col-1 col-form-label">Вид</label>
+                    <div class="col-3">
+                        <select id="kindId" name="kindId" class="form-control" onchange="this.form.submit()">
                             <option th:value="-1"> Все</option>
                             <option th:each="kind : ${kindList}"
                                     th:value="${kind.id}"
@@ -52,14 +63,9 @@
                             </option>
                         </select>
                     </div>
-
-
-                    <button id="btnsub" type="submit" class="btn btn-dark"><i class="fa fa-arrow-right"></i>
-                    </button>
                 </div>
+
             </form>
-
-
         </div>
         <table class="table">
             <tr class="bg-warning">
