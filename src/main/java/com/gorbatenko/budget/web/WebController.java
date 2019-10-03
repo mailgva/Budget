@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,9 +47,6 @@ public class WebController {
 
     @Autowired
     private UserService userService;
-
-    private static final LocalDateTime DATE_MIN = LocalDateTime.MIN;
-    private static final LocalDateTime DATE_MAX = LocalDateTime.MAX;
 
     @GetMapping("/")
     public String getMain(@AuthenticationPrincipal AuthorizedUser authUser) {
@@ -124,31 +122,32 @@ public class WebController {
     }
 
 
-    /*@GetMapping("/statistic")
-    public String getStatistic(Model model) {
-        User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
-        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
-        model = getBalanceParts(model, listBudget);
-        model.addAttribute("listBudget", map);
-        model.addAttribute("kindList", getKinds());
-        return "statistic";
-    }*/
 
     @GetMapping("/statistic/view/group")
     public String getStatisticView(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
                                    @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
                                    Model model) {
         User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget;
-        if ((startDate == null) || (endDate == null)) {
-            startDate = LocalDate.MIN;
-            endDate = LocalDate.MAX;
-            listBudget = hidePassword(budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
-        } else {
-            listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
-                    setTimeZoneOffset(startDate.minusDays(1)), setTimeZoneOffset(endDate.plusDays(1)), user.getGroup()));
+
+        LocalDateTime offSetStartDate;
+        LocalDateTime offSetEndDate;
+
+        LocalDate now = LocalDate.now();
+
+        if(startDate == null) {
+            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
+            startDate = offSetStartDate.toLocalDate();
         }
+        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
+
+        if(endDate == null) {
+            offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
+            endDate = offSetEndDate.toLocalDate();
+        }
+        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
+
+        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
+            offSetStartDate, offSetEndDate, user.getGroup()));
 
         model = getBalanceParts(model, listBudget);
 
@@ -166,7 +165,7 @@ public class WebController {
         model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
         model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
         model.addAttribute("mapKind", mapKindSort);
-        return "statview";
+        return "statgroup";
     }
 
 
@@ -174,7 +173,8 @@ public class WebController {
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
                             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
                             @RequestParam(value = "kindId", defaultValue = "-1") String id,
-                            @RequestParam(value = "type", defaultValue = "allTypes") String typeStr, Model model) {
+                            @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
+                            @RequestParam(value = "comment", defaultValue = "") String comment, Model model) {
 
         User user = SecurityUtil.get().getUser();
 
@@ -220,6 +220,11 @@ public class WebController {
             model.addAttribute("typeName", type.getValue());
         }
 
+        if(! comment.isEmpty()) {
+            listBudget = listBudget.stream()
+                .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toLowerCase()))
+                .collect(Collectors.toList());
+        }
 
         model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
@@ -228,6 +233,7 @@ public class WebController {
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         model.addAttribute("kindName", kind.getName());
+        model.addAttribute("comment", comment);
 
         return "statistic";
     }
@@ -261,7 +267,7 @@ public class WebController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, null, null, model);
+        return getStatistic(null, null, null, null, null,  model);
     }
 
     @GetMapping("/dictionaries")
