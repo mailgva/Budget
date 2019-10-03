@@ -222,7 +222,7 @@ public class WebController {
 
         if(! comment.isEmpty()) {
             listBudget = listBudget.stream()
-                .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toLowerCase()))
+                .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toUpperCase()))
                 .collect(Collectors.toList());
         }
 
