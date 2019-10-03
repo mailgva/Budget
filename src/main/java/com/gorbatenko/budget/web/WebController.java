@@ -186,18 +186,14 @@ public class WebController {
         if(startDate == null) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
-            offSetStartDate = setTimeZoneOffset(startDate);
-        } else {
-            offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
         }
+        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
 
         if(endDate == null) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
-            offSetEndDate = setTimeZoneOffset(endDate);
-        } else {
-            offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
         }
+        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         Kind kind = new Kind();
 
