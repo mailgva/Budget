@@ -5,3 +5,16 @@ div.error {
   display: flex;
   align-items: flex-end;
 }
+.btn.btn-primary{
+  vertical-align: middle;
+  height: 60px;
+}
+.btn.btn-success{
+  vertical-align: middle;
+  height: 60px;
+}
+.btn.btn-danger{
+  vertical-align: middle;
+  height: 60px;
+}
+
