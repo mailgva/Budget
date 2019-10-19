@@ -19,8 +19,13 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <jackson-databind.version>2.9.8</jackson-databind.version>
+        <webjars-jquery.version>3.4.1</webjars-jquery.version>
         <webjars-bootstrap.version>4.3.1</webjars-bootstrap.version>
         <webjars-font-awesome.version>4.3.0-1</webjars-font-awesome.version>
+        <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
+
     </properties>
 
     <dependencies>
@@ -62,7 +67,18 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
 
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>${webjars-jquery.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
@@ -73,6 +89,12 @@
             <artifactId>font-awesome</artifactId>
             <version>${webjars-font-awesome.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>mdbootstrap-bootstrap-material-design</artifactId>
+            <version>${webjars-mdbootstrap-bootstrap-material-design.version}</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>

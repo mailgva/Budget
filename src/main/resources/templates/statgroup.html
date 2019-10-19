@@ -54,7 +54,14 @@
                 </tr>
                 <th:block th:each="map : ${element.value}">
                     <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                        <td style="padding-left: 50px"><span th:text="${map.key.name}">  </span></td>
+                        <td style="padding-left: 50px">
+                            <a class="text-dark"
+                               th:href="@{/statistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     kindId=${map.key.getId()})}" >
+                                <span th:text="${map.key.name}"></span>
+                            </a>
+                        </td>
                         <td><span th:text="${map.value.doubleValue()}">  </span></td>
                     </tr>
                 </th:block>
@@ -67,7 +74,44 @@
             </th:block>
         </table>
 
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-6">
+                    <canvas id="circleChartProfit" style="max-width: 500px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-6">
+                    <canvas id="circleChartSpendit" style="max-width: 500px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-6">
+                    <canvas id="horizontChartProfit" style="max-width: 500px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-6">
+                    <canvas id="horizontChartSpendit" style="max-width: 500px;"></canvas>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            new Chart(document.getElementById("circleChartProfit"), [(${circleChartProfit})]);
+            new Chart(document.getElementById("circleChartSpendit"), [(${circleChartSpendit})]);
+            new Chart(document.getElementById("horizontChartProfit"), [(${horizontChartProfit})]);
+            new Chart(document.getElementById("horizontChartSpendit"), [(${horizontChartSpendit})]);
+        } );
+    </script>
 </main>
 </div>
 </body>

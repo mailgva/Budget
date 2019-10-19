@@ -11,7 +11,9 @@ import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.to.KindTo;
+import com.gorbatenko.budget.to.charts.ChartType;
 import com.gorbatenko.budget.util.BaseUtil;
+import com.gorbatenko.budget.util.ChartUtil;
 import com.gorbatenko.budget.util.SecurityUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -123,7 +125,7 @@ public class WebController {
 
 
 
-    @GetMapping("/statistic/view/group")
+    @GetMapping("/statistic/group")
     public String getStatisticView(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
                                    @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
                                    Model model) {
@@ -162,9 +164,16 @@ public class WebController {
 
         TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
         mapKindSort.putAll(mapKind);
+
         model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
         model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
         model.addAttribute("mapKind", mapKindSort);
+
+        model.addAttribute("circleChartProfit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.PROFIT, mapKindSort));
+        model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKindSort));
+        model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKindSort));
+        model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKindSort));
+
         return "statgroup";
     }
 
