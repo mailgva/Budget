@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ChartUtil {
-    final static float TRANSPARENT_VALUE = 0.2f;
-    final static int BORDER_WIDTH = 1;
+    final static float TRANSPARENT_VALUE = 1.0f;
 
     public static String createMdbChart(ChartType chartType, Type type, TreeMap<Type, Map<Kind, Double>> data){
         ChartData chartData = createChartData(chartType, type, data.get(type));
