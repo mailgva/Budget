@@ -81,21 +81,19 @@
                         </div>
 
                     </form>
-
-
                 </div>
             </div>
         </div>
 
         <table class="table">
-            <tr class="bg-warning">
-                <td style="width: 200px"> Всего приход: <b>
+            <tr class="bg-warning border border-warning">
+                <td style="width: 200px; font-weight: bold"> Всего приход: <b>
                     <span th:text="${profit}"></span></b>
                 </td>
-                <td style="width: 200px"> Всего расход: <b>
+                <td style="width: 200px; font-weight: bold"> Всего расход: <b>
                     <span th:text="${spending}"></span></b>
                 </td>
-                <td style="width: 200px"> Всего Итог: <b>
+                <td style="width: 200px; font-weight: bold"> Всего Итог: <b>
                     <span th:text="${remain}"></span></b>
                 </td>
             </tr>
@@ -109,25 +107,24 @@
             </tr>
 
             <th:block th:each="element : ${listBudget}">
-                <tr>
+                <tr class="bg-warning">
                     <td colspan="7"><h4 th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4></td>
-                    <!--"${element.key}"-->
                 </tr>
-                <tr>
+                <tr class="border border-warning">
                     <td style="width: 200px"> Приход: <b>
                         <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)])}"></span></b>
                     </td>
-                    <!--<td style="width: 100px"></td>-->
+
                     <td style="width: 200px"> Расход: <b>
                         <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)])}"></span></b>
                     </td>
-                    <!--<td style="width: 150px"></td>-->
+
                     <td style="width: 200px" colspan="5"> Итог: <b>
                         <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)])}"></span></b>
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="border border-warning">
                     <td colspan="7">
                         <table class="table table-active ">
                             <thead>
@@ -146,7 +143,6 @@
                             <th:block th:each="budget,row : ${element.value}">
 
                                 <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                                    <!--<tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}" th:each="budget,row : *{listBudget}">-->
                                     <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
                                     <td style="width: 15%"><span th:text="${budget.user.name}"> User </span></td>
                                     <td style="width: 10%"><span
@@ -172,6 +168,5 @@
 
     </div>
 </main>
-</div>
 </body>
 </html>
