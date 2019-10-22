@@ -1,4 +1,4 @@
-package com.gorbatenko.budget.to.charts;
+package com.gorbatenko.budget.web.charts;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

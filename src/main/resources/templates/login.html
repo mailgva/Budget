@@ -8,7 +8,8 @@
   <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
       <h2 th:text="'Логин'"></h2>
-      <div class="error" th:if="${error}" th:text="'Неверно указан email или пароль'">
+      <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
+      <div class="error" th:if="${errorMessage}" th:text="${errorMessage}">
       </div>
       <form id="form" name="form" th:action="@{/login}" method="post">
         <div class="form-group">
@@ -24,6 +25,5 @@
     </div>
   </div>
 </main>
-</div>
 </body>
 </html>

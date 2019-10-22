@@ -47,12 +47,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/images/**").permitAll();
 
         http//.csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/", "/register").permitAll()
+                .authorizeRequests()
+                .antMatchers("/", "/profile/register").permitAll()
                 .antMatchers("/**/*.js", "/**/*.css").permitAll()
                 .anyRequest().authenticated()
                 .and()
-            .formLogin()
+                .formLogin()
                 .loginPage("/login")
                 .failureUrl("/login-error")
                 .defaultSuccessUrl("/menu")

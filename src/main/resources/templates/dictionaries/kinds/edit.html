@@ -14,7 +14,7 @@
       </div>
 
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
-      <form id="form" name="form" th:action="@{dictionary/kinds/edit}" method="post">
+      <form id="form" name="form" th:action="@{/dictionaries/kinds/edit}" method="post">
         <input type="hidden" name="id" th:value="${kind.getId()}">
         <!--<fieldset disabled>-->
           <div class="form-group">
@@ -40,6 +40,5 @@
     </div>
   </div>
 </main>
-</div>
 </body>
 </html>

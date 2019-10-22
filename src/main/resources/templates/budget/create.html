@@ -9,7 +9,7 @@
         <div class="col-sm-8 mx-auto">
             <h2 th:text="'Добавление статьи ' + ${type.getValue()}"> </h2>
 
-            <form id="form" name="form" th:action="@{/}" method="post">
+            <form id="form" name="form" th:action="@{/budget/}" method="post">
                 <div class="form-group">
                     <label for="kindId">Вид</label>
                     <select id="kindId" name="kindId" class="form-control">

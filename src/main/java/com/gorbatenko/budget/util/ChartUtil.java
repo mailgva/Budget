@@ -1,12 +1,10 @@
 package com.gorbatenko.budget.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.to.charts.*;
+import com.gorbatenko.budget.web.charts.*;
 
 import java.util.HashMap;
 import java.util.Map;

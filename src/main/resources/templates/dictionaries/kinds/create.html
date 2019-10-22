@@ -12,7 +12,7 @@
             <div class="error" role="alert" th:if="${error}" th:text="${error}">
             </div>
 
-            <form id="form" name="form" th:action="@{dictionary/kinds/create}" method="post">
+            <form id="form" name="form" th:action="@{/dictionaries/kinds/create}" method="post">
                 <div class="form-group">
                     <!--<label for="type">Тип</label>-->
                     <select id="type" name="type" readonly class="form-control">

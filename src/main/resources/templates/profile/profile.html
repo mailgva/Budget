@@ -8,7 +8,7 @@
     <div class="jumbotron" style="background: #c2ff8e">
         <div class="col-sm-8 mx-auto">
             <h2 th:text="'Профиль'"></h2>
-            <!--/*--><!--@thymesVar id="user" type="com.gorbatenko.budget.model.User"--><!--*/-->
+            <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
                 <table>
                     <tr>
                         <td><label class="col-form-label" th:text="Имя"></label></td>
@@ -31,15 +31,14 @@
                         <td><input type="text" name="groupid" th:value="${user.getGroup()}" style="width: 400px;"></td>
                     </tr>
                     <tr>
-                        <td colspan="2"><a th:href="@{'/jointogroup/'+${user.getId()}}">Ссылка для выхода из группы</a></td>
+                        <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getId()}}">Ссылка для выхода из группы</a></td>
                     </tr>
                     <tr>
-                        <td colspan="2"><a th:href="@{'/jointogroup/'+${user.getGroup()}}">Ссылка для приглашения в группу</a></td>
+                        <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getGroup()}}">Ссылка для приглашения в группу</a></td>
                     </tr>
                 </table>
         </div>
     </div>
 </main>
-</div>
 </body>
 </html>

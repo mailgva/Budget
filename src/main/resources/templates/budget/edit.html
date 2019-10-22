@@ -9,7 +9,7 @@
         <div class="col-sm-8 mx-auto">
             <h2>Изменение</h2>
 
-            <form id="form" name="form" th:action="@{/}" method="post">
+            <form id="form" name="form" th:action="@{/budget/}" method="post">
                 <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
                 <input type="hidden" name="id" th:value="${budget.id}">
                 <fieldset disabled>
@@ -49,7 +49,7 @@
                            th:value="${budget.price}">
                 </div>
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-                <a th:href="@{'/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+                <a th:href="@{'/budget/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
             </form>
         </div>
     </div>

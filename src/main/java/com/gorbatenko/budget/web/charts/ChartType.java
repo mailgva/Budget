@@ -1,4 +1,4 @@
-package com.gorbatenko.budget.to.charts;
+package com.gorbatenko.budget.web.charts;
 
 public enum ChartType {
     HORIZONTALBAR("horizontalBar"), DOUGHNUT("doughnut");
