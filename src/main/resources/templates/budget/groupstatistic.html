@@ -73,7 +73,7 @@
                             <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                                 <td style="padding-left: 50px; font-weight: bolder">
                                     <a class="text-dark"
-                                       th:href="@{/statistic(startDate=${startDate},
+                                       th:href="@{/budget/statistic(startDate=${startDate},
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}">
                                         <span th:text="${map.key.name}"></span>
