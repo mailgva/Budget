@@ -24,7 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public UserServiceImpl userService;
+    public UserService userService;
 
 
     @Override
