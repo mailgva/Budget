@@ -1,12 +1,21 @@
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Error page</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="css/main.css" th:href="@{/css/main.css}" />
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
+<head th:replace="fragments/header :: head">
 </head>
-<body th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
-<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|">404</h1>
-<p th:utext="${errorMessage}">Error java.lang.NullPointerException</p>
-<a th:href="@{/}">Ого, что-то пошло не так...</a>
+<body style="background: #c2ff8e"
+      th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+        <div class="col-sm-8 mx-auto">
+            <!--<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|">404</h1>-->
+            <h2 th:text="${'Ого, у нас возникли ошибки!!!'}"></h2>
+            <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
+            <div class="error rounded-sm" th:if="${errorMessage}" th:utext="${errorMessage}">
+            </div>
+            <button type="button" class="btn btn-warning" onclick="window.history.back()"/>Попробовать еще раз</button>
+        </div>
+    </div>
+</main>
 </body>
 </html>

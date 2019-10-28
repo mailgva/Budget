@@ -9,34 +9,36 @@
         <div class="col-sm-8 mx-auto">
             <h2 th:text="'Профиль'"></h2>
             <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
-                <table>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Имя"></label></td>
-                        <td><input type="text" name="name" th:value="${user.getName()}" style="width: 400px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Email"></label></td>
-                        <td><input type="text" name="email" th:value="${user.getEmail()}" style="width: 400px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="Группа"></label></td>
-                        <td><input type="text" name="group" th:value="${groupMembers}" style="width: 400px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="ID"></label></td>
-                        <td><input type="text" name="id" th:value="${user.getId()}" style="width: 400px;"></td>
-                    </tr>
-                    <tr>
-                        <td><label class="col-form-label" th:text="GROUPID"></label></td>
-                        <td><input type="text" name="groupid" th:value="${user.getGroup()}" style="width: 400px;"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getId()}}">Ссылка для выхода из группы</a></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getGroup()}}">Ссылка для приглашения в группу</a></td>
-                    </tr>
-                </table>
+            <table>
+                <tr>
+                    <td><label class="col-form-label" th:text="Имя"></label></td>
+                    <td><input type="text" name="name" th:value="${user.getName()}" style="width: 400px;"></td>
+                </tr>
+                <tr>
+                    <td><label class="col-form-label" th:text="Email"></label></td>
+                    <td><input type="text" name="email" th:value="${user.getEmail()}" style="width: 400px;"></td>
+                </tr>
+                <tr>
+                    <td><label class="col-form-label" th:text="Группа"></label></td>
+                    <td><input type="text" name="group" th:value="${groupMembers}" style="width: 400px;"></td>
+                </tr>
+                <tr>
+                    <td><label class="col-form-label" th:text="ID"></label></td>
+                    <td><input type="text" name="id" th:value="${user.getId()}" style="width: 400px;"></td>
+                </tr>
+                <tr>
+                    <td><label class="col-form-label" th:text="GROUPID"></label></td>
+                    <td><input type="text" name="groupid" th:value="${user.getGroup()}" style="width: 400px;"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getId()}}">Ссылка для выхода из
+                        группы</a></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getGroup()}}">Ссылка для приглашения в
+                        группу</a></td>
+                </tr>
+            </table>
         </div>
     </div>
 </main>

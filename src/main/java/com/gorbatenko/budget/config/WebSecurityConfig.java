@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/css/**").permitAll();
         http.authorizeRequests().antMatchers("/images/**").permitAll();
 
-        http//.csrf().disable()
+        http
                 .authorizeRequests()
                 .antMatchers("/", "/profile/register").permitAll()
                 .antMatchers("/**/*.js", "/**/*.css").permitAll()
@@ -63,7 +63,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login")
                 .permitAll()
                 .and()
-                .rememberMe().key("uniqueAndSecret").rememberMeCookieName("budgetuniquekey").tokenValiditySeconds(86400);
+                .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(259200); // 72 hours
+
+
+
     }
 
 }

@@ -9,7 +9,7 @@
     <div class="col-sm-8 mx-auto">
       <h2 th:text="'Логин'"></h2>
       <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
-      <div class="error" th:if="${errorMessage}" th:text="${errorMessage}">
+      <div class="error rounded-sm" th:if="${errorMessage}" th:text="${errorMessage}">
       </div>
       <form id="form" name="form" th:action="@{/login}" method="post">
         <div class="form-group">

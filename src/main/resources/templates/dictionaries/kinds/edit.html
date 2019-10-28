@@ -31,7 +31,7 @@
         <!--</fieldset>-->
         <div class="form-group">
           <label for="name">Вид</label>
-          <input type="text" name="name" id="name" class="form-control" th:value="${kind.getName()}" placeholder="Наименование" >
+          <input type="text" name="name" id="name" class="form-control" th:value="${kind.getName()}" placeholder="Наименование" required>
         </div>
 
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
