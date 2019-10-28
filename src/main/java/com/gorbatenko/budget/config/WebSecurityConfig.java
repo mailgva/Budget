@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.config;
 
-import com.gorbatenko.budget.service.UserServiceImpl;
+import com.gorbatenko.budget.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
