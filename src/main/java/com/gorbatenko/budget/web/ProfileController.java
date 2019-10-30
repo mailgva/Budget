@@ -33,7 +33,7 @@ public class ProfileController extends AbstractWebController {
 
     @GetMapping("/register")
     public String register() {
-        return "profile/register";
+        return "/profile/register";
     }
 
     @PostMapping("/register")
@@ -46,7 +46,7 @@ public class ProfileController extends AbstractWebController {
             model.addAttribute("error", e.getMessage());
             return "/profile/register";
         }
-        return "redirect:login";
+        return "redirect:/login";
     }
 
     @PreAuthorize("isAuthenticated()")

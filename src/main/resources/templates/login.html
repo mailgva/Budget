@@ -25,9 +25,20 @@
 	        <label class="form-check-label" for="remember-me">Запомнить меня</label> 
         </div>
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
+        <button class="btn btn-brown" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"> Войти как Гость</i></button>
       </form>
     </div>
   </div>
+  <script>
+    function login(username, password) {
+      setCredentials(username, password);
+      $("#form").submit();
+    }
+    function setCredentials(username, password) {
+      $('input[name="username"]').val(username);
+      $('input[name="password"]').val(password);
+    }
+  </script>
 </main>
 </body>
 </html>

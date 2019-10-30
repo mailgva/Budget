@@ -32,6 +32,7 @@ public class ErrorController {
                     fieldError.getDefaultMessage();
         }
         model.addAttribute("errorMessage", errorMessage);
+        logger.error(errorMessage);
         return "error";
     }
 
