@@ -14,11 +14,12 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 @Document(collection = "budget")
 public class Budget extends BaseEntity {
-
+    @NotNull
     private User user;
 
     private String userGroup;
 
+    @NotNull
     private Kind kind;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")

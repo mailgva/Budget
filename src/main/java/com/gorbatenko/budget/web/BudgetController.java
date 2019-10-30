@@ -177,6 +177,11 @@ public class BudgetController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         model.addAttribute("type",  Type.valueOf(type.toUpperCase()));
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(Type.valueOf(type.toUpperCase()), user.getGroup());
+
+        if(kinds.size() == 0) {
+            return "/dictionaries/kinds/create";
+        }
+
         Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
         model.addAttribute("kinds", kinds);
 
