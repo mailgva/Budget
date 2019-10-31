@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="fragments/header :: head">
 </head>
-<body style="background: #c2ff8e">
+<body>
 <div th:replace="fragments/bodyHeader :: div">
 </div>
 <main role="main">
@@ -25,7 +25,7 @@
 	        <label class="form-check-label" for="remember-me">Запомнить меня</label> 
         </div>
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
-        <button class="btn btn-brown" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"> Войти как Гость</i></button>
+        <button class="btn btn-warning" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"></i> Войти как Гость</button>
       </form>
     </div>
   </div>

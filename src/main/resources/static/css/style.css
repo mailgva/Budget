@@ -1,3 +1,6 @@
+body {
+  background: #c2ff8e;
+}
 div.error {
   height: 40px;
   background: #eea9a4;
@@ -16,4 +19,9 @@ a.btn:not(.btn-warning){
   height: 60px;
   margin: 10px;
   padding-top: 15px;
+}
+li.nav-item a.nav-link.active{
+  background-image: none;
+  background: #c2ff8e;
+  border-bottom-color: #c2ff8e;
 }
