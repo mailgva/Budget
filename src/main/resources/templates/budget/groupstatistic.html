@@ -36,23 +36,16 @@
         <table th:replace="fragments/statHeader :: table">
         </table>
 
-        <ul class="nav nav-tabs bg-warning font-weight-bolder" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#tableview" role="tab"
-                   aria-controls="home" aria-selected="true">Таблица</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#circlediagram" role="tab"
-                   aria-controls="profile" aria-selected="false">Круговая диаграмма</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#horizontdiagram" role="tab"
-                   aria-controls="contact" aria-selected="false">Горизонтальная диаграмма</a>
-            </li>
-        </ul>
-        <br>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="tableview" role="tabpanel" aria-labelledby="home-tab">
+        <nav>
+            <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-tableview" data-toggle="tab" href="#tableview" role="tab" aria-controls="tableview" aria-selected="true">Таблица</a>
+                <a class="nav-item nav-link" id="nav-circlediagram" data-toggle="tab" href="#circlediagram" role="tab" aria-controls="circlediagram" aria-selected="false">Круговая диаграмма</a>
+                <a class="nav-item nav-link" id="nav-horizontdiagram" data-toggle="tab" href="#horizontdiagram" role="tab" aria-controls="horizontdiagram" aria-selected="false">Горизонтальная диаграмма</a>
+            </div>
+        </nav>
+
+        <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="tableview" role="tabpanel" aria-labelledby="nav-tableview">
                 <table class="table" >
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
@@ -80,7 +73,7 @@
                     </th:block>
                 </table>
             </div>
-            <div class="tab-pane fade" id="circlediagram" role="tabpanel" aria-labelledby="profile-tab">
+            <div class="tab-pane fade" id="circlediagram" role="tabpanel" aria-labelledby="nav-circlediagram">
                 <h4>Приход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
@@ -94,9 +87,8 @@
                         <canvas id="circleChartSpendit" style="max-width: 80%;max-height: 500px;"></canvas>
                     </div>
                 </div>
-
             </div>
-            <div class="tab-pane fade" id="horizontdiagram" role="tabpanel" aria-labelledby="contact-tab">
+            <div class="tab-pane fade" id="horizontdiagram" role="tabpanel" aria-labelledby="nav-horizontdiagram">
                 <h4>Приход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
@@ -109,7 +101,6 @@
                         <canvas id="horizontChartSpendit" style="max-width: 80%;max-height: 500px;"></canvas>
                     </div>
                 </div>
-
             </div>
         </div>
 

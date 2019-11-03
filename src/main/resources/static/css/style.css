@@ -20,12 +20,60 @@ a.btn:not(.btn-warning){
   margin: 10px;
   padding-top: 15px;
 }
-li.nav-item a.nav-link.active{
-  background-image: none;
-  background: #c2ff8e;
-  border-bottom-color: #c2ff8e;
-}
 
 tr.bg-warning-dark{
   background-color: #ffb411;
+}
+
+nav > .nav.nav-tabs{
+
+  border: none;
+  color:#fff;
+  background:#c2ff8e;
+  border-radius:0;
+
+}
+nav > div a.nav-item.nav-link
+{
+  border: none;
+  padding: 18px 25px;
+  color:#fff;
+  background: #ffb411;
+  border-radius:0;
+}
+nav > div a.nav-item.nav-link.active
+{
+  border: none;
+  padding: 18px 25px;
+  color:#fff;
+  background: #138908;
+  border-radius:0;
+}
+
+nav > div a.nav-item.nav-link.active:after
+{
+  content: "";
+  position: relative;
+  bottom: -60px;
+  left: -10%;
+  border: 15px solid transparent;
+  border-top-color: #138908;
+}
+.tab-content{
+  //background: #ffb411;
+  line-height: 25px;
+  border: 1px solid #ddd;
+  border-top:5px solid #138908;
+  border-bottom:5px solid #138908;
+  padding:30px 25px;
+}
+
+nav > div a.nav-item.nav-link:hover,
+nav > div a.nav-item.nav-link:focus
+{
+  border: none;
+  background: #138908;
+  color:#fff;
+  border-radius:0;
+  transition:background 0.20s linear;
 }
