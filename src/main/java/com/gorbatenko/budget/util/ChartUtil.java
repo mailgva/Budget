@@ -11,9 +11,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ChartUtil {
-    final static float TRANSPARENT_VALUE = 1.0f;
+    final static private float TRANSPARENT_VALUE = 1.0f;
 
     public static String createMdbChart(ChartType chartType, Type type, TreeMap<Type, Map<Kind, Double>> data){
+        if(data.get(type) == null) {
+            return "";
+        }
         ChartData chartData = createChartData(chartType, type, data.get(type));
         Map<String, Object> options = createOptions(chartType);
         MdbChart mdbChart = new MdbChart(chartType.getValue(), chartData, options);
