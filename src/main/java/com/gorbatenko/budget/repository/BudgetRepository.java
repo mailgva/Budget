@@ -28,11 +28,6 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
         return save(budget);
     };
 
-    List<Budget> getBudgetByKindTypeOrderByCreateDateTimeDesc(Type type);
-
-
-    List<Budget> getBudgetByKindTypeAndUser_GroupOrderByDateDesc(Type type, String userGroup);
-
     List<Budget> getBudgetByDateAndUser_Group(LocalDateTime date, String userGroup);
 
     List<Budget> getBudgetByDateBetweenAndUser_Group(LocalDateTime startDate, LocalDateTime endDate, String userGroup);
@@ -41,12 +36,12 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     List<Budget> getBudgetBykindAndUser_Group(Kind kind, String userGroup);
 
-    List<Budget> findAllByDate(LocalDateTime date);
-
     List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
 
     int countByUser_GroupAndKind(String userGroup, Kind kind);
 
+    List<Budget> getBudgetByUser_GroupAndDateLessThan(String userGroup, LocalDateTime date);
 
+    List<Budget> getBudgetByUser_GroupAndDateLessThanEqual(String userGroup, LocalDateTime date);
 
 }

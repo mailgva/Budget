@@ -14,7 +14,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
 
@@ -69,7 +71,44 @@ public class AbstractWebController {
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
         model.addAttribute("remain", remain);
+        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(budgets));
+        model.addAttribute("remainOnEndPeriod", getRemainOnEndPeriod(budgets));
 
         return model;
     }
+
+    protected Double getRemainOnStartPeriod(List<Budget> budgets) {
+        if (budgets.isEmpty()) {
+            return 0.0D;
+        }
+
+        String userGroup = SecurityUtil.get().getUser().getGroup();
+        LocalDateTime startDate = budgets.stream().map(Budget::getDate).min(LocalDateTime::compareTo).get();
+
+        List<Budget> budgetsLessStart = budgetRepository.getBudgetByUser_GroupAndDateLessThan(userGroup, startDate);
+
+        return budgetsLessStart.stream()
+                .map(budget ->
+                        (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
+
+    }
+
+    protected Double getRemainOnEndPeriod(List<Budget> budgets) {
+        if (budgets.isEmpty()) {
+            return 0.0D;
+        }
+
+        String userGroup = SecurityUtil.get().getUser().getGroup();
+        LocalDateTime endDate = budgets.stream().map(Budget::getDate).max(LocalDateTime::compareTo).get();
+
+        List<Budget> budgetsLessOrEqualsEnd = budgetRepository.getBudgetByUser_GroupAndDateLessThanEqual(userGroup, endDate);
+
+        return budgetsLessOrEqualsEnd.stream()
+                .map(budget ->
+                        (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
+
+    }
+
+
+
 }

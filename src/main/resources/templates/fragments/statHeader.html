@@ -1,0 +1,21 @@
+<html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
+<table class="table">
+    <tr class="bg-warning-dark border border-warning">
+        <td colspan="2" style="font-weight: bold">Остаток на начала периода: <span
+                th:text="${remainOnStartPeriod}"></span></td>
+        <td style="font-weight: bold">Остаток на конец периода: <span
+                th:text="${remainOnEndPeriod}"></span></td>
+    </tr>
+    <tr class="bg-warning border border-warning">
+        <td style="width: 30%; font-weight: bold">
+            Всего приход:
+            <span th:text="${profit}"></span>
+        </td>
+        <td style="width: 30%; font-weight: bold"> Всего расход:
+            <span th:text="${spending}"></span>
+        </td>
+        <td style="width: 30%; font-weight: bold"> Всего Итог:
+            <span th:text="${remain}"></span>
+        </td>
+    </tr>
+</table>

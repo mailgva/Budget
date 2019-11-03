@@ -85,18 +85,7 @@
             </div>
         </div>
 
-        <table class="table">
-            <tr class="bg-warning border border-warning">
-                <td style="width: 200px; font-weight: bold"> Всего приход: <b>
-                    <span th:text="${profit}"></span></b>
-                </td>
-                <td style="width: 200px; font-weight: bold"> Всего расход: <b>
-                    <span th:text="${spending}"></span></b>
-                </td>
-                <td style="width: 200px; font-weight: bold"> Всего Итог: <b>
-                    <span th:text="${remain}"></span></b>
-                </td>
-            </tr>
+        <table th:replace="fragments/statHeader :: table">
         </table>
 
         <!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->

@@ -25,3 +25,7 @@ li.nav-item a.nav-link.active{
   background: #c2ff8e;
   border-bottom-color: #c2ff8e;
 }
+
+tr.bg-warning-dark{
+  background-color: #ffb411;
+}
