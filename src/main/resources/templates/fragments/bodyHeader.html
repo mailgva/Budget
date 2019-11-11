@@ -2,12 +2,29 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <div  style="background: #c2ff8e">
     <nav class="navbar navbar-expand-lg navbar-light bg-warning rounded">
-        <div sec:authorize="isAuthenticated()">
+        <div sec:authorize="isAuthenticated()"  class="collapse navbar-collapse" id="navbarSupportedContent-333">
           <a href="/menu" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}"/><h2 style="display: inline-block;"> Budget</h2></a>
+            <ul class="navbar-nav ml-auto nav-flex-icons">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-default"
+                         aria-labelledby="navbarDropdownMenuLink-333">
+                        <a class="dropdown-item" href="/budget/create/profit"><i class="fa fa-plus"></i> Приход</a>
+                        <a class="dropdown-item" href="/budget/create/spending"><i class="fa fa-minus"></i> Расход</a>
+                        <a class="dropdown-item" href="/budget/statistic"><i class="fa fa-list"></i> Статистика</a>
+                        <a class="dropdown-item" href="/budget/groupstatistic"><i class="fa fa-align-left"></i> Групповая статистика</a>
+                        <a class="dropdown-item" href="/dictionaries/"><i class="fa fa-book"></i> Справочники</a>
+                        <a class="dropdown-item" href="/profile/"><i class="fa fa-user"></i> Профиль</a>
+                        <a class="dropdown-item" th:href="@{/logout}"><i class="fa fa-sign-out"></i> Выход</a>
+                    </div>
+                </li>
+            </ul>
         </div>
         <div sec:authorize="isAnonymous()">
             <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}"/><h2 style="display: inline-block;"> Budget</h2></a>
         </div>
-
     </nav>
 </div>
