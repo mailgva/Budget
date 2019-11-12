@@ -1,3 +1,11 @@
+@media only screen and (min-width: 600px) {
+  ul{
+    position:fixed !important;
+    right: 0;
+    left: auto;
+  }
+}
+
 body {
   background: #c2ff8e;
 }
