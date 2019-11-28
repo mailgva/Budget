@@ -48,7 +48,7 @@
         var arr = str.split(" ");
         var result = 0.0;
         arr.forEach(function(item) {
-            result+= ((item.replace(",",".").replace(" ","") == "") ? 0.0 : parseFloat(item));
+            result+= ((item.replace(" ","") === "") ? 0.0 : parseFloat(item));
         });
         $('#price').val(result);
     }

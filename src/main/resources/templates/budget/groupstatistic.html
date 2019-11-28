@@ -49,7 +49,7 @@
                 <table class="table" >
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                            <td colspan="2"><h4 th:text="${element.key.getValue()}"></h4></td>
+                            <td colspan="3"><h4 th:text="${element.key.getValue()}"></h4></td>
                         </tr>
                         <th:block th:each="map : ${element.value}">
                             <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
@@ -59,6 +59,14 @@
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}">
                                         <span th:text="${map.key.name}"></span>
+                                    </a>
+                                </td>
+                                <td style="padding-left: 10px; font-weight: bolder">
+                                    <a class="text-dark"
+                                       th:href="@{/budget/dynamicstatistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     kindId=${map.key.getId()})}">
+                                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
                                     </a>
                                 </td>
                                 <td style="font-weight: bolder"><span th:text="${map.value.doubleValue()}">  </span></td>

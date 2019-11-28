@@ -23,10 +23,15 @@ public class ChartUtil {
         return mdbChartToJSON(mdbChart);
     }
 
+    public static String createDynamicMdbChart(ChartType chartType, String label, TreeMap<String, Double> data){
+        ChartData chartData = createChartDynamicData(chartType, label, data);
+        Map<String, Object> options = createOptions(chartType);
+        MdbChart mdbChart = new MdbChart(chartType.getValue(), chartData, options);
+        return mdbChartToJSON(mdbChart);
+    }
+
     private static String mdbChartToJSON(MdbChart mdbChart){
         ObjectMapper mapper = new ObjectMapper();
-        //mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        //mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         try {
             return mapper.writeValueAsString(mdbChart);
         } catch (JsonProcessingException e) {
@@ -38,7 +43,10 @@ public class ChartUtil {
     private static Map<String, Object> createOptions(ChartType chartType) {
         Map<String, Object> result = new HashMap<>();
         switch (chartType) {
-            case HORIZONTALBAR : {
+            case BARCHART: {
+                break;
+            }
+            case HORIZONTALBAR: {
                 /*
                 Map<String, Boolean> beginAtZero = new HashMap<>();
                 beginAtZero.put("beginAtZero", true);
@@ -60,31 +68,42 @@ public class ChartUtil {
         return result;
     }
 
+    private static ChartData createChartDynamicData(ChartType chartType, String label, Map<String, Double> data) {
+        String[] labels = data.keySet().stream().toArray(String[]::new);
+        return new ChartData(labels, createChartDataset(chartType, label, labels, data));
+    }
+
     private static ChartData createChartData(ChartType chartType, Type type, Map<Kind, Double> data) {
         String[] labels = data.keySet().stream().map(Kind::getName).toArray(String[]::new);
         Map<String, Double> map = new HashMap<>();
         for (Map.Entry<Kind, Double> entry : data.entrySet()) {
             map.put(entry.getKey().getName(), entry.getValue());
         }
-        return new ChartData(labels, createChartDataset(chartType, type, labels, map));
+        return new ChartData(labels, createChartDataset(chartType, type.getValue(), labels, map));
     }
 
-    private static ChartDatasets[] createChartDataset(ChartType chartType, Type type, String[] labels, Map<String, Double> map) {
+    private static ChartDatasets[] createChartDataset(ChartType chartType, String label, String[] labels, Map<String, Double> map) {
         String[] data = createData(labels, map);
         String[] backgroundColor;
+        String[] borderColor;
 
         ChartDatasets[] result = new ChartDatasets[1];
 
         switch (chartType) {
+            case BARCHART:
+                backgroundColor = createRGB(map.size(), true, true);
+                borderColor = createRGB(map.size(), false, true);
+                result[0] = new ChartDatasetsHorizont(label, data, false, backgroundColor, borderColor);
+                break;
             case HORIZONTALBAR:
-                backgroundColor = createRGB(map.size(), true);
-                String[] borderColor = createRGB(map.size(), false);
-                result[0] = new ChartDatasetsHorizont(type.getValue(), data, false, backgroundColor, borderColor);
+                backgroundColor = createRGB(map.size(), true, false);
+                borderColor = createRGB(map.size(), false, false);
+                result[0] = new ChartDatasetsHorizont(label, data, false, backgroundColor, borderColor);
                 break;
             case DOUGHNUT:
-                backgroundColor = createRGB(map.size(), false);
-                String[] hoverBackgroundColor = createRGB(map.size(), false);
-                result[0] = new ChartDatasetsDoughnut(type.getValue(), data, backgroundColor, hoverBackgroundColor);
+                backgroundColor = createRGB(map.size(), false, false);
+                String[] hoverBackgroundColor = createRGB(map.size(), false, false);
+                result[0] = new ChartDatasetsDoughnut(label, data, backgroundColor, hoverBackgroundColor);
                 break;
         }
         return result;
@@ -98,10 +117,12 @@ public class ChartUtil {
         return result;
     }
 
-    private static String[] createRGB(int count, boolean isTransparent) {
+    private static String[] createRGB(int count, boolean isTransparent, boolean oneColor) {
         String[] result = new String[count];
+        String colorRGB = (oneColor ? createRGB(isTransparent) : "");
+
         for (int i = 0; i < count; i++) {
-            result[i] = createRGB(isTransparent);
+            result[i] = (oneColor ? colorRGB : createRGB(isTransparent));
         }
         return result;
     }

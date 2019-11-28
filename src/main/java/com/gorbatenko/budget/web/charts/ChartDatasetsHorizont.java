@@ -19,6 +19,4 @@ public class ChartDatasetsHorizont extends ChartDatasets{
         this.backgroundColor = backgroundColor;
         this.borderColor = borderColor;
     }
-
-
 }

@@ -76,4 +76,8 @@ public class Budget extends BaseEntity {
         return date.format(formatter);
     }
 
+    public String getStrYearMonth() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        return date.format(formatter);
+    }
 }

@@ -172,6 +172,49 @@ public class BudgetController extends AbstractWebController {
         return "budget/statistic";
     }
 
+    @GetMapping("/dynamicstatistic")
+    public String getDynamicStatistic(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
+                                      @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
+                                      @RequestParam(value = "kindId", defaultValue = "") String id,
+                                      Model model) {
+
+        if((startDate == null)||(endDate == null)||(id.isEmpty())) {
+            return "redirect:budget/groupstatistic";
+        }
+
+        User user = SecurityUtil.get().getUser();
+
+        LocalDateTime offSetStartDate;
+        LocalDateTime offSetEndDate;
+
+        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
+        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
+
+
+        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+        List<Budget> listBudget = hidePassword(
+                budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
+                        offSetStartDate, offSetEndDate, user.getGroup()));
+
+        Map<String, Double> mapKind = new HashMap<>();
+
+        boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
+                (endDate.getMonth().equals(startDate.getMonth())));
+
+        mapKind = listBudget.stream()
+                    .collect(Collectors.groupingBy(
+                            (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
+                            Collectors.summingDouble(Budget::getPrice)));
+
+        TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
+
+        model.addAttribute("kindName", kind.getName());
+        model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, kind.getName(), mapKindSort));
+
+
+        return "budget/dynamicstatistic";
+    }
+
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model) {
         User user = SecurityUtil.get().getUser();

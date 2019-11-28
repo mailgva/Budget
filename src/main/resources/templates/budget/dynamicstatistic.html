@@ -1,0 +1,19 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:ht="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+        <h4 th:text="${kindName}"></h4>
+        <canvas id="barChart" style="max-width: 80%;max-height: 500px;"></canvas>
+    </div>
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            new Chart(document.getElementById("barChart"), [(${barChart})]);
+        });
+    </script>
+</main>
+</body>
+</html>
