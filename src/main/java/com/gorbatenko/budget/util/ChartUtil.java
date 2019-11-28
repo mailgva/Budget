@@ -43,21 +43,21 @@ public class ChartUtil {
     private static Map<String, Object> createOptions(ChartType chartType) {
         Map<String, Object> result = new HashMap<>();
         switch (chartType) {
-            case BARCHART: {
-                break;
-            }
+            case BARCHART:
             case HORIZONTALBAR: {
-                /*
                 Map<String, Boolean> beginAtZero = new HashMap<>();
                 beginAtZero.put("beginAtZero", true);
 
                 Map<String, Map<String, Boolean>> ticks = new HashMap<>();
                 ticks.put("ticks", beginAtZero);
 
-                Map<String, Map<String, Map<String, Boolean>>> xAxes = new HashMap<>();
-                xAxes.put("xAxes", ticks);
+                Object[] arrayTicks = new Object[1];
+                arrayTicks[0] = ticks;
 
-                result.put("scales", xAxes);*/
+                Map<String, Object[]> axes = new HashMap<>();
+                axes.put((chartType.equals(ChartType.BARCHART) ? "yAxes" : "xAxes"), arrayTicks);
+
+                result.put("scales", axes);
                 break;
             }
             case DOUGHNUT: {

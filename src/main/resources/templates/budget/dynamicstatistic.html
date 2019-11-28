@@ -11,7 +11,7 @@
     </div>
     <script th:inline="javascript">
         $(document).ready(function () {
-            new Chart(document.getElementById("barChart"), [(${barChart})]);
+            new Chart(document.getElementById("barChart").getContext('2d'), [(${barChart})]);
         });
     </script>
 </main>
