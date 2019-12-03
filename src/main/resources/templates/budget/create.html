@@ -50,7 +50,9 @@
         arr.forEach(function(item) {
             result+= ((item.replace(" ","") === "") ? 0.0 : parseFloat(item));
         });
-        $('#price').val(result);
+        if(result > 0) {
+            $('#price').val(result);
+        };
     }
 </script>
 </body>
