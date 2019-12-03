@@ -98,17 +98,17 @@
             <th:block th:each="element : ${listBudget}">
                 <tr class="bg-warning">
                     <td colspan="7">
-                        <h4 style="display:inline-block; width : 30%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
+                        <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
                         <div style="display:inline-block;font-weight: bold; width : 60%;" align="right">
-                            <div style="display:inline-block; width: 200px;"> Приход: <b>
+                            <div style="display:inline-block; width: 140px;"> Приход: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)])}"></span></b>
                             </div>
 
-                            <div style="display:inline-block; width: 200px;"> Расход: <b>
+                            <div style="display:inline-block; width: 140px;"> Расход: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)])}"></span></b>
                             </div>
 
-                            <div style="display:inline-block; width: 200px"> Итог: <b>
+                            <div style="display:inline-block; width: 140px"> Итог: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)])}"></span></b>
                             </div>
                         </div>
