@@ -28,6 +28,7 @@ public class ProfileController extends AbstractWebController {
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
+        model = getBalanceParts(model, budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
         return "profile/profile";
     }
 
