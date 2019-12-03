@@ -43,7 +43,7 @@ public class KindController extends AbstractWebController{
         }
 
         kindRepository.deleteById(id);
-        return "redirect:/dictionaries/kinds/kinds";
+        return "redirect:/dictionaries/kinds";
     }
 
     @PostMapping("/create")
