@@ -1,21 +1,37 @@
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
 <table class="table">
     <tr class="bg-warning-dark border border-warning">
-        <td colspan="2" style="font-weight: bold">Остаток на начало периода: <span
-                th:text="${remainOnStartPeriod}"></span></td>
-        <td style="font-weight: bold">Остаток на конец периода: <span
-                th:text="${remainOnEndPeriod}"></span></td>
+        <td colspan="2" style="font-weight: bold; padding-left: 10px;">
+            <div align="left">
+                Остаток на начало периода: <span
+                    th:text="${remainOnStartPeriod}"></span>
+            </div>
+        </td>
+        <td style="font-weight: bold; padding-right: 10px;">
+            <div align="right">
+                Остаток на конец периода: <span
+                    th:text="${remainOnEndPeriod}"></span>
+            </div>
+        </td>
     </tr>
     <tr class="bg-warning border border-warning">
         <td style="width: 30%; font-weight: bold">
-            Всего приход:
-            <span th:text="${profit}"></span>
+            <div align="left">
+                Всего приход:
+                <span th:text="${profit}"></span>
+            </div>
         </td>
-        <td style="width: 30%; font-weight: bold"> Всего расход:
-            <span th:text="${spending}"></span>
+        <td style="width: 30%; font-weight: bold">
+            <div align="center">
+                Всего расход:
+                <span th:text="${spending}"></span>
+            </div>
         </td>
-        <td style="width: 30%; font-weight: bold"> Всего Итог:
-            <span th:text="${remain}"></span>
+        <td style="width: 30%; font-weight: bold">
+            <div align="right">
+                Всего Итог:
+                <span th:text="${remain}"></span>
+            </div>
         </td>
     </tr>
 </table>

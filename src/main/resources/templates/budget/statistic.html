@@ -87,7 +87,10 @@
 
         <table th:replace="fragments/statHeader :: table">
         </table>
-
+        <div style="width: 98%" class="form-check" align="right">
+            <input type="checkbox" class="form-check-input" id="check-hide" onclick="hide_alldetail(this);">
+            <label class="form-check-label" for="check-hide">Cкрыть детали</label>
+        </div>
         <!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->
         <table class="table">
             <tbody>
@@ -96,19 +99,19 @@
             </tr>
 
             <th:block th:each="element : ${listBudget}">
-                <tr class="bg-warning">
+                <tr class="bg-warning" onclick="hide_detail(this);">
                     <td colspan="7">
                         <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
                         <div style="display:inline-block;font-weight: bold; width : 60%;" align="right">
-                            <div style="display:inline-block; width: 140px;"> Приход: <b>
+                            <div style="display:inline-block; width: 140px;" align="left"> Приход: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)])}"></span></b>
                             </div>
 
-                            <div style="display:inline-block; width: 140px;"> Расход: <b>
+                            <div style="display:inline-block; width: 140px;" align="left"> Расход: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)])}"></span></b>
                             </div>
 
-                            <div style="display:inline-block; width: 140px"> Итог: <b>
+                            <div style="display:inline-block; width: 140px" align="left"> Итог: <b>
                                 <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)])}"></span></b>
                             </div>
                         </div>
@@ -116,7 +119,7 @@
                 </tr>
 
 
-                <tr class="border border-warning">
+                <tr class="border border-warning budget_detail">
                     <td colspan="7">
                         <table class="table table-active ">
                             <thead>
@@ -160,5 +163,15 @@
 
     </div>
 </main>
+<script>
+    function hide_detail(elm) {
+        var tr = $(elm).closest('tr').next('tr')[0];
+        tr.style.display = (tr.style.display == 'none') ? '' : 'none';
+    }
+
+    function hide_alldetail(elm) {
+        $('tr.budget_detail').css('display', ($(elm).is(':checked') ? 'none' : ''));
+    }
+</script>
 </body>
 </html>
