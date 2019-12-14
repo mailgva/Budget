@@ -13,15 +13,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
 
 
 public class AbstractWebController {
+    int POPULARKIND_COUNT = 10;
+
     @Autowired
     protected BudgetRepository budgetRepository;
 
@@ -45,6 +48,28 @@ public class AbstractWebController {
         return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
+    protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, String userGroup) {
+        List<Budget> listBudget = budgetRepository.getAllByKindTypeAndUser_Group(type, userGroup);
+        LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
+        listBudget.stream()
+                .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue() >= POPULARKIND_COUNT)
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .forEachOrdered(x -> mapKindCount.put(x.getKey(), x.getValue()));
+
+        List<Kind> result = new ArrayList<>(mapKindCount.keySet());
+
+        for(Kind kind : listKind) {
+            if (!result.contains(kind)) {
+                result.add(kind);
+            }
+        }
+
+        return result;
+    }
+
     protected Model getBalanceByKind(Model model, Kind kind) {
         User user = SecurityUtil.get().getUser();
         return getBalanceParts(model, budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
@@ -58,12 +83,12 @@ public class AbstractWebController {
     protected Model getBalanceParts(Model model, List<Budget> budgets) {
         Double profit = budgets.stream()
                 .filter(b -> b.getKind().getType().equals(Type.PROFIT))
-                .mapToDouble(budget -> budget.getPrice())
+                .mapToDouble(Budget::getPrice)
                 .sum();
 
         Double spending = budgets.stream()
                 .filter(b -> b.getKind().getType().equals(Type.SPENDING))
-                .mapToDouble(budget -> budget.getPrice())
+                .mapToDouble(Budget::getPrice)
                 .sum();
 
         Double remain = profit - spending;

@@ -12,11 +12,16 @@
             <form id="form" name="form" th:action="@{/budget/}" method="post">
                 <div class="form-group">
                     <label for="kindId">Вид</label>
-                    <select id="kindId" name="kindId" class="form-control">
-                        <option th:each="kind : ${kinds}"
-                                th:value="${kind.id}"
-                                th:text="${kind.name}"></option>
-                    </select>
+                    <div class="input-group mb-3">
+                        <select id="kindId" name="kindId" class="custom-select">
+                            <option th:each="kind : ${kinds}"
+                                    th:value="${kind.id}"
+                                    th:text="${kind.name}"></option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="sortKinds()"><i class="fa fa-sort-alpha-asc"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="date">Дата</label>
@@ -53,6 +58,22 @@
         if(result > 0) {
             $('#price').val(result);
         };
+    }
+
+    function sortKinds() {
+        var c = document.getElementById('kindId');
+        var options = c.options;
+        Array.prototype.sort.call(options, function (a, b) {
+            var aText = a.text.toLowerCase();
+            var bText = b.text.toLowerCase();
+            if (aText < bText) {
+                return -1;
+            } else if (aText > bText) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
     }
 </script>
 </body>

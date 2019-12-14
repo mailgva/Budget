@@ -7,10 +7,14 @@
 <main role="main">
   <div class="jumbotron"  style="background: #c2ff8e">
     <h2 id="loggedUser" >Пользователь: <span th:text="${userName}"></span></h2>
-    <div class="form-group ">
-      <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
-      <input type="number" name="remain" readonly th:value="${remain}" style="text-align:right;">
-    </div>
+
+      <div class="input-group mb-3" style="margin-left: 10px">
+        <div class="input-group-prepend">
+          <span class="input-group-text" style="width: 160px;">Остаток</span>
+        </div>
+        <input class="form-control col-md-2" type="text" readonly th:value="${remain}">
+      </div>
+
     <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Приход</a>
     <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Расход</a>
     <a href="/budget/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-list"></i> Статистика</a>

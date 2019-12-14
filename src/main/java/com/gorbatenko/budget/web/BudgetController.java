@@ -216,20 +216,24 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/create/{type}")
-    public String create(@PathVariable("type") String type, Model model) {
+    public String create(@PathVariable("type") String typeStr, Model model) {
         User user = SecurityUtil.get().getUser();
-        model.addAttribute("type",  Type.valueOf(type.toUpperCase()));
-        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(Type.valueOf(type.toUpperCase()), user.getGroup());
+        Type type = Type.valueOf(typeStr.toUpperCase());
+
+        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
 
         if(kinds.size() == 0) {
             return "/dictionaries/kinds/create";
         }
 
-        Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
-        model.addAttribute("kinds", kinds);
+        kinds.sort(Comparator.comparing(Kind::getName));
+        kinds = sortKindsByPopular(kinds, type, user.getGroup());
 
         LocalDate localDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        model.addAttribute("kinds", kinds);
+        model.addAttribute("type",  type);
         model.addAttribute("date", localDate.format(formatter));
 
         return "/budget/create";
@@ -239,9 +243,13 @@ public class BudgetController extends AbstractWebController {
     public String edit(@PathVariable("id") String id, Model model) {
         Budget budget = budgetRepository.findById(id).get();
         User user = SecurityUtil.get().getUser();
+        Type type = budget.getKind().getType();
+
+        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
+        kinds.sort(Comparator.comparing(Kind::getName));
+        kinds = sortKindsByPopular(kinds, type, user.getGroup());
+
         model.addAttribute("budget", budget );
-        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(budget.getKind().getType(), user.getGroup());
-        Collections.sort(kinds, Comparator.comparing(o -> o.getName()));
         model.addAttribute("kinds", kinds);
         return "/budget/edit";
     }

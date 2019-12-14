@@ -56,6 +56,6 @@ public class ProfileController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         user.setGroup(id);
         userService.save(user);
-        return "profile/profile";
+        return "redirect:/profile/";
     }
 }

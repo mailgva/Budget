@@ -14,11 +14,23 @@ div.error {
   background: #eea9a4;
   padding: 5px;
 }
+
 .flex-bottom {
   display: flex;
   align-items: flex-end;
 }
-button.btn:not(.btn-dark){
+
+button.btn.btn-outline-secondary{
+  height: 38px;
+  width: 40px;
+  margin: 0;
+  padding: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+
+button.btn:not(.btn-dark):not(.btn-outline-secondary){
   vertical-align: middle;
   height: 60px;
 }
@@ -28,6 +40,7 @@ a.btn:not(.btn-warning){
   margin: 10px;
   padding-top: 15px;
 }
+
 
 tr.bg-warning-dark{
   background-color: #ffb411;

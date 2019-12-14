@@ -9,48 +9,70 @@
         <div class="col-sm-8 mx-auto">
             <h2 th:text="'Профиль'"></h2>
             <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
-            <table>
-                <tr>
-                    <td><label class="col-form-label" th:text="Имя"></label></td>
-                    <td><input type="text" name="name" th:value="${user.getName()}" style="width: 400px;"></td>
-                </tr>
-                <tr>
-                    <td><label class="col-form-label" th:text="Email"></label></td>
-                    <td><input type="text" name="email" th:value="${user.getEmail()}" style="width: 400px;"></td>
-                </tr>
-                <tr>
-                    <td><label class="col-form-label" th:text="Группа"></label></td>
-                    <td><input type="text" name="group" th:value="${groupMembers}" style="width: 400px;"></td>
-                </tr>
-                <tr>
-                    <td><label class="col-form-label" th:text="ID"></label></td>
-                    <td><input type="text" name="id" th:value="${user.getId()}" style="width: 400px;"></td>
-                </tr>
-                <tr>
-                    <td><label class="col-form-label" th:text="GROUPID"></label></td>
-                    <td><input type="text" name="groupid" th:value="${user.getGroup()}" style="width: 400px;"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getId()}}">Ссылка для выхода из
-                        группы</a></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><a th:href="@{'/profile/jointogroup/'+${user.getGroup()}}">Ссылка для приглашения в
-                        группу</a></td>
-                </tr>
-            </table>
+            <div class="form-group">
+                <label for="username">Имя</label>
+                <input type="text" name="username" id="username" class="form-control" readonly th:value="${user.getName()}">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" name="email" id="email" class="form-control" readonly th:value="${user.getEmail()}">
+            </div>
+            <div class="form-group">
+                <label for="groupmembers">Группа</label>
+                <input type="text" name="groupmembers" id="groupmembers" class="form-control" readonly th:value="${groupMembers}">
+            </div>
+            <div class="form-group">
+                <label for="groupid">GROUPID</label>
+                <input type="text" name="groupid" id="groupid" class="form-control" readonly th:value="${user.getGroup()}">
+            </div>
+            <div class="form-group ">
+                <label for="joingroup">Ссылка для приглашения в группу</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id=""><i class="fa fa-user-plus"></i></span>
+                    </div>
+                    <input id="joingroup" class="form-control" type="text"
+                           th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder)}"
+                           th:value='${urlBuilder.fromCurrentRequest().toUriString().concat("jointogroup/")}+${user.getGroup()}'>
+                </div>
+            </div>
+            <div class="form-group text-right">
+                <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
+                   aria-pressed="true"><i class="fa fa-user-times"></i> Выйти из группы</a>
+            </div>
+
+            <div class="input-group">
+                <div class="input-group-prepend" >
+                    <span class="input-group-text" style="width: 200px;">Всего прихода</span>
+                </div>
+                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${profit}">
+            </div>
+            <div class="input-group" >
+                <div class="input-group-prepend" >
+                    <span class="input-group-text" style="width: 200px;">Всего расхода</span>
+                </div>
+                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${spending}">
+            </div>
+            <div class="input-group" >
+                <div class="input-group-prepend" >
+                    <span class="input-group-text" style="width: 200px;">Остаток</span>
+                </div>
+                <input type="text" class="form-control" readonly style="text-align:right;" th:value="${remain}">
+            </div>
+
+            <!--
             <div class="form-group ">
                 <label class="col-form-label" style="width: 120px;" th:text="'Всего прихода'"></label>
-                <input type="number" name="profit" readonly th:value="${profit}" style="text-align:right;">
+                <input type="number" name="profit" readonly th:value="${profit}" style="width: 400px; text-align:right;">
             </div>
             <div class="form-group ">
                 <label class="col-form-label" style="width: 120px;" th:text="'Всего расхода'"></label>
-                <input type="number" name="spending" readonly th:value="${spending}" style="text-align:right;">
+                <input type="number" name="spending" readonly th:value="${spending}" style="width: 400px; text-align:right;">
             </div>
             <div class="form-group ">
                 <label class="col-form-label" style="width: 120px;" th:text="Остаток"></label>
-                <input type="number" name="remain" readonly th:value="${remain}" style="text-align:right;">
-            </div>
+                <input type="number" name="remain" readonly th:value="${remain}" style="width: 400px; text-align:right;">
+            </div>-->
         </div>
     </div>
 </main>
