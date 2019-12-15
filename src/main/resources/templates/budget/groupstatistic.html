@@ -58,7 +58,7 @@
                                        th:href="@{/budget/statistic(startDate=${startDate},
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}">
-                                        <span th:text="${map.key.name}"></span>
+                                        <span th:text="${map.key.name + ' (' + mapKindCount.get(map.key) + ')'} "></span>
                                     </a>
                                 </td>
                                 <td style="padding-left: 10px; font-weight: bolder">

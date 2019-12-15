@@ -47,4 +47,6 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
     List<Budget> getAllByUser_Group(String userGroup);
 
     List<Budget> getAllByKindTypeAndUser_Group(Type type, String userGroup);
+
+    List<Budget> getAllByKindTypeAndDateBetweenAndUser_Group(Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
 }

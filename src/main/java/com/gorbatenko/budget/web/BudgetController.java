@@ -89,8 +89,12 @@ public class BudgetController extends AbstractWebController {
         TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
         mapKindSort.putAll(mapKind);
 
+        Map<Kind, Long> mapKindCount = listBudget.stream()
+                .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()));
+
         model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
         model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
+        model.addAttribute("mapKindCount", mapKindCount);
         model.addAttribute("mapKind", mapKindSort);
 
         model.addAttribute("circleChartProfit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.PROFIT, mapKindSort));
@@ -209,6 +213,7 @@ public class BudgetController extends AbstractWebController {
         TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
 
         model.addAttribute("kindName", kind.getName());
+        model.addAttribute("kindSum", listBudget.stream().mapToDouble(Budget::getPrice).sum());
         model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, kind.getName(), mapKindSort));
 
 
@@ -227,7 +232,18 @@ public class BudgetController extends AbstractWebController {
         }
 
         kinds.sort(Comparator.comparing(Kind::getName));
-        kinds = sortKindsByPopular(kinds, type, user.getGroup());
+
+        LocalDateTime offSetStartDate;
+        LocalDateTime offSetEndDate;
+        LocalDate now = LocalDate.now();
+
+        offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
+        offSetStartDate = setTimeZoneOffset(offSetStartDate.toLocalDate()).minusDays(1);
+
+        offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
+        offSetEndDate = setTimeZoneOffset(offSetEndDate.toLocalDate()).plusDays(1);
+
+        kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate, user.getGroup());
 
         LocalDate localDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -247,7 +263,6 @@ public class BudgetController extends AbstractWebController {
 
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
         kinds.sort(Comparator.comparing(Kind::getName));
-        kinds = sortKindsByPopular(kinds, type, user.getGroup());
 
         model.addAttribute("budget", budget );
         model.addAttribute("kinds", kinds);

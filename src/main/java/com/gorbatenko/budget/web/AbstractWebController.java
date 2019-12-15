@@ -23,7 +23,7 @@ import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
 
 
 public class AbstractWebController {
-    int POPULARKIND_COUNT = 10;
+    int POPULARKIND_COUNT = 5;
 
     @Autowired
     protected BudgetRepository budgetRepository;
@@ -48,8 +48,9 @@ public class AbstractWebController {
         return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
-    protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, String userGroup) {
-        List<Budget> listBudget = budgetRepository.getAllByKindTypeAndUser_Group(type, userGroup);
+    protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {
+
+        List<Budget> listBudget = budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type, startDate, endDate, userGroup);
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
         listBudget.stream()
                 .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
