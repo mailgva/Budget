@@ -45,6 +45,13 @@ a.btn:not(.btn-warning){
 tr.bg-warning-dark{
   background-color: #ffb411;
 }
+tr.bg-warning-light{
+  background-color: #f4ff81;
+}
+
+a.dropdown-item.btn-lg{
+  font-size: 1.5rem;
+}
 
 nav > .nav.nav-tabs{
 
