@@ -7,19 +7,28 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <div class="col-sm-8 mx-auto">
+            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
             <h2 th:text="'Добавление статьи ' + ${type.getValue()}"> </h2>
 
             <form id="form" name="form" th:action="@{/budget/}" method="post">
                 <div class="form-group">
                     <label for="kindId">Вид</label>
                     <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="location.href = 'dictionaries/kinds/create';">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
                         <select id="kindId" name="kindId" class="custom-select">
                             <option th:each="kind : ${kinds}"
                                     th:value="${kind.id}"
                                     th:text="${kind.name}"></option>
                         </select>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" onclick="sortKinds()"><i class="fa fa-sort-alpha-asc"></i></button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="sortKinds()"><i class="fa fa-sort-alpha-asc"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -26,13 +26,21 @@
                 </fieldset>
                 <div class="form-group">
                     <label for="kindId">Вид</label>
-                    <select id="kindId" name="kindId" class="form-control">
-                        <option th:each="kind : ${kinds}"
-                                th:value="${kind.id}"
-                                th:text="${kind.name}"
-                                th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
-                        </option>
-                    </select>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="location.href = 'dictionaries/kinds/create';">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        <select id="kindId" name="kindId" class="form-control">
+                            <option th:each="kind : ${kinds}"
+                                    th:value="${kind.id}"
+                                    th:text="${kind.name}"
+                                    th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="date">Дата</label>

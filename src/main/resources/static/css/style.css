@@ -29,7 +29,6 @@ button.btn.btn-outline-secondary{
   padding-right: 6px;
 }
 
-
 button.btn:not(.btn-dark):not(.btn-outline-secondary){
   vertical-align: middle;
   height: 60px;

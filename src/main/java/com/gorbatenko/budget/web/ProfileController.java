@@ -42,6 +42,7 @@ public class ProfileController extends AbstractWebController {
         user.setRoles(Collections.singleton(Role.ROLE_USER));
         try {
             userService.create(user);
+
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", e.getMessage());

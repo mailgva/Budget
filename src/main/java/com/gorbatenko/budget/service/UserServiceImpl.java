@@ -3,8 +3,14 @@ package com.gorbatenko.budget.service;
 import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
 
 import com.gorbatenko.budget.AuthorizedUser;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,14 +22,26 @@ import java.util.List;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
+    private Map<String, Type> mapStartKinds = new HashMap();
+
+    {
+        mapStartKinds.put("Зарплата", Type.PROFIT);
+        mapStartKinds.put("Доп. доход", Type.PROFIT);
+        mapStartKinds.put("Продукты", Type.SPENDING);
+        mapStartKinds.put("Коммунальные расходы", Type.SPENDING);
+        mapStartKinds.put("Прочее", Type.SPENDING);
+    }
     private final UserRepository repository;
+
+    private final KindRepository kindRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder, KindRepository kindRepository) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.kindRepository = kindRepository;
     }
 
     @Override
@@ -38,11 +56,21 @@ public class UserServiceImpl implements UserService {
 
     public User create(User user) throws Exception {
         Assert.notNull(user, "user must not be null");
-        return repository.saveUser(prepareToSave(user, passwordEncoder));
+        User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
+        createStartKindsForUser(newUser);
+        return newUser;
     }
 
     public User save(User user) {
         return repository.save(user);
+    }
+
+    private void createStartKindsForUser(User user) {
+        String userGroupId = user.getGroup();
+        for(HashMap.Entry<String, Type> entry : mapStartKinds.entrySet()) {
+            kindRepository.save(new Kind(entry.getValue(), entry.getKey(), userGroupId));
+        }
+
     }
 
     @Override
