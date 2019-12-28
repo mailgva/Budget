@@ -11,26 +11,54 @@
             <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
             <div class="form-group">
                 <label for="username">Имя</label>
-                <input type="text" name="username" id="username" class="form-control" readonly th:value="${user.getName()}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    </div>
+                    <input type="text" name="username" id="username" class="form-control" readonly
+                           th:value="${user.getName()}">
+                </div>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="text" name="email" id="email" class="form-control" readonly th:value="${user.getEmail()}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" ><i class="fa fa-envelope"></i></span>
+                    </div>
+                    <input type="text" name="email" id="email" class="form-control" readonly
+                           th:value="${user.getEmail()}">
+                </div>
             </div>
             <div class="form-group">
                 <label for="groupmembers">Группа</label>
-                <input type="text" name="groupmembers" id="groupmembers" class="form-control" readonly th:value="${groupMembers}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-users"></i></span>
+                    </div>
+                    <input type="text" name="groupmembers" id="groupmembers" class="form-control" readonly
+                           th:value="${groupMembers}">
+                </div>
             </div>
             <div class="form-group">
                 <label for="groupid">GROUPID</label>
-                <input type="text" name="groupid" id="groupid" class="form-control" readonly th:value="${user.getGroup()}">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-indent"></i></span>
+                    </div>
+                    <input type="text" name="groupid" id="groupid" class="form-control" readonly
+                           th:value="${user.getGroup()}">
+                </div>
             </div>
             <form id="formChangeDefaultCurrency" name="formChangeDefaultCurrency"
                   th:action="@{/profile/changedefcurrency/}" method="post">
                 <div class="form-group">
                     <label for="username">Валюта по-умолчанию</label>
-                    <div class="input-group mb-3">
-                        <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-money"></i></span>
+                        </div>
+                        <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"-->
+                        <!--*/-->
                         <select id="currencyId" name="currencyId" class="custom-select">
                             <option th:each="currencyEntry : ${mapCurrencies}"
                                     th:value="${currencyEntry.key.id}"
@@ -39,12 +67,11 @@
                             ></option>
                         </select>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fa fa-save"></i>
+                            <button class="btn btn-outline-secondary" type="submit" title="Сохранить">
+                                <i class="fa fa-save"></i>
                             </button>
                         </div>
                     </div>
-
                 </div>
             </form>
 
@@ -53,7 +80,7 @@
                 <label for="joingroup">Ссылка для приглашения в группу</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id=""><i class="fa fa-user-plus"></i></span>
+                        <span class="input-group-text"><i class="fa fa-user-plus"></i></span>
                     </div>
                     <input id="joingroup" class="form-control" type="text"
                            th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder)}"
