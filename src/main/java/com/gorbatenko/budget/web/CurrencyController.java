@@ -48,6 +48,11 @@ public class CurrencyController extends AbstractWebController {
       return String.format("redirect:/dictionaries/currencies/edit/%s", id);
     }
 
+    if (user.getCurrencyDefault().getId().equals(id)) {
+      rm.addFlashAttribute("error", "Невозможно удалить валюту, валюта [" + currency.getName() + "] установлена как валюта по умолчанию!");
+      return String.format("redirect:/dictionaries/currencies/edit/%s", id);
+    }
+
     currencyRepository.deleteById(id);
     return "redirect:/dictionaries/currencies";
   }
