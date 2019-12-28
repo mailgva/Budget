@@ -1,10 +1,8 @@
 package com.gorbatenko.budget;
 
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Role;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetRepository;
+import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
 public class BudgetApplication extends SpringBootServletInitializer {
@@ -28,12 +28,44 @@ public class BudgetApplication extends SpringBootServletInitializer {
     @Autowired
     private KindRepository kindRepository;
     @Autowired
+    private CurrencyRepository currencyRepository;
+    @Autowired
     private UserRepository userRepository;
 
+    private List<String> listStartCurrencies = new ArrayList<>();
 
+    {
+        listStartCurrencies.add("грн");
+        listStartCurrencies.add("usd");
+        listStartCurrencies.add("eur");
+    }
 
-    //@PostConstruct
+    private void createStartCurrenciesForUser(User user) {
+        String userGroupId = user.getGroup();
+        for (String currencyName : listStartCurrencies) {
+            currencyRepository.save(new Currency(currencyName, userGroupId));
+        }
+    }
+
+    @PostConstruct
     public void init() {
+        List<User> users = userRepository.findAll();
+        for(User user : users) {
+            if(currencyRepository.findByUserGroup(user.getId()).size() == 0) {
+                createStartCurrenciesForUser(user);
+                Currency currency = currencyRepository.findByUserGroupAndNameIgnoreCase(user.getGroup(), "грн");
+                user.setCurrencyDefault(currency);
+                userRepository.save(user);
+
+                List<Budget> budgets = budgetRepository.getAllByUser_Group(user.getGroup());
+                for(Budget budget : budgets) {
+                    budget.setCurrency(currency);
+                    budgetRepository.save(budget);
+                }
+
+            }
+        }
+
 /*
         budgetRepository.deleteAll();
         kindRepository.deleteAll();

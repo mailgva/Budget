@@ -20,6 +20,8 @@ public class BudgetTo extends BaseEntity {
 
     private String kindId;
 
+    private String currencyId;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 

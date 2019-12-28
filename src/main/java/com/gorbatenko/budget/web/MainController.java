@@ -50,7 +50,8 @@ public class MainController extends AbstractWebController {
     @GetMapping("/menu")
     public String getMenu(Model model) {
         User user = SecurityUtil.get().getUser();
-        model = getBalanceParts(model, budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
         return "menu";
     }
 

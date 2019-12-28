@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping(value = "/dictionaries/kinds/")
 public class KindController extends AbstractWebController{
 
-
     @GetMapping("/create")
     public String create() {
         return "/dictionaries/kinds/create";

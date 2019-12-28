@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,11 @@ public class DictionaryController extends AbstractWebController {
             Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
             model.addAttribute("kinds", kinds);
             return "/dictionaries/kinds/kinds";
+        } else if (name.equalsIgnoreCase("CURRENCIES")) {
+            List<Currency> currencies = getCurrencies();
+            Collections.sort(currencies, Comparator.comparing(o -> o.getName()));
+            model.addAttribute("currencies", currencies);
+            return "/dictionaries/currencies/currencies";
         }
         return getDictionaries();
     }

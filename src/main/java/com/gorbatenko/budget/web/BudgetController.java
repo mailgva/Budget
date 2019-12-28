@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 
 import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
@@ -45,14 +46,16 @@ public class BudgetController extends AbstractWebController {
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), b.getKindId());
-        Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(), b.getPrice());
+        Currency currency = currencyRepository.findByUserGroupAndId(user.getGroup(), b.getCurrencyId());
+        Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(),
+                b.getPrice(), currency);
         return budget;
     }
 
     @GetMapping("/groupstatistic")
-    public String getGroupStatistic(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
-                                   @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
-                                   Model model) {
+    public String getGroupStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                    @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                    Model model) {
         User user = SecurityUtil.get().getUser();
 
         LocalDateTime offSetStartDate;
@@ -60,27 +63,28 @@ public class BudgetController extends AbstractWebController {
 
         LocalDate now = LocalDate.now();
 
-        if(startDate == null) {
+        if (startDate == null) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
         }
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
 
-        if(endDate == null) {
+        if (endDate == null) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
-        List<Budget> listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
-                offSetStartDate, offSetEndDate, user.getGroup()));
+        List<Budget> listBudget = hidePassword(
+                filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                    offSetStartDate, offSetEndDate, user.getGroup())));
 
         model = getBalanceParts(model, listBudget);
 
         Map<Type, Map<Kind, Double>> mapKind = listBudget.stream()
                 .collect(Collectors.groupingBy(
                         budget ->
-                                budget.getKind().getType(),(
+                                budget.getKind().getType(), (
                                 Collectors.groupingBy(
                                         Budget::getKind,
                                         TreeMap::new,
@@ -106,8 +110,8 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/statistic")
-    public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
-                               @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
+    public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                               @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(value = "kindId", defaultValue = "-1") String id,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
                                @RequestParam(value = "comment", defaultValue = "") String comment, Model model) {
@@ -119,13 +123,13 @@ public class BudgetController extends AbstractWebController {
 
         LocalDate now = LocalDate.now();
 
-        if(startDate == null) {
+        if (startDate == null) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
         }
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
 
-        if(endDate == null) {
+        if (endDate == null) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
@@ -139,16 +143,18 @@ public class BudgetController extends AbstractWebController {
 
 
         if ("-1".equals(id)) {
-            listBudget = hidePassword(budgetRepository.getBudgetByDateBetweenAndUser_Group(
-                    offSetStartDate, offSetEndDate, user.getGroup()));
+            listBudget = hidePassword(
+                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                        offSetStartDate, offSetEndDate, user.getGroup())));
         } else {
             kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
             listBudget = hidePassword(
-                    budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
-                            offSetStartDate, offSetEndDate, user.getGroup()));
+                    filterBudgetByUserCurrencyDefault(
+                            budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
+                            offSetStartDate, offSetEndDate, user.getGroup())));
         }
 
-        if(typeStr != null) {
+        if (typeStr != null) {
             if (!("allTypes".equals(typeStr))) {
                 type = Type.valueOf(typeStr);
                 listBudget = listBudget.stream().
@@ -158,7 +164,7 @@ public class BudgetController extends AbstractWebController {
             }
         }
 
-        if((comment != null) && (!comment.isEmpty())) {
+        if ((comment != null) && (!comment.isEmpty())) {
             listBudget = listBudget.stream()
                     .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toUpperCase()))
                     .collect(Collectors.toList());
@@ -177,12 +183,12 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/dynamicstatistic")
-    public String getDynamicStatistic(@RequestParam(value = "startDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
-                                      @RequestParam(value = "endDate", required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate,
+    public String getDynamicStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                       @RequestParam(value = "kindId", defaultValue = "") String id,
                                       Model model) {
 
-        if((startDate == null)||(endDate == null)||(id.isEmpty())) {
+        if ((startDate == null) || (endDate == null) || (id.isEmpty())) {
             return "redirect:budget/groupstatistic";
         }
 
@@ -197,8 +203,8 @@ public class BudgetController extends AbstractWebController {
 
         Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
         List<Budget> listBudget = hidePassword(
-                budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
-                        offSetStartDate, offSetEndDate, user.getGroup()));
+                filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
+                        offSetStartDate, offSetEndDate, user.getGroup())));
 
         Map<String, Double> mapKind = new HashMap<>();
 
@@ -206,9 +212,9 @@ public class BudgetController extends AbstractWebController {
                 (endDate.getMonth().equals(startDate.getMonth())));
 
         mapKind = listBudget.stream()
-                    .collect(Collectors.groupingBy(
-                            (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
-                            Collectors.summingDouble(Budget::getPrice)));
+                .collect(Collectors.groupingBy(
+                        (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
+                        Collectors.summingDouble(Budget::getPrice)));
 
         TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
 
@@ -227,7 +233,7 @@ public class BudgetController extends AbstractWebController {
 
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
 
-        if(kinds.size() == 0) {
+        if (kinds.size() == 0) {
             return "/dictionaries/kinds/create";
         }
 
@@ -245,13 +251,17 @@ public class BudgetController extends AbstractWebController {
 
         kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate, user.getGroup());
 
+        List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+
         LocalDate localDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        model.addAttribute("kinds", kinds);
-        model.addAttribute("type",  type);
-        model.addAttribute("date", localDate.format(formatter));
 
+        model.addAttribute("kinds", kinds);
+        model.addAttribute("type", type);
+        model.addAttribute("date", localDate.format(formatter));
+        model.addAttribute("currencies", currencies);
+        model.addAttribute("defaultCurrency", user.getCurrencyDefault());
         return "/budget/create";
     }
 
@@ -264,17 +274,20 @@ public class BudgetController extends AbstractWebController {
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        model.addAttribute("budget", budget );
+        List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+
+        model.addAttribute("budget", budget);
         model.addAttribute("kinds", kinds);
+        model.addAttribute("currencies", currencies);
+        model.addAttribute("defaultCurrency", user.getCurrencyDefault());
         return "/budget/edit";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1", "allTypes", "",  model);
+        return getStatistic(null, null, "-1", "allTypes", "", model);
     }
-
 
 
 }

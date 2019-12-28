@@ -57,8 +57,21 @@
                 </div>
                 <div class="form-group">
                     <label for="price">Сумма</label>
-                    <input type="number" min="1" step="0.5" name="price" id="price" class="form-control" th:placeholder="${budget.price}" required
-                           th:value="${budget.price}">
+                    <div class="input-group mb-3">
+                        <input type="number" min="1" step="0.5" name="price" id="price"
+                               class="form-control" th:placeholder="${budget.price}" required
+                               th:value="${budget.price}">
+                        <div class="input-group-append">
+                            <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                            <select id="currencyId" name="currencyId" class="custom-select" style="width: 80px;">
+                                <option th:each="currency : ${currencies}"
+                                        th:value="${currency.id}"
+                                        th:text="${currency.name}"
+                                        th:selected="${currency.id.equals(budget.getCurrency().getId())}"
+                                ></option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
                 <a th:href="@{'/budget/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>

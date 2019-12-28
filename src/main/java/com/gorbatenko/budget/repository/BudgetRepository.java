@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
@@ -36,9 +37,13 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     List<Budget> getBudgetBykindAndUser_Group(Kind kind, String userGroup);
 
+    List<Budget> getBudgetByCurrencyAndUser_Group(Currency currency, String userGroup);
+
     List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
 
     int countByUser_GroupAndKind(String userGroup, Kind kind);
+
+    int countByUser_GroupAndCurrency(String userGroup, Currency currency);
 
     List<Budget> getBudgetByUser_GroupAndDateLessThan(String userGroup, LocalDateTime date);
 
@@ -49,4 +54,5 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
     List<Budget> getAllByKindTypeAndUser_Group(Type type, String userGroup);
 
     List<Budget> getAllByKindTypeAndDateBetweenAndUser_Group(Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
+
 }

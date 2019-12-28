@@ -1,19 +1,16 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetRepository;
+import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -32,6 +29,9 @@ public class AbstractWebController {
     protected KindRepository kindRepository;
 
     @Autowired
+    protected CurrencyRepository currencyRepository;
+
+    @Autowired
     protected UserService userService;
 
     @ModelAttribute("userName")
@@ -43,14 +43,29 @@ public class AbstractWebController {
         }
     }
 
+    @ModelAttribute("defaultCurrencyName")
+    protected String getDefaultCurrency(){
+        try {
+            return  SecurityUtil.get().getUser().getCurrencyDefault().getName();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     protected List<Kind> getKinds() {
         User user = SecurityUtil.get().getUser();
         return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
+    protected List<Currency> getCurrencies() {
+        User user = SecurityUtil.get().getUser();
+        return currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+    }
+
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {
 
-        List<Budget> listBudget = budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type, startDate, endDate, userGroup);
+        List<Budget> listBudget = filterBudgetByUserCurrencyDefault(
+                budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type, startDate, endDate, userGroup));
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
         listBudget.stream()
                 .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
@@ -73,12 +88,14 @@ public class AbstractWebController {
 
     protected Model getBalanceByKind(Model model, Kind kind) {
         User user = SecurityUtil.get().getUser();
-        return getBalanceParts(model, budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()));
+        return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup())));
     }
 
     protected Model getBalanceByDate(Model model, LocalDate date) {
         User user = SecurityUtil.get().getUser();
-        return getBalanceParts(model, budgetRepository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup()));
+        return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup())));
     }
 
     protected Model getBalanceParts(Model model, List<Budget> budgets) {
@@ -111,7 +128,8 @@ public class AbstractWebController {
         String userGroup = SecurityUtil.get().getUser().getGroup();
         LocalDateTime startDate = budgets.stream().map(Budget::getDate).min(LocalDateTime::compareTo).get();
 
-        List<Budget> budgetsLessStart = budgetRepository.getBudgetByUser_GroupAndDateLessThan(userGroup, startDate);
+        List<Budget> budgetsLessStart = filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetByUser_GroupAndDateLessThan(userGroup, startDate));
 
         return budgetsLessStart.stream()
                 .map(budget ->
@@ -127,7 +145,8 @@ public class AbstractWebController {
         String userGroup = SecurityUtil.get().getUser().getGroup();
         LocalDateTime endDate = budgets.stream().map(Budget::getDate).max(LocalDateTime::compareTo).get();
 
-        List<Budget> budgetsLessOrEqualsEnd = budgetRepository.getBudgetByUser_GroupAndDateLessThanEqual(userGroup, endDate);
+        List<Budget> budgetsLessOrEqualsEnd = filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetByUser_GroupAndDateLessThanEqual(userGroup, endDate));
 
         return budgetsLessOrEqualsEnd.stream()
                 .map(budget ->
@@ -135,6 +154,12 @@ public class AbstractWebController {
 
     }
 
+    protected List<Budget> filterBudgetByUserCurrencyDefault(List<Budget> budgets) {
+        Currency userCurrencyDefault = SecurityUtil.get().getUser().getCurrencyDefault();
+        return budgets.stream()
+                .filter(budget -> budget.getCurrency().getId().equals(userCurrencyDefault.getId()))
+                .collect(Collectors.toList());
+    }
 
 
 }

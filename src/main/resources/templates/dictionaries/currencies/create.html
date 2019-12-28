@@ -1,0 +1,27 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+  <div class="jumbotron" style="background: #c2ff8e">
+    <div class="col-sm-8 mx-auto">
+      <h2 th:text="'Добавление валюты'"> </h2>
+      <div class="error" role="alert" th:if="${error}" th:text="${error}">
+      </div>
+
+      <form id="form" name="form" th:action="@{/dictionaries/currencies/create}" method="post">
+        <div class="form-group">
+          <label for="name">Наименование</label>
+          <input type="text" name="name" id="name" class="form-control" placeholder="Наименование" required>
+        </div>
+
+        <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
+      </form>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>

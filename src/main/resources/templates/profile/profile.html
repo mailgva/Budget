@@ -25,6 +25,30 @@
                 <label for="groupid">GROUPID</label>
                 <input type="text" name="groupid" id="groupid" class="form-control" readonly th:value="${user.getGroup()}">
             </div>
+            <form id="formChangeDefaultCurrency" name="formChangeDefaultCurrency"
+                  th:action="@{/profile/changedefcurrency/}" method="post">
+                <div class="form-group">
+                    <label for="username">Валюта по-умолчанию</label>
+                    <div class="input-group mb-3">
+                        <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                        <select id="currencyId" name="currencyId" class="custom-select">
+                            <option th:each="currencyEntry : ${mapCurrencies}"
+                                    th:value="${currencyEntry.key.id}"
+                                    th:text="${currencyEntry.key.getName()}"
+                                    th:selected="${currencyEntry.value.booleanValue()}"
+                            ></option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fa fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+
             <div class="form-group ">
                 <label for="joingroup">Ссылка для приглашения в группу</label>
                 <div class="input-group">
@@ -62,5 +86,10 @@
         </div>
     </div>
 </main>
+<script>
+    function changeDefaulCurrency(){
+
+    }
+</script>
 </body>
 </html>

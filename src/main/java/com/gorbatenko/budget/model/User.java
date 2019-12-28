@@ -26,8 +26,9 @@ public class User extends BaseEntity {
     // By default contains self id. If user is a member group, then field will be contains id group owner.
     private String group;
 
-
     private String name;
+
+    private Currency currencyDefault;
 
     @Email
     @Indexed /*(unique=true)*/
@@ -90,6 +91,7 @@ public class User extends BaseEntity {
             ", email='" + email + '\'' +
             ", password='" + password + '\'' +
             ", group='" + group + '\'' +
+            ", currencyDefault='" + currencyDefault.getName() + '\'' +
             '}';
     }
 

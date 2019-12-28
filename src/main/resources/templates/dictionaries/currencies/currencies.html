@@ -1,0 +1,30 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron"  style="background: #c2ff8e">
+        <a href="/dictionaries/currencies/create" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
+        <table class="table table-striped table-active" >
+            <thead>
+            <tr>
+                <th>Наименование</th>
+                <th> </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr th:class="${'bg-success'}"  th:each="currency : ${ currencies}">
+                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                <td><span th:text="${currency.getName()}"> Name </span></td>
+                <td>
+                    <a th:href="@{'/dictionaries/currencies/edit/'+${currency.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</main>
+</body>
+</html>

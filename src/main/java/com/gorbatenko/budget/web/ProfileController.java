@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
@@ -9,7 +10,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -24,11 +27,18 @@ public class ProfileController extends AbstractWebController {
         List<User> usersGroup = userService.getByGroup(user.getGroup());
         String groupMembers = usersGroup.stream()
                 .map(u -> u.getName())
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(", "));
+
+        Map<Currency, Boolean> mapCurrencies = new HashMap<>();
+
+        currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup())
+                .forEach(currency -> mapCurrencies.put(currency, currency.getId().equals(user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
-        model = getBalanceParts(model, budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup()));
+        model.addAttribute("mapCurrencies", mapCurrencies);
+        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
+                budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
         return "profile/profile";
     }
 
@@ -56,6 +66,15 @@ public class ProfileController extends AbstractWebController {
     public String joinToGroup(@PathVariable("id") String id) {
         User user = SecurityUtil.get().getUser();
         user.setGroup(id);
+        userService.save(user);
+        return "redirect:/profile/";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/changedefcurrency")
+    public String changeDefaultCurrency(@RequestParam(value="currencyId", required=true) String currencyId) {
+        User user = SecurityUtil.get().getUser();
+        user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
         userService.save(user);
         return "redirect:/profile/";
     }
