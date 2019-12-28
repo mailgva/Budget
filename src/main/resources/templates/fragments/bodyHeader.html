@@ -7,6 +7,15 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto nav-flex-icons">
                 <li class="nav-item dropdown">
+                    <a class="dropdown-toggle nav-link my-1 ml-2" data-toggle="dropdown" th:text="${defaultCurrencyName.toUpperCase()}"></a>
+                    <div class="dropdown-menu">
+                        <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                        <th:block th:each="currency : ${listOfCurrencies}">
+                            <a class="dropdown-item btn-lg" th:href="${'javascript:changeCurrency( &quot;' + currency.id + '&quot;)'}" th:text="${'&#8226;  ' + currency.name}"></a>
+                        </th:block>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
                     <a class="btn btn-warning dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-bars"></i>
@@ -34,4 +43,15 @@
         <a href="/" class="navbar-brand"><img th:src="@{/images/wallet-icon.png}"/>
             <h2 style="display: inline-block;"> Бюджет</h2></a>
     </nav>
+    <script>
+        function changeCurrency(currencyId) {
+            $.ajax({
+                type: "GET",
+                url: "/profile/changedefcurrency/?currencyId="+currencyId,
+                success: function(status) {
+                        location.reload();
+                }
+            });
+        }
+    </script>
 </div>

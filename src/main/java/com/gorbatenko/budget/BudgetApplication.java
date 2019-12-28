@@ -32,38 +32,26 @@ public class BudgetApplication extends SpringBootServletInitializer {
     @Autowired
     private UserRepository userRepository;
 
-    /*private List<String> listStartCurrencies = new ArrayList<>();
 
-    {
-        listStartCurrencies.add("грн");
-        listStartCurrencies.add("usd");
-        listStartCurrencies.add("eur");
-    }
-
-    private void createStartCurrenciesForUser(User user) {
-        String userGroupId = user.getGroup();
-        for (String currencyName : listStartCurrencies) {
-            currencyRepository.save(new Currency(currencyName, userGroupId));
-        }
-    }*/
 
     //@PostConstruct
     public void init() {
-       /* List<User> users = userRepository.findAll();
-        for(User user : users) {
-            if(currencyRepository.findByUserGroup(user.getId()).size() == 0) {
-                createStartCurrenciesForUser(user);
+        /*
+       List<User> users = userRepository.findAll();
+       for(User user : users) {
+            //if(currencyRepository.findByUserGroup(user.getId()).size() == 0) {
+                //createStartCurrenciesForUser(user);
                 Currency currency = currencyRepository.findByUserGroupAndNameIgnoreCase(user.getGroup(), "грн");
                 user.setCurrencyDefault(currency);
                 userRepository.save(user);
 
-                List<Budget> budgets = budgetRepository.getAllByUser_Group(user.getGroup());
+                List<Budget> budgets = budgetRepository.getAllByUser_Group(user.getId());
                 for(Budget budget : budgets) {
                     budget.setCurrency(currency);
                     budgetRepository.save(budget);
                 }
 
-            }
+            //}
         }*/
 
 /*

@@ -105,6 +105,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getByGroup(String name) {
         return repository.getByGroupIgnoreCase(name);
     }
+
+    @Override
+    public User findById(String id) {
+        return repository.findById(id).get();
+    }
 }
 
 

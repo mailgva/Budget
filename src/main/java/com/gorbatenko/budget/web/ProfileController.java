@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,7 +66,9 @@ public class ProfileController extends AbstractWebController {
     @GetMapping("/jointogroup/{id}")
     public String joinToGroup(@PathVariable("id") String id) {
         User user = SecurityUtil.get().getUser();
+        User owner = userService.findById(id);
         user.setGroup(id);
+        user.setCurrencyDefault(owner.getCurrencyDefault());
         userService.save(user);
         return "redirect:/profile/";
     }
@@ -77,5 +80,14 @@ public class ProfileController extends AbstractWebController {
         user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
         userService.save(user);
         return "redirect:/profile/";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/changedefcurrency")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void changeDefaultCurrencyGet(@RequestParam(value="currencyId", required=true) String currencyId) {
+        User user = SecurityUtil.get().getUser();
+        user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
+        userService.save(user);
     }
 }

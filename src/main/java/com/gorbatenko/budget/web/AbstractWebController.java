@@ -57,9 +57,15 @@ public class AbstractWebController {
         return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
+    @ModelAttribute("listOfCurrencies")
     protected List<Currency> getCurrencies() {
-        User user = SecurityUtil.get().getUser();
-        return currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+        List<Currency> list = new ArrayList<>();
+        try {
+            User user = SecurityUtil.get().getUser();
+            list = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+        } catch (Exception e) {}
+        return list;
+
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {
