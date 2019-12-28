@@ -32,6 +32,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
     @Autowired
     private UserRepository userRepository;
 
+    /*
     private List<String> listStartCurrencies = new ArrayList<>();
 
     {
@@ -45,10 +46,11 @@ public class BudgetApplication extends SpringBootServletInitializer {
         for (String currencyName : listStartCurrencies) {
             currencyRepository.save(new Currency(currencyName, userGroupId));
         }
-    }
+    }*/
 
-    @PostConstruct
+    //@PostConstruct
     public void init() {
+        /*
         List<User> users = userRepository.findAll();
         for(User user : users) {
             if(currencyRepository.findByUserGroup(user.getId()).size() == 0) {
@@ -64,7 +66,7 @@ public class BudgetApplication extends SpringBootServletInitializer {
                 }
 
             }
-        }
+        }*/
 
 /*
         budgetRepository.deleteAll();
