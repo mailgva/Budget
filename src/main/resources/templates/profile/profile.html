@@ -35,7 +35,7 @@
                             <option th:each="currencyEntry : ${mapCurrencies}"
                                     th:value="${currencyEntry.key.id}"
                                     th:text="${currencyEntry.key.getName()}"
-                                    th:selected="${currencyEntry.value.booleanValue()}"
+                                    th:selected="${(currencyEntry.value.booleanValue() == true)}"
                             ></option>
                         </select>
                         <div class="input-group-append">
@@ -86,10 +86,5 @@
         </div>
     </div>
 </main>
-<script>
-    function changeDefaulCurrency(){
-
-    }
-</script>
 </body>
 </html>
