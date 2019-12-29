@@ -57,6 +57,24 @@
                            th:value="${user.getGroup()}">
                 </div>
             </div>
+
+            <div class="form-group ">
+                <label for="joingroup">Ссылка для приглашения в группу</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user-plus"></i></span>
+                    </div>
+                    <input id="joingroup" class="form-control" type="text" data-clipboard-text="Copy Me!"
+                           th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder)}"
+                           th:value='${urlBuilder.fromCurrentRequest().toUriString().concat("jointogroup/")}+${user.getGroup()}'>
+                    <div class="input-group-append">
+                        <button id="copy-joinbutton" class="btn btn-outline-secondary" data-clipboard-target="#joingroup" type="button" title="Копировать ссылку" >
+                            <i class="fa fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <form id="formChangeDefaultCurrency" name="formChangeDefaultCurrency"
                   th:action="@{/profile/changedefcurrency/}" method="post">
                 <div class="form-group">
@@ -83,28 +101,6 @@
                 </div>
             </form>
 
-
-            <div class="form-group ">
-                <label for="joingroup">Ссылка для приглашения в группу</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-user-plus"></i></span>
-                    </div>
-                    <input id="joingroup" class="form-control" type="text" data-clipboard-text="Copy Me!"
-                           th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder)}"
-                           th:value='${urlBuilder.fromCurrentRequest().toUriString().concat("jointogroup/")}+${user.getGroup()}'>
-                    <div class="input-group-append">
-                        <button id="copy-joinbutton" class="btn btn-outline-secondary" data-clipboard-target="joingroup" type="button" title="Копировать ссылку" >
-                            <i class="fa fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group text-right">
-                <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
-                   aria-pressed="true"><i class="fa fa-user-times"></i> Выйти из группы</a>
-            </div>
-
             <div class="input-group">
                 <div class="input-group-prepend" >
                     <span class="input-group-text" style="width: 200px;" th:text="${'Всего прихода, ' + defaultCurrencyName}"></span>
@@ -123,11 +119,15 @@
                 </div>
                 <input type="text" class="form-control" readonly style="text-align:right;" th:value="${remain}">
             </div>
+            <div class="form-group text-right">
+                <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
+                   aria-pressed="true"><i class="fa fa-user-times"></i> Выйти из группы</a>
+            </div>
         </div>
     </div>
     <script>
         (function(){
-            new Clipboard('#copy-joinbutton');
+            new Clipboard($('#copy-joinbutton')[0]);
         })();
     </script>
 </main>
