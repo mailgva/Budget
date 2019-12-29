@@ -81,6 +81,8 @@ public class BudgetController extends AbstractWebController {
 
         model = getBalanceParts(model, listBudget);
 
+
+
         Map<Type, Map<Kind, Double>> mapKind = listBudget.stream()
                 .collect(Collectors.groupingBy(
                         budget ->
@@ -96,10 +98,35 @@ public class BudgetController extends AbstractWebController {
         Map<Kind, Long> mapKindCount = listBudget.stream()
                 .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()));
 
+
+        Double maxPriceProfit = 0.0d;
+        Double maxPriceSpending = 0.0d;
+
+        maxPriceProfit = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
+                .collect(Collectors.groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
+                .entrySet().stream()
+                .map(Map.Entry::getValue)
+                .max(Double::compareTo)
+                .get();
+
+        maxPriceSpending = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
+                .collect(Collectors.groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
+                .entrySet().stream()
+                .map(Map.Entry::getValue)
+                .max(Double::compareTo)
+                .get();
+
+        Map<Type, Double> mapMaxPrice = new HashMap<>();
+        mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
+        mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
+
         model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
         model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
         model.addAttribute("mapKind", mapKindSort);
+        model.addAttribute("mapMaxPrice", mapMaxPrice);
 
         model.addAttribute("circleChartProfit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.PROFIT, mapKindSort));
         model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKindSort));

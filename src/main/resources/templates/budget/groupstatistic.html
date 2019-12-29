@@ -59,13 +59,22 @@
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}">
                                         <span th:text="${map.key.name + ' (' + mapKindCount.get(map.key) + ')'} "></span>
+
+                                        <div class="bg-white"
+                                             th:style="${'margin-top:4px; height: 4px; width:' + (map.value.doubleValue() * 100 / #aggregates.sum(element.value.![(value)])) + '%'}"
+                                             th:title="${(map.value.doubleValue() * 100 / #aggregates.sum(element.value.![(value)])) + '% от общей суммы'}"
+                                        ></div>
+                                        <div class="bg-warning"
+                                             th:style="${'margin-top:1px; height: 4px; width:' + (map.value.doubleValue() * 100 / mapMaxPrice.get(element.key)) + '%'}"
+                                             th:title="${(map.value.doubleValue() * 100 / mapMaxPrice.get(element.key)) + '% от максимальной статьи'}"
+                                        ></div>
                                     </a>
                                 </td>
                                 <td style="padding-left: 10px; font-weight: bolder">
                                     <a class="text-dark"
                                        th:href="@{/budget/dynamicstatistic(startDate=${startDate},
                                                      endDate=${endDate},
-                                                     kindId=${map.key.getId()})}">
+                                                     kindId=${map.key.getId()})}" title="Динамика">
                                         <i class="fa fa-bar-chart" aria-hidden="true"></i>
                                     </a>
                                 </td>
