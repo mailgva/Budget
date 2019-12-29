@@ -55,4 +55,6 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     List<Budget> getAllByKindTypeAndDateBetweenAndUser_Group(Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
 
+    List<Budget> getAllByUserId(String id);
+
 }

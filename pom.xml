@@ -94,7 +94,11 @@
             <artifactId>mdbootstrap-bootstrap-material-design</artifactId>
             <version>${webjars-mdbootstrap-bootstrap-material-design.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>clipboard.js</artifactId>
+            <version>2.0.4</version>
+        </dependency>
     </dependencies>
 
     <profiles>

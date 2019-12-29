@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.User;
@@ -89,5 +90,19 @@ public class ProfileController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
         userService.save(user);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/changename")
+    public String changeName(@RequestParam(value="username", required=true) String name) {
+        User user = SecurityUtil.get().getUser();
+        user.setName(name);
+        userService.save(user);
+        List<Budget> budgets = budgetRepository.getAllByUserId(user.getId());
+        for(Budget budget : budgets) {
+            budget.setUser(user);
+            budgetRepository.save(budget);
+        }
+        return "redirect:/profile/";
     }
 }
