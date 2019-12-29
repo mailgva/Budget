@@ -14,7 +14,12 @@
       <form id="form" name="form" th:action="@{/dictionaries/currencies/create}" method="post">
         <div class="form-group">
           <label for="name">Наименование</label>
-          <input type="text" name="name" id="name" class="form-control" placeholder="Наименование" required>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-pencil"></i></span>
+            </div>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Наименование" required>
+          </div>
         </div>
 
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
