@@ -108,7 +108,7 @@ public class BudgetController extends AbstractWebController {
                 .entrySet().stream()
                 .map(Map.Entry::getValue)
                 .max(Double::compareTo)
-                .get();
+                .orElse(0.0);
 
         maxPriceSpending = listBudget.stream()
                 .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
@@ -116,7 +116,7 @@ public class BudgetController extends AbstractWebController {
                 .entrySet().stream()
                 .map(Map.Entry::getValue)
                 .max(Double::compareTo)
-                .get();
+                .orElse(0.0);
 
         Map<Type, Double> mapMaxPrice = new HashMap<>();
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
