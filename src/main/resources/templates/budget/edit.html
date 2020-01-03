@@ -7,10 +7,10 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <div class="col-sm-8 mx-auto">
-            <h2>Изменение</h2>
-
+            <!--<h2>Изменение</h2>-->
+            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
+            <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
             <form id="form" name="form" th:action="@{/budget/}" method="post">
-                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
                 <input type="hidden" name="id" th:value="${budget.id}">
                 <fieldset disabled>
                     <div class="form-group">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="form-check">
-                    <input type="checkbox" name="autocalc" class="form-check-input" id="autocalc">
+                    <input type="checkbox" name="autocalc" class="form-check-input" id="autocalc" th:checked="${budget.id == null}">
                     <label class="form-check-label" for="autocalc">Автоматический подсчет</label>
                 </div>
                 <div class="form-group">
@@ -88,7 +88,7 @@
                     </div>
                 </div>
                 <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-                <a th:href="@{'/budget/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+                <a th:if="${budget.id != null}" th:href="@{'/budget/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
             </form>
         </div>
     </div>

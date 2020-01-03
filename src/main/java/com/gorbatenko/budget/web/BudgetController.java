@@ -36,6 +36,9 @@ public class BudgetController extends AbstractWebController {
 
     @PostMapping("/")
     public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
+        if(budgetTo.getId().isEmpty()) {
+            budgetTo.setId(null);
+        }
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setId(budgetTo.getId());
         budgetRepository.save(budget);
@@ -249,15 +252,14 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("kindSum", listBudget.stream().mapToDouble(Budget::getPrice).sum());
         model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, kind.getName(), mapKindSort));
 
-
         return "budget/dynamicstatistic";
     }
 
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String typeStr, Model model) {
         User user = SecurityUtil.get().getUser();
+        Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
-
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
 
         if (kinds.size() == 0) {
@@ -278,24 +280,25 @@ public class BudgetController extends AbstractWebController {
 
         kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate, user.getGroup());
 
+        budget.setKind(kinds.get(0));
+        budget.setDate(LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0)));
+        budget.setCurrency(user.getCurrencyDefault());
+
         List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
 
-        LocalDate localDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-
-        model.addAttribute("kinds", kinds);
+        model.addAttribute("budget", budget);
         model.addAttribute("type", type);
-        model.addAttribute("date", localDate.format(formatter));
+        model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
         model.addAttribute("defaultCurrency", user.getCurrencyDefault());
-        return "/budget/create";
+        return "/budget/edit";
+
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
-        Budget budget = budgetRepository.findById(id).get();
         User user = SecurityUtil.get().getUser();
+        Budget budget = budgetRepository.findById(id).get();
         Type type = budget.getKind().getType();
 
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
@@ -305,6 +308,7 @@ public class BudgetController extends AbstractWebController {
 
         model.addAttribute("budget", budget);
         model.addAttribute("kinds", kinds);
+        model.addAttribute("type", type);
         model.addAttribute("currencies", currencies);
         model.addAttribute("defaultCurrency", user.getCurrencyDefault());
         return "/budget/edit";
