@@ -25,8 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.gorbatenko.budget.util.BaseUtil.listBudgetToTreeMap;
-import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
+import static com.gorbatenko.budget.util.BaseUtil.*;
 import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
 
 
@@ -40,7 +39,8 @@ public class BudgetController extends AbstractWebController {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setId(budgetTo.getId());
         budgetRepository.save(budget);
-        return "redirect:/budget/statistic";
+        LocalDate date = budget.getDate().toLocalDate();
+        return String.format("redirect:/budget/statistic?startDate=%s&endDate=%s", dateToStr(date), dateToStr(date));
     }
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
@@ -122,8 +122,8 @@ public class BudgetController extends AbstractWebController {
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
 
-        model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
-        model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
+        model.addAttribute("startDate", dateToStr(startDate));
+        model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
         model.addAttribute("mapKind", mapKindSort);
         model.addAttribute("mapMaxPrice", mapMaxPrice);
@@ -199,8 +199,8 @@ public class BudgetController extends AbstractWebController {
 
         model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
-        model.addAttribute("startDate", BaseUtil.dateToStr(startDate));
-        model.addAttribute("endDate", BaseUtil.dateToStr(endDate));
+        model.addAttribute("startDate", dateToStr(startDate));
+        model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("listBudget", map);
         model.addAttribute("kindList", getKinds());
         model.addAttribute("kindName", kind.getName());

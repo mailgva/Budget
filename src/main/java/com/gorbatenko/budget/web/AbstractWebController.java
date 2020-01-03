@@ -59,13 +59,12 @@ public class AbstractWebController {
 
     @ModelAttribute("listOfCurrencies")
     protected List<Currency> getCurrencies() {
-        List<Currency> list = new ArrayList<>();
         try {
             User user = SecurityUtil.get().getUser();
-            list = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
-        } catch (Exception e) {}
-        return list;
-
+            return currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {

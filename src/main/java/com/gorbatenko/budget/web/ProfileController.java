@@ -5,21 +5,38 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
+
+@Slf4j
 @Controller
 @RequestMapping(value = "/profile/")
 public class ProfileController extends AbstractWebController {
+
+    @Autowired
+    AuthenticationManager authenticationManager;
 
     @GetMapping("/")
     @PreAuthorize("isAuthenticated()")
@@ -53,19 +70,28 @@ public class ProfileController extends AbstractWebController {
     public String newUser(@ModelAttribute User user, Model model) throws Exception{
         user.setRoles(Collections.singleton(Role.ROLE_USER));
         try {
-            userService.create(user);
-
+            user = userService.create(user);
+            UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
+                        userDetails.getPassword(), userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(token);
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             return "/profile/register";
         }
-        return "redirect:/login";
+        return "redirect:/menu";
     }
 
+    @SneakyThrows
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/jointogroup/{id}")
     public String joinToGroup(@PathVariable("id") String id) {
+        List<User> groupUser = userService.getByGroup(id);
+        if (groupUser.size() == 0) {
+            throw new Exception(String.format("Невозможно присоедиться к группе!<br>Группы с идентификатором [%s] не существует!", id));
+        }
+
         User user = SecurityUtil.get().getUser();
         User owner = userService.findById(id);
         user.setGroup(id);

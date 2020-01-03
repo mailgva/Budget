@@ -15,4 +15,5 @@ public interface UserService extends UserDetailsService {
     User findById(String id);
 
     List<User> getByGroup(String name);
+
 }

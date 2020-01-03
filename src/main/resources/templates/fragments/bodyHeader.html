@@ -6,7 +6,7 @@
             <h2 style="display: inline-block;"> Бюджет</h2></a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto nav-flex-icons">
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown" th:if="${defaultCurrencyName}" >
                     <a class="dropdown-toggle nav-link my-1 ml-2" data-toggle="dropdown" th:text="${defaultCurrencyName.toUpperCase()}"></a>
                     <div class="dropdown-menu">
                         <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
