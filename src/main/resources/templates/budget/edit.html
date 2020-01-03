@@ -7,7 +7,6 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <div class="col-sm-8 mx-auto">
-            <!--<h2>Изменение</h2>-->
             <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
             <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
             <form id="form" name="form" th:action="@{/budget/}" method="post">

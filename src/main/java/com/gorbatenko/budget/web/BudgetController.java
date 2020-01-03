@@ -263,7 +263,7 @@ public class BudgetController extends AbstractWebController {
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
 
         if (kinds.size() == 0) {
-            return "/dictionaries/kinds/create";
+            return "redirect:/dictionaries/kinds/create";
         }
 
         kinds.sort(Comparator.comparing(Kind::getName));

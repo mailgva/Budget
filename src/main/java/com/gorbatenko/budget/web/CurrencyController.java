@@ -26,8 +26,10 @@ import java.util.List;
 public class CurrencyController extends AbstractWebController {
 
   @GetMapping("/create")
-  public String create() {
-    return "/dictionaries/currencies/create";
+  public String create(Model model) {
+    Currency currency = new Currency();
+    model.addAttribute("currency", currency);
+    return "/dictionaries/currencies/edit";
   }
 
   @GetMapping("/edit/{id}")
@@ -35,7 +37,7 @@ public class CurrencyController extends AbstractWebController {
     if(!error.isEmpty()) {
       model.addAttribute("error", error);
     }
-    model.addAttribute("currency", currencyRepository.findById(id).get()); ///currencyRepository
+    model.addAttribute("currency", currencyRepository.findById(id).get());
     return "/dictionaries/currencies/edit";
   }
 
@@ -57,28 +59,15 @@ public class CurrencyController extends AbstractWebController {
     return "redirect:/dictionaries/currencies";
   }
 
-  @PostMapping("/create")
-  public String createNewDicCurrency(@ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
-    User user = SecurityUtil.get().getUser();
-    Currency check = currencyRepository.findByUserGroupAndNameIgnoreCase(user.getGroup(), currencyTo.getName());
-    if(check != null) {
-      rm.addFlashAttribute("error", "Создание невозможно! Валюта с наименованием '" + currencyTo.getName() + "'" +
-          " уже используется!");
-      return "redirect:/dictionaries/currencies/create";
-    }
-
-    Currency currency = createCurrencyFromCurrencyTo(currencyTo);
-    currency.setId(currencyTo.getId());
-    currencyRepository.save(currency);
-    return "redirect:/dictionaries/currencies";
-  }
-
   @PostMapping("/edit")
   public String editNewDicCurrency(@ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
     User user = SecurityUtil.get().getUser();
+    if(currencyTo.getId().isEmpty()) {
+      currencyTo.setId(null);
+    }
     Currency check = currencyRepository.findByUserGroupAndNameIgnoreCase(user.getGroup(), currencyTo.getName());
     if(check != null) {
-      rm.addFlashAttribute("error", "Изменение невозможно! Валюта с наименованием '" + currencyTo.getName() + "'" +
+      rm.addFlashAttribute("error", "Валюта с наименованием '" + currencyTo.getName() + "'" +
               " уже используется!");
       return String.format("redirect:/dictionaries/currencies/edit/%s", currencyTo.getId());
     }

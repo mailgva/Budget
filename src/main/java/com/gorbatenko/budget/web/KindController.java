@@ -1,8 +1,6 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,8 +17,11 @@ import java.util.List;
 public class KindController extends AbstractWebController{
 
     @GetMapping("/create")
-    public String create() {
-        return "/dictionaries/kinds/create";
+    public String create(Model model) {
+        Kind kind = new Kind();
+        kind.setType(Type.PROFIT);
+        model.addAttribute("kind", kind);
+        return "/dictionaries/kinds/edit";
     }
 
     @GetMapping("/edit/{id}")
@@ -45,28 +46,15 @@ public class KindController extends AbstractWebController{
         return "redirect:/dictionaries/kinds";
     }
 
-    @PostMapping("/create")
-    public String createNewDicKind(@ModelAttribute KindTo kindTo, RedirectAttributes rm) {
-        User user = SecurityUtil.get().getUser();
-        Kind check = kindRepository.findKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
-        if(check != null) {
-            rm.addFlashAttribute("error", "Создание невозможно! Статья с наименованием '" + kindTo.getName() + "'" +
-                    " уже используется в '" + kindTo.getType().getValue() + "'!");
-            return "redirect:/dictionaries/kinds/create";
-        }
-
-        Kind kind = createKindFromKindTo(kindTo);
-        kind.setId(kindTo.getId());
-        kindRepository.save(kind);
-        return "redirect:/dictionaries/kinds";
-    }
-
     @PostMapping("/edit")
     public String editNewDicKind(@ModelAttribute KindTo kindTo, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
+        if(kindTo.getId().isEmpty()) {
+            kindTo.setId(null);
+        }
         Kind check = kindRepository.findKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
         if(check != null) {
-            rm.addFlashAttribute("error", "Изменение невозможно! Статья с наименованием '" + kindTo.getName() + "'" +
+            rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                     " уже используется в '" + kindTo.getType().getValue() + "'!");
             return String.format("redirect:/dictionaries/kinds/edit/%s", kindTo.getId());
         }

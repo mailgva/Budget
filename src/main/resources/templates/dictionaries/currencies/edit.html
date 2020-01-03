@@ -7,12 +7,11 @@
 <main role="main">
   <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
-      <h2 th:text="'Изменение валюты'"> </h2>
+      <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+      <h2 th:text="${(currency.id == null ? 'Добавление' : 'Изменение') + ' валюты'}"> </h2>
 
       <div class="error" role="alert" th:if="${error}" th:text="${error}">
       </div>
-
-      <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
       <form id="form" name="form" th:action="@{/dictionaries/currencies/edit}" method="post">
         <input type="hidden" name="id" th:value="${currency.getId()}">
         <div class="form-group">
@@ -27,7 +26,7 @@
         </div>
 
         <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-        <a th:href="@{'/dictionaries/currencies/delete/'+${currency.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+        <a th:if="${currency.id != null}" th:href="@{'/dictionaries/currencies/delete/'+${currency.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
       </form>
     </div>
   </div>
