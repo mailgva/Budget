@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.gorbatenko</groupId>
     <artifactId>budget</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>war</packaging>
     <name>Budget</name>
     <description>Accounting profits and spending</description>
