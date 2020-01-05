@@ -1,16 +1,12 @@
 package com.gorbatenko.budget.web;
 
 
-import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.BudgetTo;
-import com.gorbatenko.budget.web.charts.ChartType;
-import com.gorbatenko.budget.util.BaseUtil;
 import com.gorbatenko.budget.util.ChartUtil;
 import com.gorbatenko.budget.util.SecurityUtil;
+import com.gorbatenko.budget.web.charts.ChartType;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -21,7 +17,6 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,14 +31,29 @@ public class BudgetController extends AbstractWebController {
 
     @PostMapping("/")
     public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
+        String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if(budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
         }
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setId(budgetTo.getId());
         budgetRepository.save(budget);
+
         LocalDate date = budget.getDate().toLocalDate();
-        return String.format("redirect:/budget/statistic?startDate=%s&endDate=%s", dateToStr(date), dateToStr(date));
+
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
+        LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
+
+        // if day is in current month
+        if(startDate.minusDays(1).isBefore(date)&&(endDate.plusDays(1).isAfter(date)) ) {
+            return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
+        } else {
+            startDate = LocalDate.of(date.getYear(), date.getMonth(), 1);
+            endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
+            return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
+        }
+
     }
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -47,7 +48,7 @@ public class KindController extends AbstractWebController{
     }
 
     @PostMapping("/edit")
-    public String editNewDicKind(@ModelAttribute KindTo kindTo, RedirectAttributes rm) {
+    public String editNewDicKind(@Valid @ModelAttribute KindTo kindTo, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
         if(kindTo.getId().isEmpty()) {
             kindTo.setId(null);

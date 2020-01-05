@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -60,7 +61,7 @@ public class CurrencyController extends AbstractWebController {
   }
 
   @PostMapping("/edit")
-  public String editNewDicCurrency(@ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
+  public String editNewDicCurrency(@Valid @ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
     User user = SecurityUtil.get().getUser();
     if(currencyTo.getId().isEmpty()) {
       currencyTo.setId(null);

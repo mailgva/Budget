@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Controller
+@PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/")
 public class DictionaryController extends AbstractWebController {
     @GetMapping("/")

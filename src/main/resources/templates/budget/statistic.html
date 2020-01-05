@@ -99,7 +99,7 @@
             </tr>
 
             <th:block th:each="element : ${listBudget}">
-                <tr th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'bg-warning' : 'bg-warning-light')}" class="bg-warning" onclick="hide_detail(this);">
+                <tr th:id="${'d_' + #temporals.format(element.key, 'yyyy-MM-dd')}" th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'bg-warning' : 'bg-warning-light')}" class="bg-warning" onclick="hide_detail(this);">
                     <td colspan="7">
                         <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
                         <div style="display:inline-block;font-weight: bold; width : 60%;" align="right">
