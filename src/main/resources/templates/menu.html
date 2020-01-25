@@ -14,14 +14,36 @@
         </div>
         <input class="form-control col-md-2" type="text" readonly th:value="${remain}">
       </div>
-
-    <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Приход</a>
-    <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-minus"></i> Расход</a>
-    <a href="/budget/statistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-list"></i> Статистика</a>
-    <a href="/budget/groupstatistic" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-align-left"></i> Групповая статистика</a>
-    <a href="/dictionaries/" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-book"></i> Справочники</a>
-    <a href="/profile/" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-user"></i> Профиль</a>
-    <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true"><i class="fa fa-sign-out"></i> Выход</a>
+    <div class="menu-container">
+      <div class="menu-item">
+        <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-plus"></i> Приход</a>
+      </div>
+      <div class="menu-item">
+        <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-minus"></i> Расход</a>
+      </div>
+      <div class="menu-item">
+        <a href="/budget/statistic" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-list"></i> Статистика</a>
+      </div>
+      <div class="menu-item">
+        <a href="/budget/groupstatistic" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-align-left"></i> Групповая статистика</a>
+      </div>
+      <div class="menu-item">
+        <a href="/dictionaries/" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-book"></i> Справочники</a>
+      </div>
+      <div class="menu-item">
+        <a href="/profile/" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-user"></i> Профиль</a>
+      </div>
+      <div class="menu-item">
+        <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
+                class="fa fa-sign-out"></i> Выход</a>
+      </div>
+    </div>
   </div>
 </main>
 </body>
