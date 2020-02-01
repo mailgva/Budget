@@ -155,7 +155,8 @@ public class BudgetController extends AbstractWebController {
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(value = "kindId", defaultValue = "-1") String id,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
-                               @RequestParam(value = "comment", defaultValue = "") String comment, Model model) {
+                               @RequestParam(value = "comment", defaultValue = "") String comment,
+                               @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime, Model model) {
 
         User user = SecurityUtil.get().getUser();
 
@@ -185,14 +186,34 @@ public class BudgetController extends AbstractWebController {
 
         if ("-1".equals(id)) {
             listBudget = hidePassword(
-                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByDateBetweenAndUser_Group(
-                        offSetStartDate, offSetEndDate, user.getGroup())));
+                    filterBudgetByUserCurrencyDefault(
+                            (allTime.equalsIgnoreCase("YES") ?
+                             budgetRepository.getAllByUser_Group(user.getGroup()) :
+                             budgetRepository.getBudgetByDateBetweenAndUser_Group(offSetStartDate, offSetEndDate, user.getGroup())
+                             )
+                    ));
         } else {
             kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
-                            budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
-                            offSetStartDate, offSetEndDate, user.getGroup())));
+                            (allTime.equalsIgnoreCase("YES") ?
+                             budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()) :
+                             budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,offSetStartDate, offSetEndDate, user.getGroup())
+                            )
+
+                    ));
+        }
+
+        if(allTime.equalsIgnoreCase("YES")) {
+            startDate = listBudget.stream()
+                    .map(budget -> budget.getDate().toLocalDate())
+                    .min(LocalDate::compareTo)
+                    .get();
+
+            endDate = listBudget.stream()
+                    .map(budget -> budget.getDate().toLocalDate())
+                    .max(LocalDate::compareTo)
+                    .get();
         }
 
         if (typeStr != null) {
@@ -343,7 +364,7 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1", "allTypes", "", model);
+        return getStatistic(null, null, "-1", "allTypes", "", "", model);
     }
 
 

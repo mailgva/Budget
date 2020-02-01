@@ -22,7 +22,7 @@ public class KindController extends AbstractWebController{
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String type, Model model, HttpServletRequest request) {
         Kind kind = new Kind();
-        kind.setType(type.isEmpty() ? Type.PROFIT : Type.valueOf(type.toUpperCase()));
+        kind.setType(Type.valueOf(type.toUpperCase()));
         String referer = request.getHeader("referer");
         model.addAttribute("kind", kind);
         model.addAttribute("referer", referer);
