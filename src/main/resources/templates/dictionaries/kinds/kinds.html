@@ -21,7 +21,7 @@
             <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}"  th:each="kind : ${ kinds}">
                 <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"--><!--*/-->
                 <td><span th:text="${kind.getType().getValue()}"> Type </span></td>
-                <td><span th:text="${kind.getName()}"> Name </span></td>
+                <td><span th:text="${kind.getName() + ' (' + kindMap.getOrDefault(kind.getId(),0)  + ')'}"> Name </span></td>
                 <td>
                     <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>

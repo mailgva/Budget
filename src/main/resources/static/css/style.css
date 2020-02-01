@@ -57,11 +57,16 @@ a.btn:not(.btn-warning):not(.menubtn) {
   padding-right: 40px;
 }
 
-.menubtn{
-  padding-top: 50px !important;
+.menubtn {
+  padding-top: 30px !important;
   height: 100%;
+  font-size: xx-large !important;
 }
 
+.fiterbtn {
+  height: 64px !important;
+  width: 64px !important;
+}
 
 tr.bg-warning-dark{
   background-color: #ffb411;
