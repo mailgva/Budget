@@ -8,10 +8,11 @@
   <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
-      <h2 th:text="${(kind.id == null ? 'Добавление' : 'Изменение') + ' вида прихода/расхода'}"> </h2>
+      <h2 th:text="${(kind.id == null ? 'Добавление' : 'Изменение') + ' вида Прихода/Расхода'}"> </h2>
       <div class="error" role="alert" th:if="${error}" th:text="${error}">
       </div>
       <form id="form" name="form" th:action="@{/dictionaries/kinds/edit}" method="post">
+        <input type="hidden" name="referer" th:value="@{${referer}}">
         <input type="hidden" name="id" th:value="${kind.getId()}">
         <!--<fieldset disabled>-->
           <div class="form-group">

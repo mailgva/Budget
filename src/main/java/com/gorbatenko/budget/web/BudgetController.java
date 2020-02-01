@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -273,7 +274,7 @@ public class BudgetController extends AbstractWebController {
         List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
 
         if (kinds.size() == 0) {
-            return "redirect:/dictionaries/kinds/create";
+            return "redirect:/dictionaries/kinds/create/"+typeStr;
         }
 
         kinds.sort(Comparator.comparing(Kind::getName));
@@ -291,6 +292,14 @@ public class BudgetController extends AbstractWebController {
         kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate, user.getGroup());
 
         budget.setKind(kinds.get(0));
+
+        String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
+
+        if(!kindId.isEmpty()) {
+            budget.setKind(kinds.stream()
+                    .filter(k -> k.getId().equals(kindId)).findFirst().get());
+        }
+
         budget.setDate(LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0)));
         budget.setCurrency(user.getCurrencyDefault());
 
@@ -316,6 +325,13 @@ public class BudgetController extends AbstractWebController {
 
         List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
 
+        String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
+
+        if(!kindId.isEmpty()) {
+            budget.setKind(kinds.stream()
+                    .filter(k -> k.getId().equals(kindId)).findFirst().get());
+        }
+
         model.addAttribute("budget", budget);
         model.addAttribute("kinds", kinds);
         model.addAttribute("type", type);
@@ -329,6 +345,7 @@ public class BudgetController extends AbstractWebController {
         budgetRepository.deleteById(id);
         return getStatistic(null, null, "-1", "allTypes", "", model);
     }
+
 
 
 }

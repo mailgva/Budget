@@ -3,12 +3,14 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.SecurityUtil;
+import org.springframework.http.server.RequestPath;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -17,11 +19,13 @@ import java.util.List;
 @RequestMapping(value = "/dictionaries/kinds/")
 public class KindController extends AbstractWebController{
 
-    @GetMapping("/create")
-    public String create(Model model) {
+    @GetMapping("/create/{type}")
+    public String create(@PathVariable("type") String type, Model model, HttpServletRequest request) {
         Kind kind = new Kind();
-        kind.setType(Type.PROFIT);
+        kind.setType(type.isEmpty() ? Type.PROFIT : Type.valueOf(type.toUpperCase()));
+        String referer = request.getHeader("referer");
         model.addAttribute("kind", kind);
+        model.addAttribute("referer", referer);
         return "/dictionaries/kinds/edit";
     }
 
@@ -48,7 +52,9 @@ public class KindController extends AbstractWebController{
     }
 
     @PostMapping("/edit")
-    public String editNewDicKind(@Valid @ModelAttribute KindTo kindTo, RedirectAttributes rm) {
+    public String editNewDicKind(@Valid @ModelAttribute KindTo kindTo,
+                                 @RequestParam(name="referer", defaultValue = "") String referer,
+                                 RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
         if(kindTo.getId().isEmpty()) {
             kindTo.setId(null);
@@ -57,7 +63,11 @@ public class KindController extends AbstractWebController{
         if(check != null) {
             rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                     " уже используется в '" + kindTo.getType().getValue() + "'!");
-            return String.format("redirect:/dictionaries/kinds/edit/%s", kindTo.getId());
+            if (referer.isEmpty()) {
+                return String.format("redirect:/dictionaries/kinds/edit/%s", kindTo.getId());
+            } else {
+                return referer;
+            }
         }
 
         Kind kindOld = kindRepository.findKindByUserGroupAndId(user.getGroup(), kindTo.getId());
@@ -69,7 +79,8 @@ public class KindController extends AbstractWebController{
             budget.setKind(kind);
             budgetRepository.save(budget);
         }
-        return "redirect:/dictionaries/kinds";
+        rm.addFlashAttribute("kindId", kind.getId());
+        return (referer.isEmpty() ? "redirect:/dictionaries/kinds" : "redirect:" + referer);
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {

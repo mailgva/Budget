@@ -27,8 +27,9 @@
                     <label for="kindId">Вид</label>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <button class="btn btn-outline-secondary" type="button"
-                                    onclick="location.href = 'dictionaries/kinds/create';">
+                            <button class="btn btn-outline-secondary" type="button" th:data-path="'dictionaries/kinds/create/'+ ${budget.kind.getType().name()}"
+                                   onclick="location.href = (this.getAttribute('data-path'));"
+                            >
                                 <i class="fa fa-plus"></i>
                             </button>
                         </div>
@@ -36,7 +37,7 @@
                             <option th:each="kind : ${kinds}"
                                     th:value="${kind.id}"
                                     th:text="${kind.name}"
-                                    th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName())}">
+                                    th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName()) }"> <!--|| kind.id.equalsIgnoreCase(kindId)-->
                             </option>
                         </select>
                     </div>
