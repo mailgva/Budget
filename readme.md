@@ -17,6 +17,7 @@ Features:
         * details for kind
         * charts: doughnut, horizontal bar
         * vertical chart for show dynamic by kind
+ - backuping database by sheduler 
 
  Technology stack:
    * Java 1.8 
@@ -48,7 +49,7 @@ For run app you need:
     - in Idea through main
     - mvn clean package spring-boot:run
  
-
+ 
     
  
      
