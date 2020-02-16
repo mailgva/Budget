@@ -26,7 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
-    void createBackUp(String connectionURI, String pathToBackupFile) throws IOException {
+    protected void createBackUp(String connectionURI, String pathToBackupFile) throws IOException {
         MongoClientURI mongoClientURI = new MongoClientURI(connectionURI);
         MongoClient mongoClient = new MongoClient(mongoClientURI);
         String database = mongoClientURI.getDatabase();
@@ -51,7 +51,7 @@ public class Utils {
         writer.close();
     }
 
-    public void zipFolder(String pathToBackupFolder, String pathToBackupZipFile) throws IOException {
+    protected void zipFolder(String pathToBackupFolder, String pathToBackupZipFile) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathToBackupZipFile);
         ZipOutputStream zipOut = new ZipOutputStream(fos);
         java.io.File fileToZip = new java.io.File(pathToBackupFolder);
@@ -103,20 +103,16 @@ public class Utils {
         return dir.delete(); // The directory is empty now and can be deleted.
     }
 
-    public String getNewToken(String refreshToken, String clientId, String clientSecret) throws IOException {
+    private String getNewToken(String refreshToken, String clientId, String clientSecret) throws IOException {
         ArrayList<String> scopes = new ArrayList<>();
-
-        //scopes.add(CalendarScopes.CALENDAR);
-
         TokenResponse tokenResponse = new GoogleRefreshTokenRequest(new NetHttpTransport(), new JacksonFactory(),
                 refreshToken, clientId, clientSecret).setScopes(scopes).setGrantType("refresh_token").execute();
 
         return tokenResponse.getAccessToken();
     }
 
-    public Credential getCredentials(String gdriveClientId,
+    private Credential getCredentials(String gdriveClientId,
                                      String gdriveSecret,
-                                     String gdriveAccessToken,
                                      String gdriveRefreshToken) throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -127,8 +123,10 @@ public class Utils {
                 .setClientSecrets(gdriveClientId, gdriveSecret)
                 .build();
 
-        credential.setAccessToken(gdriveAccessToken);
+        credential.setAccessToken(getNewToken(gdriveRefreshToken, gdriveClientId, gdriveSecret));
+
         credential.setRefreshToken(gdriveRefreshToken);
+
         return credential;
     }
 
@@ -138,7 +136,6 @@ public class Utils {
                                         String gdriveFolderId,
                                         String gdriveClientId,
                                         String gdriveSecret,
-                                        String gdriveAccessToken,
                                         String gdriveRefreshToken
                                         ) throws GeneralSecurityException, IOException {
 
@@ -148,13 +145,13 @@ public class Utils {
         Drive driveService = new Drive.Builder(
                 HTTP_TRANSPORT,
                 JSON_FACTORY,
-                getCredentials(gdriveClientId, gdriveSecret, gdriveAccessToken, gdriveRefreshToken))
+                getCredentials(gdriveClientId, gdriveSecret, gdriveRefreshToken))
                 .setApplicationName(applicationName).build();
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(createBackupFileName());
         fileMetadata.setParents(Collections.singletonList(gdriveFolderId));
         java.io.File file = new java.io.File(pathToBackupZip);
-        FileContent mediaContent = new FileContent("*/*", file);
+        FileContent mediaContent = new FileContent("type:application/zip", file);
         driveService.files()
                 .create(fileMetadata, mediaContent)
                 .setFields("id, parents")

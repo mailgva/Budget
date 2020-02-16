@@ -19,7 +19,7 @@ public class BackupDBConfig {
     private final String BACKUP_TO_ROOT_FOLDER =
             "Database backuping. Not exists (or is empty) section [{}]! File will be place to root folder on Google Drive.";
 
-    private static final String APPLICATION_NAME = "gva-budget";
+    protected final String APPLICATION_NAME = "gva-budget";
     protected final String PATH_TO_BACKUP = "src/main/resources/";
     protected final String PATH_TO_BACKUP_FOLDER = PATH_TO_BACKUP + "backup/";
     protected final String PATH_TO_BACKUP_FILE = PATH_TO_BACKUP_FOLDER + "%s.json";
@@ -37,9 +37,6 @@ public class BackupDBConfig {
     @Value("${app.backup.google-drive-secret:}")
     private String gdriveSecret;
 
-    @Value("${app.backup.google-drive-access-token:}")
-    private String gdriveAccessToken;
-
     @Value("${app.backup.google-drive-refresh-token:}")
     private String gdriveRefreshToken;
 
@@ -52,10 +49,12 @@ public class BackupDBConfig {
 
         if (!checkBackupParams()) return;
 
-        doBackupOperations();
+        if (!doBackupOperations()) {
+            log.error("Backup database FAIL at {}!", LocalDateTime.now());
+        };
     }
 
-    private void doBackupOperations() {
+    private boolean doBackupOperations() {
         log.info("Backup database started at {}!", LocalDateTime.now());
         Utils utils = new Utils();
         java.io.File folder = new java.io.File(PATH_TO_BACKUP_FOLDER);
@@ -67,29 +66,30 @@ public class BackupDBConfig {
         } catch (IOException e) {
             log.error("Backup database. Error during get data from database!");
             e.printStackTrace();
-            return;
+            return false;
         }
         try {
             utils.zipFolder(PATH_TO_BACKUP_FOLDER, PATH_TO_BACKUP_ZIP);
         } catch (IOException e) {
             log.error("Backup database. Error during zip data!");
             e.printStackTrace();
-            return;
+            return false;
         }
 
         utils.deleteDir(folder);
 
         try {
             utils.uploadFileToGoogleDrive(PATH_TO_BACKUP_ZIP, APPLICATION_NAME,
-                    gdriveFolderId, gdriveClientId, gdriveSecret, gdriveAccessToken, gdriveRefreshToken);
+                    gdriveFolderId, gdriveClientId, gdriveSecret, gdriveRefreshToken);
         } catch (Exception e) {
             log.error("Backup database. Error during upload file to Google Drive!");
             e.printStackTrace();
-            return;
+            return false;
         }
         java.io.File zipArchive = new java.io.File(PATH_TO_BACKUP_ZIP);
         zipArchive.delete();
-        log.info("Backup database is complete at {}!", LocalDateTime.now());
+        log.info("Backup database successfully completed at {}!", LocalDateTime.now());
+        return true;
     }
 
 
@@ -101,10 +101,6 @@ public class BackupDBConfig {
         }
         if (gdriveSecret.isEmpty()) {
             log.error(DATABASE_BACKUP_ERROR, "app.backup.google-drive-secret");
-            result = false;
-        }
-        if (gdriveAccessToken.isEmpty()) {
-            log.error(DATABASE_BACKUP_ERROR, "app.backup.google-drive-access-token");
             result = false;
         }
         if (gdriveRefreshToken.isEmpty()) {
