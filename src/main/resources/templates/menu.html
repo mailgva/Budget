@@ -10,10 +10,16 @@
 
       <div class="input-group mb-3" style="margin-left: 10px">
         <div class="input-group-prepend">
-          <span class="input-group-text" style="width: 160px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
+          <span class="input-group-text" style="width: 220px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
         </div>
         <input class="form-control col-md-2" type="text" readonly th:value="${remain}">
       </div>
+      <div class="input-group mb-3" style="margin-left: 10px">
+      <div class="input-group-prepend">
+        <span class="input-group-text" style="width: 220px;" th:text="${'Последняя активность'}"></span>
+      </div>
+      <input class="form-control col-md-2" type="text" readonly th:value="${lastGroupActivityDate}">
+    </div>
     <div class="menu-container">
       <div class="menu-item">
         <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i

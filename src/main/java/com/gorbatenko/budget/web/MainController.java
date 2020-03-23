@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -59,13 +60,22 @@ public class MainController extends AbstractWebController {
     @GetMapping("/menu")
     public String getMenu(Model model) {
         User user = SecurityUtil.get().getUser();
-        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
+        List<Budget> listBudget = budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
 
-        List<Budget> listBudget = budgetRepository
+        String lastGroupActivityDate = dateToStr(listBudget.stream()
+                .map(Budget::getCreateDateTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now())
+                .toLocalDate());
+
+        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(listBudget));
+
+        listBudget = budgetRepository
                 .getBudgetByDateAndUser_Group(
                         setTimeZoneOffset(LocalDate.now()), user.getGroup());
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+
+        model.addAttribute("lastGroupActivityDate", lastGroupActivityDate);
         model.addAttribute("listBudget", map);
         return "menu";
     }
