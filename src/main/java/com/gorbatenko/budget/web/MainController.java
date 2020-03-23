@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
+import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.security.core.AuthenticationException;
@@ -13,6 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.TreeMap;
+
+import static com.gorbatenko.budget.util.BaseUtil.*;
+import static com.gorbatenko.budget.util.BaseUtil.dateToStr;
 
 @Controller
 @RequestMapping(value = "/")
@@ -21,7 +30,7 @@ public class MainController extends AbstractWebController {
     @GetMapping("/")
     public String getMain(@AuthenticationPrincipal AuthorizedUser authUser) {
         if(authUser == null) {
-            return "main";
+            return "login";
         } else {
             return "redirect:menu";
         }
@@ -52,6 +61,12 @@ public class MainController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
                 budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
+
+        List<Budget> listBudget = budgetRepository
+                .getBudgetByDateAndUser_Group(
+                        setTimeZoneOffset(LocalDate.now()), user.getGroup());
+        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        model.addAttribute("listBudget", map);
         return "menu";
     }
 

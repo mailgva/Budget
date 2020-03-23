@@ -44,7 +44,15 @@
                 class="fa fa-sign-out"></i> Выход</a>
       </div>
     </div>
+
+    <table th:replace="fragments/statData :: table">
+    </table>
   </div>
 </main>
+<script>
+  $(document).ready(function () {
+    hide_detail($('.day'));
+  });
+</script>
 </body>
 </html>

@@ -5,7 +5,6 @@
 <div th:replace="fragments/bodyHeader :: div">
 </div>
 <main role="main">
-  <div class="jumbotron" style="background: #c2ff8e">
     <div class="col-sm-8 mx-auto">
       <h2 th:text="'Логин'"></h2>
       <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
@@ -24,11 +23,34 @@
 	        <input type="checkbox" name="remember-me" class="form-check-input" id="remember-me"> 
 	        <label class="form-check-label" for="remember-me">Запомнить меня</label> 
         </div>
-        <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
-        <button class="btn btn-warning" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"></i> Войти как Гость</button>
+        <button class="btn btn-primary" style="width: 30%;" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
+        <button class="btn btn-warning" style="width: 30%;" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"></i> Войти как Гость</button>
+        <button class="btn btn-primary" style="width: 30%;" type="button" onclick="location.href='profile/register'"><i class="fa fa-list-alt"></i> Регистрация</button>
       </form>
     </div>
-  </div>
+
+    <pre>
+      Приложение <b>Бюджет</b> предназначено для ведения, управления и планирования семейного бюджета.
+      Функции:
+        - Содержит 2 типа операций: Приход и Расход.
+        - Раздел <b>Справочники</b> содержит: виды операций и виды валют.
+           После регистрации, пользователь имеет автоматически созданные:
+           - несколько видов операций;
+           - несколько видов валют (гривны, доллары США, евро).
+        - Раздел <b>Статистика</b> - показывает операции по дням, с возможностью фильтрации.
+        - Раздел <b>Групповая статистика</b>:
+           - показывает сумму по операциям за период, и также может показать:
+               * количество операций по виду;
+               * процент от общей суммы по типу (белая линия);
+               * проценты от максимальной суммы вида (желтая линия);
+               * детали для вида;
+               * диаграммы: круглая, горизонтальная;
+               * вертикальная диаграмма для показа динамики по виду.
+        - Для объединения в группу пользователей - в разделе <b>Профиль</b> есть ссылка для присоединения к группе.
+        - Смена валюты может осуществляться либо на верхней панели, либо в разделе <b>Профиль</b>.
+          Одновременно отображаются данные только по одному виду валюты.
+    </pre>
+
   <script>
     function login(username, password) {
       setCredentials(username, password);
