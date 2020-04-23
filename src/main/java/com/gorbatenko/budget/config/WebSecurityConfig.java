@@ -27,7 +27,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public UserService userService;
 
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
@@ -65,8 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login")
                 .permitAll()
                 .and()
-                .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(259200); // 72 hours
-
+                .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(60*60*24*365*10); // 10 years
     }
 
     @Bean
