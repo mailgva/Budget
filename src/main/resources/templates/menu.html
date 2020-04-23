@@ -18,7 +18,9 @@
       <div class="input-group-prepend">
         <span class="input-group-text" style="width: 220px;" th:text="${'Последняя активность'}"></span>
       </div>
-      <input class="form-control col-md-2" type="text" readonly th:value="${lastGroupActivityDate}">
+      <input class="form-control col-md-2" type="text" readonly th:value="${lastGroupActivityDate}"
+             th:data-path="'budget/statistic?startDate=' + ${lastGroupActivityDate} + '&endDate=' + ${lastGroupActivityDate}"
+             onclick="location.href = (this.getAttribute('data-path'));">
     </div>
     <div class="menu-container">
       <div class="menu-item">
