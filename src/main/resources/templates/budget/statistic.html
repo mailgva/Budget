@@ -17,7 +17,7 @@
                     <form th:action="@{/budget/statistic}" method="get">
                         <div class="form-group row">
 
-                            <div class="col-2">
+                            <div class="col-sm">
                                 <label for="startDate">Дата начала</label>
                                 <input class="form-control" name="startDate" id="startDate"
                                        type="date"
@@ -25,7 +25,7 @@
                             </div>
 
 
-                            <div class="col-2">
+                            <div class="col-sm">
                                 <label for="endDate">Дата конца</label>
                                 <input class="form-control" name="endDate" id="endDate"
                                        type="date"
@@ -33,33 +33,33 @@
                             </div>
 
 
-                            <div class="col-2">
+                            <div class="col-sm">
                                 <label for="type">Тип</label>
                                 <select id="type" name="type" class="form-control">
                                     <option th:value="allTypes"> Все</option>
                                     <option
                                         th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
                                         th:value="${val}"
-                                        th:text="${val.value}"
+                                        th:text="${(val.value.equals(T(com.gorbatenko.budget.model.Type).PROFIT.getValue()) ? ' + ' : ' - ') + val.value}"
                                         th:selected="${val.value.equalsIgnoreCase(typeName)}">
                                     </option>
                                 </select>
                             </div>
 
 
-                            <div class="col-3">
+                            <div class="col-sm">
                                 <label for="kindId">Вид</label>
                                 <select id="kindId" name="kindId" class="form-control">
                                     <option th:value="-1"> Все</option>
                                     <option th:each="kind : ${kindList}"
                                             th:value="${kind.id}"
-                                            th:text="${kind.type.getValue() + ' / ' + kind.name}"
+                                            th:text="${(kind.type.equals(T(com.gorbatenko.budget.model.Type).PROFIT) ? ' + ' : ' - ') +  kind.name}"
                                             th:selected="${kind.getName().equalsIgnoreCase(kindName)}">
                                     </option>
                                 </select>
                             </div>
 
-                            <div class="col-2">
+                            <div class="col-sm">
                                 <label for="comment">Описание</label>
                                 <input class="form-control" name="comment" id="comment"
                                        type="text"
