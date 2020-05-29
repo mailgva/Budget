@@ -35,7 +35,8 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(Model model) {
+        model.addAttribute("pageName", "Вход");
         return "login";
     }
 
@@ -51,6 +52,7 @@ public class MainController extends AbstractWebController {
             }
         }
         model.addAttribute("errorMessage", errorMessage);
+        model.addAttribute("pageName", "Ошибка - неверные учетные данных");
         return "login";
     }
 

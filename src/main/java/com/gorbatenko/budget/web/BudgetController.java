@@ -147,6 +147,8 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKindSort));
         model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKindSort));
 
+        model.addAttribute("pageName", "Групповая статистика");
+
         return "budget/groupstatistic";
     }
 
@@ -241,6 +243,8 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("kindName", kind.getName());
         model.addAttribute("comment", comment);
 
+        model.addAttribute("pageName", "Статистика");
+
         return "budget/statistic";
     }
 
@@ -283,6 +287,8 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("kindName", kind.getName());
         model.addAttribute("kindSum", listBudget.stream().mapToDouble(Budget::getPrice).sum());
         model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, kind.getName(), mapKindSort));
+
+        model.addAttribute("pageName", "Динамика");
 
         return "budget/dynamicstatistic";
     }
@@ -331,8 +337,10 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
         model.addAttribute("defaultCurrency", user.getCurrencyDefault());
-        return "/budget/edit";
 
+        model.addAttribute("pageName", "Создание");
+
+        return "/budget/edit";
     }
 
     @GetMapping("/edit/{id}")
@@ -358,6 +366,9 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("type", type);
         model.addAttribute("currencies", currencies);
         model.addAttribute("defaultCurrency", user.getCurrencyDefault());
+
+        model.addAttribute("pageName", "Изменение");
+
         return "/budget/edit";
     }
 

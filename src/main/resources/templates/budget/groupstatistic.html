@@ -70,20 +70,20 @@
                                         ></div>
                                     </a>
                                 </td>
-                                <td style="padding-left: 10px; font-weight: bolder">
+                                <td style="padding-left: 10px; font-weight: bolder; text-align: center;">
                                     <a class="text-dark"
                                        th:href="@{/budget/dynamicstatistic(startDate=${startDate},
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}" title="Динамика">
-                                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                                        <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
                                     </a>
                                 </td>
-                                <td style="font-weight: bolder"><span th:text="${map.value.doubleValue()}">  </span></td>
+                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span th:text="${map.value.doubleValue()}">  </span></td>
                             </tr>
                         </th:block>
                         <tr>
                             <td colspan="2" style="font-weight: bold"><b>Итого:</b></td>
-                            <td style="font-weight: bold" ><b>
+                            <td style="font-weight: bold; text-align:right; padding-right: 50px" ><b>
                                 <span th:text="*{#aggregates.sum(element.value.![(value)])}"></span></b>
                             </td>
                         </tr>

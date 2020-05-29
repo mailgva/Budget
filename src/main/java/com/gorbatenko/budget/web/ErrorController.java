@@ -34,6 +34,7 @@ public class ErrorController extends AbstractWebController {
                     fieldError.getDefaultMessage();
         }
         model.addAttribute("errorMessage", errorMessage);
+        model.addAttribute("pageName", "Ошибка");
         log.error(errorMessage);
         return "error";
     }

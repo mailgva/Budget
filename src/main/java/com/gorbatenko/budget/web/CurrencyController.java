@@ -30,6 +30,9 @@ public class CurrencyController extends AbstractWebController {
   public String create(Model model) {
     Currency currency = new Currency();
     model.addAttribute("currency", currency);
+
+    model.addAttribute("pageName", "Создание");
+
     return "/dictionaries/currencies/edit";
   }
 
@@ -39,6 +42,9 @@ public class CurrencyController extends AbstractWebController {
       model.addAttribute("error", error);
     }
     model.addAttribute("currency", currencyRepository.findById(id).get());
+
+    model.addAttribute("pageName", "Изменение");
+
     return "/dictionaries/currencies/edit";
   }
 

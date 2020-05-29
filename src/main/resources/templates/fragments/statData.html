@@ -38,7 +38,7 @@
                         <th style="width: 10%"> Операция</th>
                         <th style="width: 20%"> Вид</th>
                         <th style="width: 20%"> Описание</th>
-                        <th style="width: 10%"> Сумма</th>
+                        <th style="width: 10%; text-align:right"> Сумма</th>
                         <th style="width: 5%"></th>
                     </tr>
                     </thead>
@@ -55,7 +55,7 @@
                             <td style="width: 20%"><span th:text="${budget.kind.name}"> Item </span></td>
                             <td style="width: 20%"><span th:text="${budget.description}"> Description </span>
                             </td>
-                            <td style="width: 10%"><span th:text="${budget.price}"> Price </span></td>
+                            <td style="width: 10%; text-align:right"><span th:text="${budget.price}"> Price </span></td>
                             <td style="width: 5%">
                                 <a th:href="@{'/budget/edit/'+${budget.id}}" class="btn btn-warning" role="button"
                                    aria-pressed="true"><i

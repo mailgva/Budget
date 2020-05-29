@@ -58,11 +58,13 @@ public class ProfileController extends AbstractWebController {
         model.addAttribute("mapCurrencies", mapCurrencies);
         model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
                 budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
+        model.addAttribute("pageName", "Профиль");
         return "profile/profile";
     }
 
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("pageName", "Регистрация");
         return "/profile/register";
     }
 

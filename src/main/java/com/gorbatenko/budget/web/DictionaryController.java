@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/dictionaries/")
 public class DictionaryController extends AbstractWebController {
     @GetMapping("/")
-    public String getDictionaries() {
+    public String getDictionaries(Model model) {
+        model.addAttribute("pageName", "Справочники");
         return "dictionaries/dictionaries";
     }
 
@@ -37,14 +38,16 @@ public class DictionaryController extends AbstractWebController {
 
                 model.addAttribute("kinds", kinds);
                 model.addAttribute("kindMap", kindMap);
+                model.addAttribute("pageName", "Виды приходов//расходов");
                 return "/dictionaries/kinds/kinds";
             case CURRENCIES:
                 List<Currency> currencies = getCurrencies();
                 Collections.sort(currencies, Comparator.comparing(o -> o.getName()));
                 model.addAttribute("currencies", currencies);
+                model.addAttribute("pageName", "Валюты");
                 return "/dictionaries/currencies/currencies";
             default:
-                return getDictionaries();
+                return getDictionaries(model);
         }
 
     }

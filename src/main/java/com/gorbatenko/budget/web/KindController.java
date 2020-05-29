@@ -26,6 +26,9 @@ public class KindController extends AbstractWebController{
         String referer = request.getHeader("referer");
         model.addAttribute("kind", kind);
         model.addAttribute("referer", referer);
+
+        model.addAttribute("pageName", "Создание");
+
         return "/dictionaries/kinds/edit";
     }
 
@@ -35,6 +38,9 @@ public class KindController extends AbstractWebController{
             model.addAttribute("error", error);
         }
         model.addAttribute("kind", kindRepository.findById(id).get());
+
+        model.addAttribute("pageName", "Изменение");
+
         return "/dictionaries/kinds/edit";
     }
 
