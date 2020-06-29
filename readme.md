@@ -27,9 +27,9 @@ Features:
      * Spring Security
      * Spring Validation
      * Spring Web
-   * TheamLeaf
-     * TheamLeaf Security
-     * TheamLeaf Java8time
+   * Thymeleaf
+     * Thymeleaf Security
+     * Thymeleaf Java8time
    * Jackson
    * Project Lombok
    * Webjars
