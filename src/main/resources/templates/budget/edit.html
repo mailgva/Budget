@@ -57,9 +57,9 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-pencil"></i></span>
                         </div>
-                        <input type="text" name="description" id="description" class="form-control"
+                        <textarea name="description" id="description" class="form-control" rows="4"
                                th:placeholder="${budget.description}" onkeyup="calculate(this)"
-                               th:value="${budget.description}">
+                               th:value="${budget.description}"></textarea>
                     </div>
                 </div>
                 <div class="form-check">
