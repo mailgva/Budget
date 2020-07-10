@@ -8,11 +8,16 @@
     <div class="jumbotron"  style="background: #c2ff8e">
         <h2 th:text="'Виды приходов/расходов'"> </h2>
         <a href="/dictionaries/kinds/create/profit" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
-        <table class="table table-striped table-active" >
+        <table id="kinds"
+               class="table table-striped table-active"
+               data-search="true"
+               data-show-columns="true"
+               data-show-multi-sort="true"
+               data-sort-priority='[{"sortName": "type","sortOrder":"asc"},{"sortName":"kind","sortOrder":"asc"}]'>
             <thead>
             <tr>
-                <th>Тип (Приход/Расход)</th>
-                <th>Вид </th>
+                <th data-field="type" data-sortable="true">Тип (Приход/Расход)</th>
+                <th data-field="kind" data-sortable="true">Вид </th>
                 <th> </th>
             </tr>
             </thead>
@@ -34,6 +39,11 @@
 
             </tr>
         </table>
+        <script>
+            $(function() {
+                $('#kinds').bootstrapTable()
+            })
+        </script>
     </div>
 </main>
 </body>

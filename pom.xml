@@ -23,6 +23,7 @@
         <jackson-databind.version>2.9.8</jackson-databind.version>
         <webjars-jquery.version>3.4.1</webjars-jquery.version>
         <webjars-bootstrap.version>4.3.1</webjars-bootstrap.version>
+        <webjars-bootstrap-table.version>1.16.0</webjars-bootstrap-table.version>
         <webjars-font-awesome.version>4.3.0-1</webjars-font-awesome.version>
         <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
 
@@ -108,6 +109,11 @@
             <groupId>org.webjars</groupId>
             <artifactId>mdbootstrap-bootstrap-material-design</artifactId>
             <version>${webjars-mdbootstrap-bootstrap-material-design.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>bootstrap-table</artifactId>
+            <version>${webjars-bootstrap-table.version}</version>
         </dependency>
 
     </dependencies>
