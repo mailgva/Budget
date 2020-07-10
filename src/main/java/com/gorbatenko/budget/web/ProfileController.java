@@ -12,23 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 @Slf4j
 @Controller
@@ -50,7 +44,7 @@ public class ProfileController extends AbstractWebController {
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
 
-        currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup())
+        currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup())
                 .forEach(currency -> mapCurrencies.put(currency, currency.getId().equals(user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
@@ -106,7 +100,7 @@ public class ProfileController extends AbstractWebController {
     @PostMapping("/changedefcurrency")
     public String changeDefaultCurrency(@RequestParam(value="currencyId", required=true) String currencyId) {
         User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
+        user.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), currencyId));
         userService.save(user);
         return "redirect:/profile/";
     }
@@ -116,7 +110,7 @@ public class ProfileController extends AbstractWebController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void changeDefaultCurrencyGet(@RequestParam(value="currencyId", required=true) String currencyId) {
         User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.findByUserGroupAndId(user.getGroup(), currencyId));
+        user.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), currencyId));
         userService.save(user);
     }
 

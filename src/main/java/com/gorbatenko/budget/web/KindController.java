@@ -3,7 +3,6 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.SecurityUtil;
-import org.springframework.http.server.RequestPath;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +46,7 @@ public class KindController extends AbstractWebController{
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
-        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
         if (budgetRepository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
             rm.addFlashAttribute("error", "Невозможно удалить статью, так как она уже используется");
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
@@ -65,7 +64,7 @@ public class KindController extends AbstractWebController{
         if(kindTo.getId().isEmpty()) {
             kindTo.setId(null);
         }
-        Kind check = kindRepository.findKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
+        Kind check = kindRepository.getKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
         if(check != null) {
             rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                     " уже используется в '" + kindTo.getType().getValue() + "'!");
@@ -76,7 +75,7 @@ public class KindController extends AbstractWebController{
             }
         }
 
-        Kind kindOld = kindRepository.findKindByUserGroupAndId(user.getGroup(), kindTo.getId());
+        Kind kindOld = kindRepository.getKindByUserGroupAndId(user.getGroup(), kindTo.getId());
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
         kind = kindRepository.save(kind);

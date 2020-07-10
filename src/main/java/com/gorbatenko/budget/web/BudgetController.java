@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -59,8 +58,8 @@ public class BudgetController extends AbstractWebController {
 
     public Budget createBudgetFromBudgetTo(BudgetTo b) {
         User user = SecurityUtil.get().getUser();
-        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), b.getKindId());
-        Currency currency = currencyRepository.findByUserGroupAndId(user.getGroup(), b.getCurrencyId());
+        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), b.getKindId());
+        Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), b.getCurrencyId());
         Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(),
                 b.getPrice(), currency);
         return budget;
@@ -195,7 +194,7 @@ public class BudgetController extends AbstractWebController {
                              )
                     ));
         } else {
-            kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+            kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?
@@ -267,7 +266,7 @@ public class BudgetController extends AbstractWebController {
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
 
-        Kind kind = kindRepository.findKindByUserGroupAndId(user.getGroup(), id);
+        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
         List<Budget> listBudget = hidePassword(
                 filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
                         offSetStartDate, offSetEndDate, user.getGroup())));
@@ -298,7 +297,7 @@ public class BudgetController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
-        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
+        List<Kind> kinds = kindRepository.getKindByTypeAndUserGroup(type, user.getGroup());
 
         if (kinds.size() == 0) {
             return "redirect:/dictionaries/kinds/create/"+typeStr;
@@ -330,7 +329,7 @@ public class BudgetController extends AbstractWebController {
         budget.setDate(LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0)));
         budget.setCurrency(user.getCurrencyDefault());
 
-        List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
 
         model.addAttribute("budget", budget);
         model.addAttribute("type", type);
@@ -349,10 +348,10 @@ public class BudgetController extends AbstractWebController {
         Budget budget = budgetRepository.findById(id).get();
         Type type = budget.getKind().getType();
 
-        List<Kind> kinds = kindRepository.findByTypeAndUserGroup(type, user.getGroup());
+        List<Kind> kinds = kindRepository.getKindByTypeAndUserGroup(type, user.getGroup());
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        List<Currency> currencies = currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
 
         String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
 

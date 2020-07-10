@@ -8,13 +8,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CurrencyRepository  extends MongoRepository<Currency, String > {
 
-  Currency findByNameIgnoreCase(String name);
+  Currency getCurrencyByUserGroupAndId(String userGroup, String id);
 
-  Currency findByUserGroupAndId(String userGroup, String id);
+  Currency getCurrencyByUserGroupAndNameIgnoreCase(String userGroup, String name);
 
-  Currency findByUserGroupAndNameIgnoreCase(String userGroup, String name);
+  List<Currency> getCurrencyByUserGroup(String userGroup);
 
-  List<Currency> findByUserGroup(String userGroup);
-
-  List<Currency> findByUserGroupOrderByNameAsc(String userGroup);
+  List<Currency> getCurrencyByUserGroupOrderByNameAsc(String userGroup);
 }

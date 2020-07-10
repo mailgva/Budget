@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -74,7 +73,7 @@ public class UserServiceImpl implements UserService {
         User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
         createStartKindsForUser(newUser);
         createStartCurrenciesForUser(newUser);
-        newUser.setCurrencyDefault(currencyRepository.findByUserGroupAndNameIgnoreCase(newUser.getGroup(), "грн"));
+        newUser.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndNameIgnoreCase(newUser.getGroup(), "грн"));
         return save(newUser);
     }
 

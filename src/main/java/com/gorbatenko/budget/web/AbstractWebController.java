@@ -54,14 +54,14 @@ public class AbstractWebController {
 
     protected List<Kind> getKinds() {
         User user = SecurityUtil.get().getUser();
-        return kindRepository.findByUserGroupOrderByTypeAscNameAsc(user.getGroup());
+        return kindRepository.getKindByUserGroupOrderByTypeAscNameAsc(user.getGroup());
     }
 
     @ModelAttribute("listOfCurrencies")
     protected List<Currency> getCurrencies() {
         try {
             User user = SecurityUtil.get().getUser();
-            return currencyRepository.findByUserGroupOrderByNameAsc(user.getGroup());
+            return currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
         } catch (Exception e) {
             return null;
         }

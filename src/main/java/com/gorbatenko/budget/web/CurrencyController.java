@@ -2,10 +2,8 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.to.CurrencyTo;
-import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -51,7 +49,7 @@ public class CurrencyController extends AbstractWebController {
   @GetMapping("/delete/{id}")
   public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
     User user = SecurityUtil.get().getUser();
-    Currency currency = currencyRepository.findByUserGroupAndId(user.getGroup(), id);
+    Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), id);
     if (budgetRepository.countByUser_GroupAndCurrency(user.getGroup(), currency) > 0) {
       rm.addFlashAttribute("error", "Невозможно удалить валюту, так как она уже используется");
       return String.format("redirect:/dictionaries/currencies/edit/%s", id);
@@ -72,14 +70,14 @@ public class CurrencyController extends AbstractWebController {
     if(currencyTo.getId().isEmpty()) {
       currencyTo.setId(null);
     }
-    Currency check = currencyRepository.findByUserGroupAndNameIgnoreCase(user.getGroup(), currencyTo.getName());
+    Currency check = currencyRepository.getCurrencyByUserGroupAndNameIgnoreCase(user.getGroup(), currencyTo.getName());
     if(check != null) {
       rm.addFlashAttribute("error", "Валюта с наименованием '" + currencyTo.getName() + "'" +
               " уже используется!");
       return String.format("redirect:/dictionaries/currencies/edit/%s", currencyTo.getId());
     }
 
-    Currency currencyOld = currencyRepository.findByUserGroupAndId(user.getGroup(), currencyTo.getId());
+    Currency currencyOld = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), currencyTo.getId());
     Currency currency = createCurrencyFromCurrencyTo(currencyTo);
     currency.setId(currencyTo.getId());
     currency = currencyRepository.save(currency);

@@ -9,18 +9,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface KindRepository extends MongoRepository<Kind, String> {
 
-  Kind findByNameIgnoreCase(String name);
+  Kind getKindByUserGroupAndId(String userGroup, String id);
 
-  Kind findKindByUserGroupAndId(String userGroup, String id);
+  Kind getKindByUserGroupAndTypeAndNameIgnoreCase(String userGroup, Type type, String name);
 
-  Kind findKindByUserGroupAndTypeAndNameIgnoreCase(String userGroup, Type type, String name);
+  List<Kind> getKindByTypeAndUserGroup(Type type, String userGroup);
 
-  List<Kind> findByType(Type type);
-
-  List<Kind> findByTypeAndUserGroup(Type type, String userGroup);
-
-  List<Kind> findByUserGroup(String userGroup);
-
-  List<Kind> findByUserGroupOrderByTypeAscNameAsc(String userGroup);
+  List<Kind> getKindByUserGroupOrderByTypeAscNameAsc(String userGroup);
 
 }
