@@ -30,7 +30,16 @@ public class MainController extends AbstractWebController {
         if(authUser == null) {
             return "login";
         } else {
-            return "redirect:menu";
+            return "redirect:/menu";
+        }
+    }
+
+    @GetMapping("/budget")
+    public String getMainBudget(@AuthenticationPrincipal AuthorizedUser authUser) {
+        if(authUser == null) {
+            return "login";
+        } else {
+            return "redirect:/menu";
         }
     }
 

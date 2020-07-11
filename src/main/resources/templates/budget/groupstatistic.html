@@ -10,24 +10,76 @@
             <div class="card-body ">
                 <div class="form-group ">
                     <form th:action="@{/budget/groupstatistic}" method="get">
-                        <div class="form-group row ">
-                            <div class="col-3">
-                                <label for="startDate">Дата начала</label>
-                                <input class="form-control" name="startDate" id="startDate"
-                                       type="date"
-                                       th:value="${startDate}">
-                            </div>
-                            <div class="col-3">
-                                <label for="endDate">Дата конца</label>
-                                <input class="form-control" name="endDate" id="endDate" type="date"
-                                       th:value="${endDate}">
-                            </div>
-                            <div class="form-group col-1 flex-bottom">
-                                <button id="btnsub" type="submit" class="btn btn-dark fiterbtn">
-                                    <i class="fa fa-filter"></i>
-                                </button>
-                            </div>
-                        </div>
+                                <div class="row">
+                                    <div class="col-8">
+                                        <fieldset>
+                                            <legend>Параметры</legend>
+                                            <div class="row">
+                                                <div class="form-check col-2">
+                                                    <input class="form-check-input" type="radio" id="selperiod"
+                                                           name="period" th:checked="${period.isEmpty() || period.equalsIgnoreCase('selperiod')}" value="selperiod"
+                                                           onchange="if(this.checked){$('#perioddetail').prop('disabled', false)} else {$('#perioddetail').prop('disabled', true)};">
+                                                    <label class="form-check-label" for="selperiod">
+                                                        Период
+                                                    </label>
+                                                </div>
+                                                <fieldset class="col-8" id="perioddetail">
+
+                                                        <div class="form-group row" >
+                                                            <div class="col">
+                                                                <label for="startDate">Дата начала</label>
+                                                                <input class="form-control" name="startDate"
+                                                                       id="startDate"
+                                                                       type="date"
+                                                                       th:value="${startDate}">
+                                                            </div>
+                                                            <div class="col">
+                                                                <label for="endDate">Дата конца</label>
+                                                                <input class="form-control" name="endDate" id="endDate"
+                                                                       type="date"
+                                                                       th:value="${endDate}">
+                                                            </div>
+                                                        </div>
+
+                                                </fieldset>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" id="alltime"
+                                                           name="period" value="alltime" th:checked="${period.equalsIgnoreCase('alltime')}"
+                                                           onchange="if(this.checked){$('#perioddetail').prop('disabled', true)} else {$('#perioddetail').prop('disabled', false)};">
+                                                    <label class="form-check-label" for="alltime">
+                                                        Все время
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col">
+                                        <fieldset>
+                                            <legend>Сортировка</legend>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" id="sortbyname" name="sorttype" th:checked="${sorttype.isEmpty() || sorttype.equalsIgnoreCase('sortbyname')}"  value="sortbyname">
+                                                <label class="form-check-label" for="sortbyname">
+                                                    По наименованию
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" id="sortbyprice" name="sorttype" th:checked="${sorttype.equalsIgnoreCase('sortbyprice')}" value="sortbyprice">
+                                                <label class="form-check-label" for="sortbyprice">
+                                                    По сумме
+                                                </label>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group col-1 flex-bottom">
+                                            <button id="btnsub" type="submit" class="btn btn-dark fiterbtn">
+                                                <i class="fa fa-filter"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                     </form>
                 </div>
             </div>
@@ -82,9 +134,9 @@
                             </tr>
                         </th:block>
                         <tr>
-                            <td colspan="2" style="font-weight: bold"><b>Итого:</b></td>
-                            <td style="font-weight: bold; text-align:right; padding-right: 50px" ><b>
-                                <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(value)]), 1, 'DEFAULT', 0, 'DEFAULT')}"></span></b>
+                            <td colspan="2" ><h5>Итого:</h5></td>
+                            <td style="text-align:right; padding-right: 50px" ><h5>
+                                <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(value)]), 1, 'DEFAULT', 0, 'DEFAULT')}"></span></h5>
                             </td>
                         </tr>
                     </th:block>

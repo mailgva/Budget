@@ -68,6 +68,8 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/groupstatistic")
     public String getGroupStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                     @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                    @RequestParam(value = "period", required = false, defaultValue = "") String period,
+                                    @RequestParam(value = "sorttype", required = false, defaultValue = "") String sorttype,
                                     Model model) {
         User user = SecurityUtil.get().getUser();
 
@@ -89,21 +91,51 @@ public class BudgetController extends AbstractWebController {
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         List<Budget> listBudget = hidePassword(
-                filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByDateBetweenAndUser_Group(
-                    offSetStartDate, offSetEndDate, user.getGroup())));
+                filterBudgetByUserCurrencyDefault(
+                        period.equalsIgnoreCase("ALLTIME") ?
+                                budgetRepository.getAllByUser_Group(user.getGroup()) :
+                                budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                                        offSetStartDate, offSetEndDate, user.getGroup())));
 
         model = getBalanceParts(model, listBudget);
 
+        Map<Type, Map<Kind, Double>> mapKind;
+        if (sorttype.isEmpty() || sorttype.equalsIgnoreCase("sortbyname")) {
+            mapKind = listBudget.stream()
+                    .collect(Collectors.groupingBy(
+                            budget ->
+                                    budget.getKind().getType(), (
+                                    Collectors.groupingBy(
+                                            Budget::getKind,
+                                            TreeMap::new,
+                                            Collectors.summingDouble(Budget::getPrice)))
+                    ));
+        } else {
+            mapKind = listBudget.stream()
+                    .collect(Collectors.groupingBy(
+                            budget ->
+                                    budget.getKind().getType(), (
+                                    Collectors.groupingBy(
+                                            Budget::getKind,
+                                            HashMap::new,
+                                            Collectors.summingDouble(Budget::getPrice))))
+                            );
+
+            for (Map.Entry<Type, Map<Kind, Double>> entry : mapKind.entrySet()) {
+                entry.setValue(
+                        (Map<Kind, Double>) entry.getValue().entrySet()
+                        .stream()
+                                .sorted((s1,s2)->s2.getValue().compareTo(s1.getValue()) /*Map.Entry.comparingByValue()*/)
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        Map.Entry::getValue,
+                                        (oldValue, newValue) -> oldValue, LinkedHashMap::new)));
+
+            }
+
+        }
 
 
-        Map<Type, Map<Kind, Double>> mapKind = listBudget.stream()
-                .collect(Collectors.groupingBy(
-                        budget ->
-                                budget.getKind().getType(), (
-                                Collectors.groupingBy(
-                                        Budget::getKind,
-                                        TreeMap::new,
-                                        Collectors.summingDouble(Budget::getPrice)))));
 
         TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
         mapKindSort.putAll(mapKind);
@@ -145,6 +177,9 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKindSort));
         model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKindSort));
         model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKindSort));
+
+        model.addAttribute("period", period);
+        model.addAttribute("sorttype", sorttype);
 
         model.addAttribute("pageName", "Групповая статистика");
 
