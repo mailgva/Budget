@@ -11,7 +11,7 @@
             <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
             <form id="form" name="form" th:action="@{/budget/}" method="post">
                 <input type="hidden" name="id" th:value="${budget.id}">
-                <fieldset disabled>
+                <fieldset disabled style="display: none">
                     <div class="form-group">
                         <label for="type">Тип</label>
                         <select id="type" name="type" readonly class="form-control">

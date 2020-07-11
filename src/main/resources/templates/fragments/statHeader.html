@@ -4,13 +4,13 @@
         <td colspan="2" style="font-weight: bold; padding-left: 10px;">
             <div align="left">
                 Остаток на начало периода: <span
-                    th:text="${remainOnStartPeriod}"></span>
+                    th:text="${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></span>
             </div>
         </td>
         <td style="font-weight: bold; padding-right: 10px;">
             <div align="right">
                 Остаток на конец периода: <span
-                    th:text="${remainOnEndPeriod}"></span>
+                    th:text="${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></span>
             </div>
         </td>
     </tr>
@@ -18,19 +18,19 @@
         <td style="width: 30%; font-weight: bold">
             <div align="left">
                 Всего приход:
-                <span th:text="${profit}"></span>
+                <span th:text="${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></span>
             </div>
         </td>
         <td style="width: 30%; font-weight: bold">
             <div align="center">
                 Всего расход:
-                <span th:text="${spending}"></span>
+                <span th:text="${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></span>
             </div>
         </td>
         <td style="width: 30%; font-weight: bold">
             <div align="right">
                 Всего Итог:
-                <span th:text="${remain}"></span>
+                <span th:text="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"></span>
             </div>
         </td>
     </tr>

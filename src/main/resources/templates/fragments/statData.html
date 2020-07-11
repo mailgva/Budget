@@ -13,15 +13,15 @@
                 <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
                 <div style="display:inline-block;font-weight: bold; width : 60%;" align="right">
                     <div style="display:inline-block; width: 140px;" align="left"> Приход: <b>
-                        <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)])}"></span></b>
+                        <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)]),1,'DEFAULT',0,'DEFAULT')}"></span></b>
                     </div>
 
                     <div style="display:inline-block; width: 140px;" align="left"> Расход: <b>
-                        <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)])}"></span></b>
+                        <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)]),1,'DEFAULT',0,'DEFAULT')}"></span></b>
                     </div>
 
                     <div style="display:inline-block; width: 140px" align="left"> Итог: <b>
-                        <span th:text="*{#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)])}"></span></b>
+                        <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]),1,'DEFAULT',0,'DEFAULT')}"></span></b>
                     </div>
                 </div>
             </td>
@@ -55,7 +55,7 @@
                             <td style="width: 20%"><span th:text="${budget.kind.name}"> Item </span></td>
                             <td style="width: 20%"><span th:text="${budget.description}"> Description </span>
                             </td>
-                            <td style="width: 10%; text-align:right"><span th:text="${budget.price}"> Price </span></td>
+                            <td style="width: 10%; text-align:right"><span th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
                             <td style="width: 5%">
                                 <a th:href="@{'/budget/edit/'+${budget.id}}" class="btn btn-warning" role="button"
                                    aria-pressed="true"><i

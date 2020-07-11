@@ -78,13 +78,13 @@
                                         <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
                                     </a>
                                 </td>
-                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span th:text="${map.value.doubleValue()}">  </span></td>
+                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span th:text="${#numbers.formatDecimal(map.value.doubleValue(), 1, 'DEFAULT', 0, 'DEFAULT')}">  </span></td>
                             </tr>
                         </th:block>
                         <tr>
                             <td colspan="2" style="font-weight: bold"><b>Итого:</b></td>
                             <td style="font-weight: bold; text-align:right; padding-right: 50px" ><b>
-                                <span th:text="*{#aggregates.sum(element.value.![(value)])}"></span></b>
+                                <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(value)]), 1, 'DEFAULT', 0, 'DEFAULT')}"></span></b>
                             </td>
                         </tr>
                     </th:block>

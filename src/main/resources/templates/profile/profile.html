@@ -105,19 +105,19 @@
                 <div class="input-group-prepend" >
                     <span class="input-group-text" style="width: 200px;" th:text="${'Всего прихода, ' + defaultCurrencyName}"></span>
                 </div>
-                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${profit}">
+                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="input-group" >
                 <div class="input-group-prepend" >
                     <span class="input-group-text" style="width: 200px;" th:text="${'Всего расхода, ' + defaultCurrencyName}"></span>
                 </div>
-                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${spending}">
+                <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="input-group" >
                 <div class="input-group-prepend" >
                     <span class="input-group-text" style="width: 200px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
                 </div>
-                <input type="text" class="form-control" readonly style="text-align:right;" th:value="${remain}">
+                <input type="text" class="form-control" readonly style="text-align:right;" th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="form-group text-right">
                 <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
