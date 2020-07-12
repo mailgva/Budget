@@ -167,6 +167,18 @@ public class BudgetController extends AbstractWebController {
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
 
+        if (period.equalsIgnoreCase("ALLTIME")) {
+            startDate = listBudget.stream().
+                    map(Budget::getDate).
+                    map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
+                    min(LocalDate::compareTo).get();
+
+            endDate = listBudget.stream().
+                    map(Budget::getDate).
+                    map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
+                    max(LocalDate::compareTo).get();
+        }
+
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
