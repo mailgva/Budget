@@ -6,7 +6,7 @@
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
-        <h4 th:text="${kindName + ' - ' + kindSum}"></h4>
+        <h4 th:text="${kindName + ' - ' + #numbers.formatDecimal(kindSum,1,'DEFAULT',0,'DEFAULT')}"></h4>
         <canvas id="barChart" style="max-width: 80%;max-height: 500px;"></canvas>
     </div>
     <script th:inline="javascript">
