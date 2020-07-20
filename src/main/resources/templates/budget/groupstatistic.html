@@ -14,11 +14,13 @@
                                     <div class="col-8">
                                         <fieldset>
                                             <legend>Параметры</legend>
+                                            <!--/*--><!--@thymesVar id="period" type="com.gorbatenko.budget.util.TypePeriod"-->
+                                            <!--*/-->
                                             <div class="row">
                                                 <div class="form-check col-2">
                                                     <input class="form-check-input" type="radio" id="selperiod"
-                                                           name="period" th:checked="${period.isEmpty() || period.equalsIgnoreCase('selperiod')}" value="selperiod"
-                                                           onchange="if(this.checked){$('#perioddetail').prop('disabled', false)} else {$('#perioddetail').prop('disabled', true)};">
+                                                           name="period" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).SELPERIOD)}" value="SELPERIOD"
+                                                           onchange="enablePeriod(true);">
                                                     <label class="form-check-label" for="selperiod">
                                                         Период
                                                     </label>
@@ -44,15 +46,32 @@
                                                 </fieldset>
                                             </div>
                                             <div class="row">
-                                                <div class="form-check">
+                                                <div class="form-check col">
+                                                    <input class="form-check-input" type="radio" id="currentmonth"
+                                                           name="period" value="CURRENTMONTH" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTMONTH)}"
+                                                           onchange="enablePeriod(false);">
+                                                    <label class="form-check-label" for="currentmonth">
+                                                        Текущий месяц
+                                                    </label>
+                                                </div>
+                                                <div class="form-check col">
+                                                    <input class="form-check-input" type="radio" id="currentyear"
+                                                           name="period" value="CURRENTYEAR" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTYEAR)}"
+                                                           onchange="enablePeriod(false);">
+                                                    <label class="form-check-label" for="currentyear">
+                                                        Текущий год
+                                                    </label>
+                                                </div>
+                                                <div class="form-check col">
                                                     <input class="form-check-input" type="radio" id="alltime"
-                                                           name="period" value="alltime" th:checked="${period.equalsIgnoreCase('alltime')}"
-                                                           onchange="if(this.checked){$('#perioddetail').prop('disabled', true)} else {$('#perioddetail').prop('disabled', false)};">
+                                                           name="period" value="ALLTIME" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).ALLTIME)}"
+                                                           onchange="enablePeriod(false);">
                                                     <label class="form-check-label" for="alltime">
                                                         Все время
                                                     </label>
                                                 </div>
                                             </div>
+
                                         </fieldset>
                                     </div>
                                     <div class="col">
@@ -97,8 +116,8 @@
         </nav>
 
         <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="tableview" role="tabpanel" aria-labelledby="nav-tableview">
-                <table class="table" >
+            <div class="tab-pane fade show active"id="tableview" role="tabpanel" aria-labelledby="nav-tableview">
+                <table class="table">
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                             <td colspan="3"><h4 th:text="${element.key.getValue()}"></h4></td>
@@ -141,7 +160,7 @@
                         </tr>
                     </th:block>
                 </table>
-
+                <br>
                 <div class="bg-white" th:style="${'display: inline-block; margin-top:4px; height: 12px; width: 12px;'}"></div> - % от общей суммы
                 <br>
                 <div class="bg-warning" th:style="${'display: inline-block; margin-top:1px; height: 12px; width: 12px;'}"></div> -  % от максимальной статьи
@@ -179,6 +198,10 @@
 
     </div>
     <script th:inline="javascript">
+        function enablePeriod(val){
+            $('#perioddetail').prop('disabled', !val);
+        }
+
         $(document).ready(function() {
             new Chart(document.getElementById("circleChartProfit"), [(${circleChartProfit})]);
             new Chart(document.getElementById("circleChartSpendit"), [(${circleChartSpendit})]);

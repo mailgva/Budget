@@ -6,6 +6,7 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.util.ChartUtil;
 import com.gorbatenko.budget.util.SecurityUtil;
+import com.gorbatenko.budget.util.TypePeriod;
 import com.gorbatenko.budget.web.charts.ChartType;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,8 @@ import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/budget/")
 public class BudgetController extends AbstractWebController {
+
+
 
     @PostMapping("/")
     public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
@@ -68,9 +72,14 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/groupstatistic")
     public String getGroupStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                     @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                                    @RequestParam(value = "period", required = false, defaultValue = "") String period,
+                                    @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
                                     @RequestParam(value = "sorttype", required = false, defaultValue = "") String sorttype,
                                     Model model) {
+
+        if(period == null) {
+            period = TypePeriod.SELPERIOD;
+        }
+
         User user = SecurityUtil.get().getUser();
 
         LocalDateTime offSetStartDate;
@@ -78,21 +87,31 @@ public class BudgetController extends AbstractWebController {
 
         LocalDate now = LocalDate.now();
 
-        if (startDate == null) {
+        if ((startDate == null) || (period.equals(TypePeriod.CURRENTMONTH))) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
         }
+        if (period.equals(TypePeriod.CURRENTYEAR)) {
+            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), 1, 1), LocalTime.MIN);
+            startDate = offSetStartDate.toLocalDate();
+        }
+
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
 
-        if (endDate == null) {
+        if ((endDate == null) || (period.equals(TypePeriod.CURRENTMONTH))) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
+        if (period.equals(TypePeriod.CURRENTYEAR)) {
+            offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), 12, 31), LocalTime.MAX);
+            endDate = offSetEndDate.toLocalDate();
+        }
+
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         List<Budget> listBudget = hidePassword(
                 filterBudgetByUserCurrencyDefault(
-                        period.equalsIgnoreCase("ALLTIME") ?
+                        period.equals(TypePeriod.ALLTIME) ?
                                 budgetRepository.getAllByUser_Group(user.getGroup()) :
                                 budgetRepository.getBudgetByDateBetweenAndUser_Group(
                                         offSetStartDate, offSetEndDate, user.getGroup())));
@@ -167,7 +186,7 @@ public class BudgetController extends AbstractWebController {
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
 
-        if (period.equalsIgnoreCase("ALLTIME")) {
+        if (period.equals(TypePeriod.ALLTIME)) {
             startDate = listBudget.stream().
                     map(Budget::getDate).
                     map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
