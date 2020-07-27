@@ -317,9 +317,15 @@ public class BudgetController extends AbstractWebController {
     public String getDynamicStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                       @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                       @RequestParam(value = "kindId", defaultValue = "") String id,
+                                      @RequestParam(value = "type", required = false, defaultValue = "") Type type,
                                       Model model) {
 
-        if ((startDate == null) || (endDate == null) || (id.isEmpty())) {
+
+        if ((startDate == null) || (endDate == null)) {
+            return "redirect:budget/groupstatistic";
+        }
+
+        if ((id.isEmpty() && type == null)) {
             return "redirect:budget/groupstatistic";
         }
 
@@ -331,27 +337,46 @@ public class BudgetController extends AbstractWebController {
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
+        String positionName = "";
+        double positionSum = 0.0D;
 
-        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
-        List<Budget> listBudget = hidePassword(
-                filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
-                        offSetStartDate, offSetEndDate, user.getGroup())));
-
-        Map<String, Double> mapKind = new HashMap<>();
+        List<Budget> listBudget;
 
         boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
                 (endDate.getMonth().equals(startDate.getMonth())));
 
-        mapKind = listBudget.stream()
+
+        if(! id.isEmpty()) {
+            Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
+
+            listBudget = hidePassword(
+                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
+                            offSetStartDate, offSetEndDate, user.getGroup())));
+
+            positionName = kind.getName();
+
+        } else {
+            positionName = type.getValue();
+
+            listBudget = hidePassword(filterBudgetByUserCurrencyDefault(
+                    budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type,
+                    offSetStartDate, offSetEndDate, user.getGroup())));
+
+        }
+
+        Map<String, Double> mapKind = listBudget.stream()
                 .collect(Collectors.groupingBy(
                         (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
                         Collectors.summingDouble(Budget::getPrice)));
 
         TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
 
-        model.addAttribute("kindName", kind.getName());
-        model.addAttribute("kindSum", listBudget.stream().mapToDouble(Budget::getPrice).sum());
-        model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, kind.getName(), mapKindSort));
+        positionSum = listBudget.stream()
+                .mapToDouble(Budget::getPrice).sum();
+
+        model.addAttribute("positionName", positionName);
+        model.addAttribute("positionSum", positionSum);
+        model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, positionName, mapKindSort));
 
         model.addAttribute("pageName", "Динамика");
 

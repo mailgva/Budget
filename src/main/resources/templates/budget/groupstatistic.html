@@ -120,7 +120,16 @@
                 <table class="table">
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                            <td colspan="3"><h4 th:text="${element.key.getValue()}"></h4></td>
+                            <td ><h4 th:text="${element.key.getValue()}"></h4></td>
+                            <td colspan="2">
+                                <a class="text-dark"
+                                   th:href="@{/budget/dynamicstatistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     type=${element.key.name()})}" title="Динамика">
+                                    <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
+                                </a>
+
+                            </td>
                         </tr>
                         <th:block th:each="map : ${element.value}">
                             <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
