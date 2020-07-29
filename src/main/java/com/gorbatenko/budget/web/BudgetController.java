@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
+import static java.util.stream.Collectors.groupingBy;
 
 
 @Controller
@@ -121,20 +122,20 @@ public class BudgetController extends AbstractWebController {
         Map<Type, Map<Kind, Double>> mapKind;
         if (sorttype.isEmpty() || sorttype.equalsIgnoreCase("sortbyname")) {
             mapKind = listBudget.stream()
-                    .collect(Collectors.groupingBy(
+                    .collect(groupingBy(
                             budget ->
                                     budget.getKind().getType(), (
-                                    Collectors.groupingBy(
+                                    groupingBy(
                                             Budget::getKind,
                                             TreeMap::new,
                                             Collectors.summingDouble(Budget::getPrice)))
                     ));
         } else {
             mapKind = listBudget.stream()
-                    .collect(Collectors.groupingBy(
+                    .collect(groupingBy(
                             budget ->
                                     budget.getKind().getType(), (
-                                    Collectors.groupingBy(
+                                    groupingBy(
                                             Budget::getKind,
                                             HashMap::new,
                                             Collectors.summingDouble(Budget::getPrice))))
@@ -154,38 +155,6 @@ public class BudgetController extends AbstractWebController {
 
         }
 
-
-
-        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
-        mapKindSort.putAll(mapKind);
-
-        Map<Kind, Long> mapKindCount = listBudget.stream()
-                .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()));
-
-
-        Double maxPriceProfit = 0.0d;
-        Double maxPriceSpending = 0.0d;
-
-        maxPriceProfit = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
-                .collect(Collectors.groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .entrySet().stream()
-                .map(Map.Entry::getValue)
-                .max(Double::compareTo)
-                .orElse(0.0);
-
-        maxPriceSpending = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
-                .collect(Collectors.groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .entrySet().stream()
-                .map(Map.Entry::getValue)
-                .max(Double::compareTo)
-                .orElse(0.0);
-
-        Map<Type, Double> mapMaxPrice = new HashMap<>();
-        mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
-        mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
-
         if (period.equals(TypePeriod.ALLTIME)) {
             startDate = listBudget.stream().
                     map(Budget::getDate).
@@ -198,6 +167,67 @@ public class BudgetController extends AbstractWebController {
                     max(LocalDate::compareTo).get();
         }
 
+        boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
+                (endDate.getMonth().equals(startDate.getMonth())));
+
+        Map<String, Double> mapDateProfit = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
+                .collect(groupingBy(
+                                (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
+                                 Collectors.summingDouble(Budget::getPrice)));
+
+        Map<String, Double> mapDateSpending = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
+                .collect(groupingBy(
+                        (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
+                        Collectors.summingDouble(Budget::getPrice)));
+
+        TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
+
+        for(Map.Entry<String, Double> entry : mapDateProfit.entrySet()) {
+            TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
+            double value = map.getOrDefault(Type.PROFIT, 0.00D) + entry.getValue();
+            map.put(Type.PROFIT, value);
+            totalMap.put(entry.getKey(), map);
+        }
+
+        for(Map.Entry<String, Double> entry : mapDateSpending.entrySet()) {
+            TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
+            double value = map.getOrDefault(Type.SPENDING, 0.00D) + entry.getValue();
+            map.put(Type.SPENDING, value);
+            totalMap.put(entry.getKey(), map);
+        }
+
+        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
+        mapKindSort.putAll(mapKind);
+
+        Map<Kind, Long> mapKindCount = listBudget.stream()
+                .collect(groupingBy(Budget::getKind, Collectors.counting()));
+
+
+        Double maxPriceProfit = 0.0d;
+        Double maxPriceSpending = 0.0d;
+
+        maxPriceProfit = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
+                .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
+                .entrySet().stream()
+                .map(Map.Entry::getValue)
+                .max(Double::compareTo)
+                .orElse(0.0);
+
+        maxPriceSpending = listBudget.stream()
+                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
+                .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
+                .entrySet().stream()
+                .map(Map.Entry::getValue)
+                .max(Double::compareTo)
+                .orElse(0.0);
+
+        Map<Type, Double> mapMaxPrice = new HashMap<>();
+        mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
+        mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
+
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
@@ -208,6 +238,8 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKindSort));
         model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKindSort));
         model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKindSort));
+
+        model.addAttribute("totalBarChart", ChartUtil.createDynamicMultiMdbChart(ChartType.BARCHART, totalMap));
 
         model.addAttribute("period", period);
         model.addAttribute("sorttype", sorttype);
@@ -365,7 +397,7 @@ public class BudgetController extends AbstractWebController {
         }
 
         Map<String, Double> mapKind = listBudget.stream()
-                .collect(Collectors.groupingBy(
+                .collect(groupingBy(
                         (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
                         Collectors.summingDouble(Budget::getPrice)));
 

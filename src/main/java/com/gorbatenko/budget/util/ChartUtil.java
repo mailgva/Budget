@@ -9,6 +9,7 @@ import com.gorbatenko.budget.web.charts.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class ChartUtil {
     final static private float TRANSPARENT_VALUE = 1.0f;
@@ -25,6 +26,13 @@ public class ChartUtil {
 
     public static String createDynamicMdbChart(ChartType chartType, String label, TreeMap<String, Double> data){
         ChartData chartData = createChartDynamicData(chartType, label, data);
+        Map<String, Object> options = createOptions(chartType);
+        MdbChart mdbChart = new MdbChart(chartType.getValue(), chartData, options);
+        return mdbChartToJSON(mdbChart);
+    }
+
+    public static String createDynamicMultiMdbChart(ChartType chartType, TreeMap<String, TreeMap<Type, Double>> data) {
+        ChartData chartData = createChartDynamicMultiData(chartType, data);
         Map<String, Object> options = createOptions(chartType);
         MdbChart mdbChart = new MdbChart(chartType.getValue(), chartData, options);
         return mdbChartToJSON(mdbChart);
@@ -72,6 +80,27 @@ public class ChartUtil {
         String[] labels = data.keySet().stream().toArray(String[]::new);
         return new ChartData(labels, createChartDataset(chartType, label, labels, data));
     }
+
+    private static ChartData createChartDynamicMultiData(ChartType chartType, TreeMap<String, TreeMap<Type, Double>> data) {
+        String[] labels = data.keySet().stream().toArray(String[]::new);
+
+        ChartDatasets[] chartDatasets = new ChartDatasets[2];
+
+        TreeMap<String, Double> map = new TreeMap<>();
+
+        for(Map.Entry<String, TreeMap<Type, Double>> entry : data.entrySet()) {
+            map.put(entry.getKey(), entry.getValue().getOrDefault(Type.PROFIT, 0.00));
+        }
+        chartDatasets[0] = createChartDataset(chartType, Type.PROFIT.getValue(), labels, map)[0];
+
+        for(Map.Entry<String, TreeMap<Type, Double>> entry : data.entrySet()) {
+            map.put(entry.getKey(), entry.getValue().getOrDefault(Type.SPENDING, 0.00));
+        }
+        chartDatasets[1] = createChartDataset(chartType, Type.SPENDING.getValue(), labels, map)[0];
+
+        return new ChartData(labels, chartDatasets);
+    }
+
 
     private static ChartData createChartData(ChartType chartType, Type type, Map<Kind, Double> data) {
         String[] labels = data.keySet().stream().map(Kind::getName).toArray(String[]::new);
@@ -137,5 +166,7 @@ public class ChartUtil {
     private static int generateRGBColor() {
         return 1 + (int) (Math.random() * 254);
     }
+
+
 }
 

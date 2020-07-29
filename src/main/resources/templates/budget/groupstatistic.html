@@ -112,6 +112,7 @@
                 <a class="nav-item nav-link active" id="nav-tableview" data-toggle="tab" href="#tableview" role="tab" aria-controls="tableview" aria-selected="true">Таблица</a>
                 <a class="nav-item nav-link" id="nav-circlediagram" data-toggle="tab" href="#circlediagram" role="tab" aria-controls="circlediagram" aria-selected="false">Круговая диаграмма</a>
                 <a class="nav-item nav-link" id="nav-horizontdiagram" data-toggle="tab" href="#horizontdiagram" role="tab" aria-controls="horizontdiagram" aria-selected="false">Горизонтальная диаграмма</a>
+                <a class="nav-item nav-link" id="nav-totalbardiagram" data-toggle="tab" href="#totalbardiagram" role="tab" aria-controls="totalbardiagram" aria-selected="false">Вертикальная итоговая диаграмма</a>
             </div>
         </nav>
 
@@ -203,6 +204,14 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade" id="totalbardiagram" role="tabpanel" aria-labelledby="nav-horizontdiagram">
+                <h4>Приходы &frasl; Расходы</h4>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-10">
+                        <canvas id="totalBarChart" style="max-width: 80%;max-height: 500px;"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -216,6 +225,7 @@
             new Chart(document.getElementById("circleChartSpendit"), [(${circleChartSpendit})]);
             new Chart(document.getElementById("horizontChartProfit"), [(${horizontChartProfit})]);
             new Chart(document.getElementById("horizontChartSpendit"), [(${horizontChartSpendit})]);
+            new Chart(document.getElementById("totalBarChart").getContext('2d'), [(${totalBarChart})]);
         } );
     </script>
 </main>
