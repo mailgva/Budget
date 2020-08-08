@@ -30,14 +30,19 @@ public class DictionaryController extends AbstractWebController {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());
         switch(dictionary) {
             case KINDS:
-                List<Kind> kinds = getKinds();
-                Collections.sort(kinds, Comparator.comparing(o -> o.getType().getValue()));
+
                 List<Budget> budgets = budgetRepository.getAllByUser_Group(user.getGroup());
-                Map<String, Long> kindMap = budgets.stream()
+
+                TreeMap<Type, List<Kind>> mapKind = new TreeMap<>();
+                mapKind.putAll(
+                        getKinds().stream()
+                                .collect(Collectors.groupingBy(Kind::getType)));
+
+                Map<String, Long> mapCountKind = budgets.stream()
                         .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));
 
-                model.addAttribute("kinds", kinds);
-                model.addAttribute("kindMap", kindMap);
+                model.addAttribute("mapKind", mapKind);
+                model.addAttribute("mapCountKind", mapCountKind);
                 model.addAttribute("pageName", "Виды приходов//расходов");
                 return "/dictionaries/kinds/kinds";
             case CURRENCIES:

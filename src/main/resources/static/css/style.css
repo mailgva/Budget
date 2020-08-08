@@ -140,3 +140,10 @@ nav > div a.nav-item.nav-link:focus
   text-align: center;
 }
 
+span.fontred{
+  color : red;
+}
+
+span.fontgreen{
+  color : green;
+}

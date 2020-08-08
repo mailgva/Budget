@@ -8,42 +8,34 @@
     <div class="jumbotron"  style="background: #c2ff8e">
         <h2 th:text="'Виды приходов/расходов'"> </h2>
         <a href="/dictionaries/kinds/create/profit" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
-        <table id="kinds"
-               class="table table-striped table-active"
-               data-search="true"
-               data-show-columns="true"
-               data-show-multi-sort="true"
-               data-sort-priority='[{"sortName": "type","sortOrder":"asc"},{"sortName":"kind","sortOrder":"asc"}]'>
-            <thead>
-            <tr>
-                <th data-field="type" data-sortable="true">Тип (Приход/Расход)</th>
-                <th data-field="kind" data-sortable="true">Вид </th>
-                <th> </th>
-            </tr>
-            </thead>
-            <tbody>
 
-            <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}"  th:each="kind : ${ kinds}">
-                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"--><!--*/-->
-                <td><span th:text="${kind.getType().getValue()}"> Type </span></td>
-                <td>
-                    <a class="text-dark"
-                       th:href="@{/budget/statistic(alltime='yes',
+        <table class="table">
+            <th:block th:each="element : ${mapKind}">
+                <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                    <td ><h4 th:text="${element.key.getValue()}"></h4></td>
+                    <td colspan="2"></td>
+                </tr>
+                <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+                <th:block th:each="kind,row : ${element.value}">
+                    <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                        <td style="padding-left: 50px; font-weight: bolder">
+                            <a class="text-dark"
+                               th:href="@{/budget/statistic(alltime='yes',
                                                     kindId=${kind.getId()})}">
-                        <span th:text="${kind.getName() + ' (' + kindMap.getOrDefault(kind.getId(),0)  + ')'}"> Name </span>
-                    </a>
-                </td>
-                <td>
-                    <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
-                </td>
-
-            </tr>
+                                <span th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
+                            </a>
+                        </td>
+                        <td style="padding-left: 10px; font-weight: bolder; text-align: center;">
+                            <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                        </td>
+                    </tr>
+                </th:block>
+                <tr>
+                    <td colspan="3"></td>
+                </tr>
+            </th:block>
         </table>
-        <script>
-            $(function() {
-                $('#kinds').bootstrapTable()
-            })
-        </script>
+
     </div>
 </main>
 </body>
