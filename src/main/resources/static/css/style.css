@@ -147,3 +147,11 @@ span.fontred{
 span.fontgreen{
   color : green;
 }
+
+span.subdate{
+  display: block;
+  color: #494b49;
+  font-size: 60%;
+  margin-top: 5px;
+  margin-bottom: -10px;
+}
