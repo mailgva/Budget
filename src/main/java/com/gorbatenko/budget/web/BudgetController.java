@@ -14,11 +14,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
+import java.time.*;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -249,15 +249,44 @@ public class BudgetController extends AbstractWebController {
         return "budget/groupstatistic";
     }
 
+    private int getUserTimezoneOffsetMinutes(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+
+        String cookieName = "userTimezoneOffset";
+
+        int defaultValue = 1;
+
+        for ( int i=0; i<cookies.length; i++) {
+
+            Cookie cookie = cookies[i];
+
+            if (cookieName.equals(cookie.getName()))
+
+                return(Integer.parseInt(cookie.getValue()));
+
+        }
+
+        return(defaultValue);
+    }
+
+
     @GetMapping("/statistic")
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(value = "kindId", defaultValue = "-1") String id,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
                                @RequestParam(value = "comment", defaultValue = "") String comment,
-                               @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime, Model model) {
+                               @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime,
+                               Model model,
+                               HttpServletRequest request) {
 
         User user = SecurityUtil.get().getUser();
+
+        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
+
+        int currentTimezomeOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
+
+        int sumTimezoneOffsetMinutes = (userTimezoneOffsetMinutes + currentTimezomeOffsetMinutes) * -1;
 
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
@@ -330,6 +359,8 @@ public class BudgetController extends AbstractWebController {
                     .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toUpperCase()))
                     .collect(Collectors.toList());
         }
+
+        listBudget.forEach(budget -> budget.setCreateDateTime(budget.getCreateDateTime().plusMinutes(sumTimezoneOffsetMinutes)));
 
         model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
@@ -416,8 +447,16 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/create/{type}")
-    public String create(@PathVariable("type") String typeStr, Model model) {
+    public String create(@PathVariable("type") String typeStr, Model model,
+                         HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
+
+        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
+
+        int currentTimezomeOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
+
+        int sumTimezoneOffsetMinutes = (userTimezoneOffsetMinutes + currentTimezomeOffsetMinutes) * -1;
+
         Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
         List<Kind> kinds = kindRepository.getKindByTypeAndUserGroup(type, user.getGroup());
@@ -449,7 +488,9 @@ public class BudgetController extends AbstractWebController {
                     .filter(k -> k.getId().equals(kindId)).findFirst().get());
         }
 
-        budget.setDate(LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0)));
+        budget.setDate(LocalDateTime.of(
+                LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
+                LocalTime.of(0,0)));
         budget.setCurrency(user.getCurrencyDefault());
 
         List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
@@ -495,9 +536,9 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String id, Model model) {
+    public String delete(@PathVariable("id") String id, Model model, HttpServletRequest request) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1", "allTypes", "", "", model);
+        return getStatistic(null, null, "-1", "allTypes", "", "", model, request);
     }
 
 
