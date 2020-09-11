@@ -32,15 +32,17 @@ import static java.util.stream.Collectors.groupingBy;
 @RequestMapping(value = "/budget/")
 public class BudgetController extends AbstractWebController {
 
-
-
     @PostMapping("/")
-    public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo) {
+    public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
-        if(budgetTo.getId().isEmpty()) {
+        if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
         }
+
+        int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
+
         Budget budget = createBudgetFromBudgetTo(budgetTo);
+        budget.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
         budget.setId(budgetTo.getId());
         budgetRepository.save(budget);
 
@@ -51,7 +53,7 @@ public class BudgetController extends AbstractWebController {
         LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
 
         // if day is in current month
-        if(startDate.minusDays(1).isBefore(date)&&(endDate.plusDays(1).isAfter(date)) ) {
+        if (startDate.minusDays(1).isBefore(date) && (endDate.plusDays(1).isAfter(date))) {
             return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
         } else {
             startDate = LocalDate.of(date.getYear(), date.getMonth(), 1);
@@ -61,7 +63,7 @@ public class BudgetController extends AbstractWebController {
 
     }
 
-    public Budget createBudgetFromBudgetTo(BudgetTo b) {
+    private Budget createBudgetFromBudgetTo(BudgetTo b) {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), b.getKindId());
         Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), b.getCurrencyId());
@@ -249,27 +251,6 @@ public class BudgetController extends AbstractWebController {
         return "budget/groupstatistic";
     }
 
-    private int getUserTimezoneOffsetMinutes(HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-
-        String cookieName = "userTimezoneOffset";
-
-        int defaultValue = 1;
-
-        for ( int i=0; i<cookies.length; i++) {
-
-            Cookie cookie = cookies[i];
-
-            if (cookieName.equals(cookie.getName()))
-
-                return(Integer.parseInt(cookie.getValue()));
-
-        }
-
-        return(defaultValue);
-    }
-
-
     @GetMapping("/statistic")
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
@@ -277,16 +258,9 @@ public class BudgetController extends AbstractWebController {
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
                                @RequestParam(value = "comment", defaultValue = "") String comment,
                                @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime,
-                               Model model,
-                               HttpServletRequest request) {
+                               Model model) {
 
         User user = SecurityUtil.get().getUser();
-
-        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
-
-        int currentTimezomeOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
-
-        int sumTimezoneOffsetMinutes = (userTimezoneOffsetMinutes + currentTimezomeOffsetMinutes) * -1;
 
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
@@ -359,8 +333,6 @@ public class BudgetController extends AbstractWebController {
                     .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toUpperCase()))
                     .collect(Collectors.toList());
         }
-
-        listBudget.forEach(budget -> budget.setCreateDateTime(budget.getCreateDateTime().plusMinutes(sumTimezoneOffsetMinutes)));
 
         model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
@@ -451,11 +423,7 @@ public class BudgetController extends AbstractWebController {
                          HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
 
-        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
-
-        int currentTimezomeOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
-
-        int sumTimezoneOffsetMinutes = (userTimezoneOffsetMinutes + currentTimezomeOffsetMinutes) * -1;
+        int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
 
         Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
@@ -536,11 +504,37 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String id, Model model, HttpServletRequest request) {
+    public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1", "allTypes", "", "", model, request);
+        return getStatistic(null, null, "-1", "allTypes", "", "", model);
     }
 
 
+    public static int getSumTimezoneOffsetMinutes(HttpServletRequest request) {
+        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
 
+        int currentTimezomeOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
+
+        return (userTimezoneOffsetMinutes + currentTimezomeOffsetMinutes) * -1;
+    }
+
+    private static int getUserTimezoneOffsetMinutes(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+
+        String cookieName = "userTimezoneOffset";
+
+        int defaultValue = 1;
+
+        for ( int i=0; i<cookies.length; i++) {
+
+            Cookie cookie = cookies[i];
+
+            if (cookieName.equals(cookie.getName()))
+
+                return(Integer.parseInt(cookie.getValue()));
+
+        }
+
+        return(defaultValue);
+    }
 }

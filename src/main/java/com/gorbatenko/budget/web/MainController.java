@@ -66,8 +66,11 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/menu")
-    public String getMenu(Model model) {
+    public String getMenu(Model model, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
+
+        int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
+
         List<Budget> listBudget = budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
 
         String lastGroupActivityDate = dateToStr(listBudget.stream()
@@ -80,7 +83,8 @@ public class MainController extends AbstractWebController {
 
         listBudget = budgetRepository
                 .getBudgetByDateAndUser_Group(
-                        setTimeZoneOffset(LocalDate.now()), user.getGroup());
+                        LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes),
+                        user.getGroup());
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
 
         model.addAttribute("lastGroupActivityDate", lastGroupActivityDate);
