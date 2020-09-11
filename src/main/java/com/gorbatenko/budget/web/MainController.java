@@ -83,7 +83,7 @@ public class MainController extends AbstractWebController {
 
         listBudget = budgetRepository
                 .getBudgetByDateAndUser_Group(
-                        LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes),
+                        setTimeZoneOffset(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate()),
                         user.getGroup());
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
 
