@@ -9,7 +9,6 @@ import com.gorbatenko.budget.web.charts.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class ChartUtil {
     final static private float TRANSPARENT_VALUE = 1.0f;

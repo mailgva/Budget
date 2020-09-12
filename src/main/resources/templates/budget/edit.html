@@ -74,8 +74,8 @@
                             <span class="input-group-text"><i class="fa fa-money"></i></span>
                         </div>
                         <input type="number" min="1" step="1" name="price" id="price"
-                               class="form-control" th:placeholder="${budget.price}" required
-                               th:value="${budget.price}">
+                               class="form-control" th:placeholder="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}" required
+                               th:value="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}">
                         <div class="input-group-append">
                             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
                             <select id="currencyId" name="currencyId" class="custom-select" style="width: 80px;">
