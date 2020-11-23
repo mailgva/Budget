@@ -44,9 +44,13 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/login")
-    public String loginPage(Model model) {
-        model.addAttribute("pageName", "Вход");
-        return "login";
+    public String loginPage(@AuthenticationPrincipal AuthorizedUser authUser, Model model) {
+        if(authUser == null) {
+            model.addAttribute("pageName", "Вход");
+            return "login";
+        } else {
+            return "redirect:/menu";
+        }
     }
 
     @GetMapping("/login-error")
