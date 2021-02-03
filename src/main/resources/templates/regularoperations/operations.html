@@ -27,7 +27,7 @@
             <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
             <tr th:class="${'bg-success'}"  th:each="operation : ${operations}">
                 <td><span th:text="${operation.getEvery().getValue()}"> Every </span></td>
-                <td><span th:text="${operation.getDayOfMonth()}"> DayOfMonth </span></td>
+                <td><span th:text="${operation.getEvery().equals(T(com.gorbatenko.budget.model.Every).DEFINITE_DAY_OF_MONTH) ? operation.getDayOfMonth() : ''}"> DayOfMonth </span></td>
                 <td><span th:text="${operation.getUser().getName()}"> User </span></td>
                 <td><span th:text="${operation.getKind().getName()}"> Kind </span></td>
                 <td><span th:text="${operation.getDescription()}"> Description </span></td>
