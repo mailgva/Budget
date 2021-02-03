@@ -1,9 +1,11 @@
 #Budget  
+<img src="http://s1.iconbird.com/ico/1012/EcommerceBusinessIcons/w256h2561350823474wallet256x256.png" height="200" width="200">
 
 The application for management and planning family budget.
 Features:
  - group of users (in section Profile has link to join to group)
  - contains 2 types operation - Spanding and Profit
+ - regular operation (every day, special day of month, special day of week). Automatic create by scheduler, check tasks every day at 12:00.    
  - section Dictionaries contains: kinds of operations and kinds of currencies
  - after user registred, he has:
     - some kinds of operation
