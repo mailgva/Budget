@@ -1,0 +1,94 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron" style="background: #c2ff8e">
+        <div class="col-sm-8 mx-auto">
+            <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
+            <!--/*--><!--@thymesVar id="every" type="com.gorbatenko.budget.model.Every"--><!--*/-->
+            <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+            <!--/*--><!--@thymesVar id="error" type="java.lang.String"--><!--*/-->
+            <h2 th:text="${(operation.id == null ? 'Добавление' : 'Изменение') + ' регулярной операции'}"> </h2>
+            <div class="error" role="alert" th:if="${error}" th:text="${error}">
+            </div>
+            <form id="form" name="form" th:action="@{/regularoperations/}" method="post">
+                <input type="hidden" name="id" th:value="${operation.getId()}">
+                <div class="form-group">
+                    <label for="every">Автоматически добавлять</label>
+                    <select id="every" name="every" readonly class="form-control">
+                        <option th:each="every : ${everies}"
+                                th:value="${every.name()}"
+                                th:text="${every.getValue()}"
+                                th:selected="${operation.getEvery() != null && operation.getEvery().name().equalsIgnoreCase(every)}"
+                        >
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dayOfMonth">День (число) месяца</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-pencil"></i></span>
+                        </div>
+                        <input type="number" name="dayOfMonth" id="dayOfMonth" class="form-control" th:value="${operation.getDayOfMonth()}"
+                               placeholder="1" th:min="1" th:max="31">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="kindId">Вид</label>
+                    <div class="input-group mb-3">
+                        <select id="kindId" name="kindId" class="form-control">
+                            <option th:each="kind : ${kinds}"
+                                    th:value="${kind.getId()}"
+                                    th:text="${(kind.getType().equals(T(com.gorbatenko.budget.model.Type).PROFIT) ? ' + ' : ' - ') +  kind.name}"
+                                    th:selected="${operation.getKind() != null && operation.getKind().getName().equalsIgnoreCase(kind.getName()) }">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-pencil"></i></span>
+                        </div>
+                        <textarea name="description" id="description" class="form-control" rows="4"
+                                  th:placeholder="${operation.getDescription()}"
+                                  th:text="${operation.getDescription()}"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Сумма</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-money"></i></span>
+                        </div>
+                        <input type="number" min="1" step="1" name="price" id="price"
+                               class="form-control" th:placeholder="${#numbers.formatDecimal(operation.getPrice(),1,'NONE',0,'NONE')}" required
+                               th:value="${#numbers.formatDecimal(operation.getPrice(),1,'NONE',0,'NONE')}">
+                        <div class="input-group-append">
+                            <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
+                            <select id="currencyId" name="currencyId" class="custom-select" style="width: 80px;">
+                                <option th:each="currency : ${currencies}"
+                                        th:value="${currency.getId()}"
+                                        th:text="${currency.getName()}"
+                                        th:selected="${operation.getCurrency() != null && operation.getCurrency().getId().equals(currency.getId()) }"
+                                ></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
+                <a th:if="${operation.id != null}" th:href="@{'/regularoperations/delete/'+${operation.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -299,7 +299,7 @@ public class BudgetController extends AbstractWebController {
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?
-                             budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup()) :
+                             budgetRepository.getBudgetByKindAndUser_Group(kind, user.getGroup()) :
                              budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,offSetStartDate, offSetEndDate, user.getGroup())
                             )
 

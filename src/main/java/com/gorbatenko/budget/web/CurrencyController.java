@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.to.CurrencyTo;
 import com.gorbatenko.budget.util.SecurityUtil;
@@ -48,10 +49,23 @@ public class CurrencyController extends AbstractWebController {
 
   @GetMapping("/delete/{id}")
   public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
+    String errorMessage = "Невозможно удалить статью, так как она $s";
+
     User user = SecurityUtil.get().getUser();
     Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), id);
+
+    if (currency == null) {
+      rm.addFlashAttribute("error", String.format(errorMessage, "не найдена"));
+      return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+    }
+
     if (budgetRepository.countByUser_GroupAndCurrency(user.getGroup(), currency) > 0) {
-      rm.addFlashAttribute("error", "Невозможно удалить валюту, так как она уже используется");
+      rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
+      return String.format("redirect:/dictionaries/currencies/edit/%s", id);
+    }
+
+    if (regularOperationRepository.countByUserGroupAndCurrency(user.getGroup(), currency) > 0) {
+      rm.addFlashAttribute("error", String.format(errorMessage, "используется в регулярных операциях"));
       return String.format("redirect:/dictionaries/currencies/edit/%s", id);
     }
 
@@ -81,11 +95,19 @@ public class CurrencyController extends AbstractWebController {
     Currency currency = createCurrencyFromCurrencyTo(currencyTo);
     currency.setId(currencyTo.getId());
     currency = currencyRepository.save(currency);
+
     List<Budget> budgets = budgetRepository.getBudgetByCurrencyAndUser_Group(currencyOld, user.getGroup());
     for(Budget budget : budgets) {
       budget.setCurrency(currency);
       budgetRepository.save(budget);
     }
+
+    List<RegularOperation> operations = regularOperationRepository.getByCurrencyAndUserGroup(currencyOld, user.getGroup());
+    for(RegularOperation operation : operations) {
+      operation.setCurrency(currency);
+      regularOperationRepository.save(operation);
+    }
+
     return "redirect:/dictionaries/currencies";
   }
 

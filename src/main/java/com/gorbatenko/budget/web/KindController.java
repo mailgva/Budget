@@ -45,10 +45,22 @@ public class KindController extends AbstractWebController{
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
+        String errorMessage = "Невозможно удалить статью, так как она $s";
+
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
+        if (kind == null) {
+            rm.addFlashAttribute("error", String.format(errorMessage, "не найдена"));
+            return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+        }
+
         if (budgetRepository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
-            rm.addFlashAttribute("error", "Невозможно удалить статью, так как она уже используется");
+            rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
+            return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+        }
+
+        if (regularOperationRepository.countByUserGroupAndKind(user.getGroup(), kind) > 0) {
+            rm.addFlashAttribute("error", String.format(errorMessage, "используется в регулярных операциях"));
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
 
@@ -79,11 +91,19 @@ public class KindController extends AbstractWebController{
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
         kind = kindRepository.save(kind);
-        List<Budget> budgets = budgetRepository.getBudgetBykindAndUser_Group(kindOld, user.getGroup());
+
+        List<Budget> budgets = budgetRepository.getBudgetByKindAndUser_Group(kindOld, user.getGroup());
         for(Budget budget : budgets) {
             budget.setKind(kind);
             budgetRepository.save(budget);
         }
+
+        List<RegularOperation> operations = regularOperationRepository.getByKindAndUserGroup(kindOld, user.getGroup());
+        for(RegularOperation operation : operations) {
+            operation.setKind(kind);
+            regularOperationRepository.save(operation);
+        }
+
         rm.addFlashAttribute("kindId", kind.getId());
         return (referer.isEmpty() ? "redirect:/dictionaries/kinds" : "redirect:" + referer);
     }

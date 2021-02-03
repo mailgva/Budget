@@ -5,6 +5,7 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
+import com.gorbatenko.budget.repository.RegularOperationRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class AbstractWebController {
 
     @Autowired
     protected UserService userService;
+
+    @Autowired
+    protected RegularOperationRepository regularOperationRepository;
 
     @ModelAttribute("userName")
     protected String getUserName(){
@@ -94,7 +98,7 @@ public class AbstractWebController {
     protected Model getBalanceByKind(Model model, Kind kind) {
         User user = SecurityUtil.get().getUser();
         return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetBykindAndUser_Group(kind, user.getGroup())));
+                budgetRepository.getBudgetByKindAndUser_Group(kind, user.getGroup())));
     }
 
     protected Model getBalanceByDate(Model model, LocalDate date) {

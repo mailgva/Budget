@@ -22,7 +22,6 @@ import java.util.TreeMap;
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
 @Controller
-@RequestMapping(value = "/")
 public class MainController extends AbstractWebController {
 
     @GetMapping("/")

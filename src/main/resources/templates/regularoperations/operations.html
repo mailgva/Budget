@@ -1,0 +1,49 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+</head>
+<body>
+<div th:replace="fragments/bodyHeader :: div">
+</div>
+<main role="main">
+    <div class="jumbotron"  style="background: #c2ff8e">
+        <h2 th:text="'Регулярные операции'"> </h2>
+
+        <a href="/regularoperations/create" class="btn btn-primary" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
+        <table id="operations"
+               class="table table-active">
+            <thead>
+            <tr>
+                <th data-field="every" data-sortable="true">Периодичность</th>
+                <th data-field="dayOfMonth" data-sortable="true">День месяца</th>
+                <th data-field="user" data-sortable="true">Пользователь</th>
+                <th data-field="kind" data-sortable="true">Вид</th>
+                <th data-field="description" data-sortable="true">Описание</th>
+                <th data-field="price" data-sortable="true">Сумма</th>
+                <th data-field="currency" data-sortable="true">Валюта</th>
+                <th> </th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
+            <tr th:class="${'bg-success'}"  th:each="operation : ${operations}">
+                <td><span th:text="${operation.getEvery().getValue()}"> Every </span></td>
+                <td><span th:text="${operation.getDayOfMonth()}"> DayOfMonth </span></td>
+                <td><span th:text="${operation.getUser().getName()}"> User </span></td>
+                <td><span th:text="${operation.getKind().getName()}"> Kind </span></td>
+                <td><span th:text="${operation.getDescription()}"> Description </span></td>
+                <td><span th:text="${#numbers.formatDecimal(operation.getPrice(),1,'DEFAULT',0,'DEFAULT')}" > Price </span></td>
+                <td><span th:text="${operation.getCurrency().getName()}"> Currency </span></td>
+                <td>
+                    <a th:href="@{'/regularoperations/edit/'+${operation.getId()}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                </td>
+            </tr>
+        </table>
+        <script>
+            $(function() {
+                $('#operations').bootstrapTable()
+            })
+        </script>
+    </div>
+</main>
+</body>
+</html>
