@@ -20,7 +20,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <jackson-databind.version>2.9.8</jackson-databind.version>
+        <jackson-databind.version>2.12.1</jackson-databind.version>
         <webjars-jquery.version>3.4.1</webjars-jquery.version>
         <webjars-bootstrap.version>4.3.1</webjars-bootstrap.version>
         <webjars-bootstrap-table.version>1.16.0</webjars-bootstrap-table.version>
