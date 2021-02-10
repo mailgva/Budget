@@ -7,6 +7,7 @@ import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,8 +27,13 @@ public class RegularOperationConfig {
     @Autowired
     private BudgetRepository budgetRepository;
 
+    @Value("${app.regularoperation.enabled}")
+    private boolean enabled;
+
     @Scheduled(cron = "${app.regularoperation.cron.expression:-}")
     public void startAddOperation() {
+        if (! enabled) return;
+
         List<RegularOperation> operations = regularOperationRepository.findAll();
         operations.forEach(operation -> {
             boolean execute = false;
@@ -45,9 +51,6 @@ public class RegularOperationConfig {
             }
 
             if (execute) budgetRepository.save(createFromOperation(operation));
-
-            /*log.info("{}: \n {} \n operation.getEvery().getValue() = {} \n LocalDate.now().getDayOfWeek().name() = {} \n equals = {}",
-                    LocalDateTime.now(), operation, operation.getEvery().name(), LocalDate.now().getDayOfWeek().name(), execute);*/
         });
     }
 

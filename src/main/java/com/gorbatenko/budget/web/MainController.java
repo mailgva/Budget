@@ -16,8 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
@@ -72,8 +74,6 @@ public class MainController extends AbstractWebController {
     public String getMenu(Model model, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
 
-        int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
-
         List<Budget> listBudget = budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
 
         String lastGroupActivityDate = dateToStr(listBudget.stream()
@@ -84,10 +84,18 @@ public class MainController extends AbstractWebController {
 
         model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(listBudget));
 
-        listBudget = budgetRepository
-                .getBudgetByDateAndUser_Group(
-                        setTimeZoneOffset(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate()),
-                        user.getGroup());
+        int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
+
+        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes);
+
+        LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.minusDays(1).toLocalDate());
+        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.plusDays(1).toLocalDate());
+
+        listBudget = listBudget.stream()
+                .filter(budget -> budget.getDate().isAfter(startLocalDate) && budget.getDate().isBefore(endLocalDate))
+                .sorted(Comparator.comparing(Budget::getCreateDateTime))
+                .collect(Collectors.toList());
+
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
 
         model.addAttribute("lastGroupActivityDate", lastGroupActivityDate);
