@@ -254,13 +254,25 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/statistic")
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                               @RequestParam(value = "userId", defaultValue = "-1") String userId,
                                @RequestParam(value = "kindId", defaultValue = "-1") String id,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
+                               @RequestParam(value = "price", defaultValue = "") String priceStr,
                                @RequestParam(value = "comment", defaultValue = "") String comment,
                                @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime,
                                Model model) {
 
         User user = SecurityUtil.get().getUser();
+
+        List<User> users = budgetRepository.getAllByUser_Group(user.getGroup()).stream()
+                .map(Budget::getUser)
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(User::getName))
+                .collect(Collectors.toList());
+
+
+
 
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
@@ -280,8 +292,6 @@ public class BudgetController extends AbstractWebController {
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         Kind kind = new Kind();
-
-        Type type;
 
         List<Budget> listBudget;
 
@@ -318,30 +328,32 @@ public class BudgetController extends AbstractWebController {
                     .get();
         }
 
-        if (typeStr != null) {
-            if (!("allTypes".equals(typeStr))) {
-                type = Type.valueOf(typeStr);
-                listBudget = listBudget.stream().
-                        filter(budget -> budget.getKind().getType().equals(type)).
-                        collect(Collectors.toList());
-                model.addAttribute("typeName", type.getValue());
-            }
+        if ((typeStr != null) && (!("allTypes".equals(typeStr)))) {
+                model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
 
-        if ((comment != null) && (!comment.isEmpty())) {
-            listBudget = listBudget.stream()
-                    .filter(budget -> budget.getDescription().toUpperCase().contains(comment.toUpperCase()))
-                    .collect(Collectors.toList());
-        }
+        listBudget = listBudget.stream()
+                .filter(budget -> (!("allTypes".equals(typeStr)) ?
+                        (budget.getKind().getType().equals(Type.valueOf(typeStr))) : true))
+                .filter(budget -> ((userId != null) && (!userId.isEmpty()) && (!userId.equals("-1")) ?
+                        (budget.getUser().getId().equals(userId)) : true))
+                .filter(budget -> (((comment != null) && (!comment.isEmpty())) ?
+                        (budget.getDescription().toUpperCase().contains(comment.toUpperCase())) : true))
+                .filter(budget -> (((priceStr != null) && (!priceStr.isEmpty())) ?
+                        (budget.getPrice() == Double.parseDouble(priceStr)) : true))
+                .collect(Collectors.toList());
 
         model = getBalanceParts(model, listBudget);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("listBudget", map);
+        model.addAttribute("users", users);
+        model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
         model.addAttribute("kindName", kind.getName());
         model.addAttribute("comment", comment);
+        model.addAttribute("price", priceStr);
 
         model.addAttribute("pageName", "Статистика");
 
@@ -506,7 +518,8 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1", "allTypes", "", "", model);
+        return getStatistic(null, null, "-1","-1",
+                "allTypes", "", "", "", model);
     }
 
 

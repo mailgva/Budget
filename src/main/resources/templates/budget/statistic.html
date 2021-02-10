@@ -10,6 +10,8 @@
             <div class="card-body ">
 
                 <div class="form-group  ">
+                    <!--/*--><!--@thymesVar id="user" type="com.gorbatenko.budget.model.User"-->
+                    <!--*/-->
                     <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"-->
                     <!--*/-->
                     <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Type"-->
@@ -34,18 +36,32 @@
 
 
                             <div class="col-sm">
+                                <label for="userId">Пользователь</label>
+                                <select id="userId" name="userId" class="form-control">
+                                    <option th:value="-1"> Все</option>
+                                    <option
+                                        th:each="user : ${users}"
+                                        th:value="${user.getId()}"
+                                        th:text="${user.getName()}"
+                                        th:selected="${user.getId().equals(userId)}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm">
                                 <label for="type">Тип</label>
                                 <select id="type" name="type" class="form-control">
                                     <option th:value="allTypes"> Все</option>
                                     <option
-                                        th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                                        th:value="${val}"
-                                        th:text="${(val.value.equals(T(com.gorbatenko.budget.model.Type).PROFIT.getValue()) ? ' + ' : ' - ') + val.value}"
-                                        th:selected="${val.value.equalsIgnoreCase(typeName)}">
+                                            th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
+                                            th:value="${val}"
+                                            th:text="${(val.value.equals(T(com.gorbatenko.budget.model.Type).PROFIT.getValue()) ? ' + ' : ' - ') + val.value}"
+                                            th:selected="${val.value.equalsIgnoreCase(typeName)}">
                                     </option>
                                 </select>
                             </div>
-
 
                             <div class="col-sm">
                                 <label for="kindId">Вид</label>
@@ -64,6 +80,13 @@
                                 <input class="form-control" name="comment" id="comment"
                                        type="text"
                                        th:value="${comment}">
+                            </div>
+
+                            <div class="col-sm">
+                                <label for="price">Сумма</label>
+                                <input class="form-control" name="price" id="price"
+                                       type="number"
+                                       th:value="${price}">
                             </div>
 
                             <div class="form-group col-1 flex-bottom">

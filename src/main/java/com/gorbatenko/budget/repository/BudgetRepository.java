@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.repository.Query;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Repository;
@@ -40,6 +41,8 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
     List<Budget> getBudgetByCurrencyAndUser_Group(Currency currency, String userGroup);
 
     List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
+
+    Set<User> getUsersByUser_Group(String userGroup);
 
     int countByUser_GroupAndKind(String userGroup, Kind kind);
 
