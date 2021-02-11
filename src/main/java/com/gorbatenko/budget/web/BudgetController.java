@@ -271,9 +271,6 @@ public class BudgetController extends AbstractWebController {
                 .sorted(Comparator.comparing(User::getName))
                 .collect(Collectors.toList());
 
-
-
-
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
 
@@ -333,14 +330,10 @@ public class BudgetController extends AbstractWebController {
         }
 
         listBudget = listBudget.stream()
-                .filter(budget -> (!("allTypes".equals(typeStr)) ?
-                        (budget.getKind().getType().equals(Type.valueOf(typeStr))) : true))
-                .filter(budget -> ((userId != null) && (!userId.isEmpty()) && (!userId.equals("-1")) ?
-                        (budget.getUser().getId().equals(userId)) : true))
-                .filter(budget -> (((comment != null) && (!comment.isEmpty())) ?
-                        (budget.getDescription().toUpperCase().contains(comment.toUpperCase())) : true))
-                .filter(budget -> (((priceStr != null) && (!priceStr.isEmpty())) ?
-                        (budget.getPrice() == Double.parseDouble(priceStr)) : true))
+                .filter(budget -> ("allTypes".equals(typeStr) || (budget.getKind().getType().equals(Type.valueOf(typeStr)))))
+                .filter(budget -> ((userId == null) || (userId.isEmpty()) || (userId.equals("-1")) || (budget.getUser().getId().equals(userId))))
+                .filter(budget -> ((comment == null) || (comment.isEmpty()) || (budget.getDescription().toUpperCase().contains(comment.toUpperCase()))))
+                .filter(budget -> ((priceStr == null) || (priceStr.isEmpty()) || (budget.getPrice() == Double.parseDouble(priceStr))))
                 .collect(Collectors.toList());
 
         model = getBalanceParts(model, listBudget);

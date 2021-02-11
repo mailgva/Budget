@@ -21,6 +21,9 @@ public class RegularOperation extends BaseEntity {
     private String userGroup;
 
     @NotNull
+    private int countUserTimezomeOffsetMinutes;
+
+    @NotNull
     private Every every;
 
     @NotNull
@@ -36,6 +39,5 @@ public class RegularOperation extends BaseEntity {
 
     @NotNull
     private Currency currency;
-
 
 }

@@ -42,8 +42,6 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
 
     List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
 
-    Set<User> getUsersByUser_Group(String userGroup);
-
     int countByUser_GroupAndKind(String userGroup, Kind kind);
 
     int countByUser_GroupAndCurrency(String userGroup, Currency currency);

@@ -55,11 +55,14 @@ public class RegularOperationConfig {
     }
 
     private Budget createFromOperation(RegularOperation operation) {
-        return new Budget(operation.getUser(),
+        Budget budget = new Budget(operation.getUser(),
                 operation.getKind(),
                 LocalDateTime.now(),
                 operation.getDescription(),
                 operation.getPrice(),
                 operation.getCurrency());
+
+        budget.setCreateDateTime(LocalDateTime.now().plusMinutes(operation.getCountUserTimezomeOffsetMinutes()));
+        return budget;
     }
 }
