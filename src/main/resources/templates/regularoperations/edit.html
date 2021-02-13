@@ -18,7 +18,7 @@
                 <input type="hidden" name="id" th:value="${operation.getId()}">
                 <div class="form-group">
                     <label for="every">Автоматически добавлять</label>
-                    <select id="every" name="every" readonly class="form-control">
+                    <select id="every" name="every" readonly class="form-control" onchange="setVisibleDayOfMonth()">
                         <option th:each="every : ${everies}"
                                 th:value="${every.name()}"
                                 th:text="${every.getValue()}"
@@ -30,11 +30,19 @@
                 <div class="form-group">
                     <label for="dayOfMonth">День (число) месяца</label>
                     <div class="input-group mb-3">
-                        <div class="input-group-prepend">
+                        <!--<div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-pencil"></i></span>
                         </div>
                         <input type="number" name="dayOfMonth" id="dayOfMonth" class="form-control" th:value="${operation.getDayOfMonth()}"
-                               placeholder="1" th:min="1" th:max="31">
+                               placeholder="1" th:min="1" th:max="31">-->
+                        <select id="dayOfMonth" name="dayOfMonth" readonly class="form-control">
+                            <option th:each="day : ${#numbers.sequence(1, 31)}"
+                                    th:value="${day}"
+                                    th:text="${day}"
+                                    th:selected="${operation.getDayOfMonth() == day}"
+                            >
+                            </option>
+                        </select>
                     </div>
                 </div>
 
@@ -90,5 +98,15 @@
         </div>
     </div>
 </main>
+<script>
+    $( document ).ready(function() {
+        setVisibleDayOfMonth();
+    });
+
+    function setVisibleDayOfMonth() {
+        var visible = $('#every').val() == 'DEFINITE_DAY_OF_MONTH';
+        $("#dayOfMonth").css("display", (visible ? "block" : "none"));
+    }
+</script>
 </body>
 </html>
