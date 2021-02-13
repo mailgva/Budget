@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
@@ -57,12 +58,13 @@ public class RegularOperationConfig {
     private Budget createFromOperation(RegularOperation operation) {
         Budget budget = new Budget(operation.getUser(),
                 operation.getKind(),
-                LocalDateTime.now(),
+                LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 operation.getDescription(),
                 operation.getPrice(),
                 operation.getCurrency());
 
         budget.setCreateDateTime(LocalDateTime.now().plusMinutes(operation.getCountUserTimezomeOffsetMinutes()));
+        budget.setUserGroup(operation.getUserGroup());
         return budget;
     }
 }
