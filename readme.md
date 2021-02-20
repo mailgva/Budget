@@ -22,12 +22,12 @@ Features:
  - backuping database by sheduler 
 
  Technology stack:
-   * Java 1.8     
+   * Java 15     
      <img src="https://upload.wikimedia.org/wikipedia/uk/2/2e/Java_Logo.svg" height="200" width="200">
    * Maven
-   * MongoDB 3.6 (Atlas)    
+   * MongoDB 4.4 (Atlas)    
      <img src="https://webassets.mongodb.com/_com_assets/cms/MongoDB-Atlas-Logo-Black-hvfxuesorm.svg" height="200" width="400">
-   * Spring Boot 2.1.4      
+   * Spring Boot 2.4.3      
      <img src="https://commons.bmstu.wiki/images/5/59/Spring-boot-logo.png" height="200" width="400">
      * Spring Data-Mongodb
      * Spring Security
