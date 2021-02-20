@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.4.RELEASE</version>
-        <relativePath/>
+        <version>2.4.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.gorbatenko</groupId>
     <artifactId>budget</artifactId>
@@ -16,17 +16,22 @@
     <description>Accounting profits and spending</description>
 
     <properties>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>15</java.version>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
 
-        <jackson-databind.version>2.9.10</jackson-databind.version>
-        <webjars-jquery.version>3.4.1</webjars-jquery.version>
-        <webjars-bootstrap.version>4.3.1</webjars-bootstrap.version>
+        <mongo-java-driver.version>3.12.8</mongo-java-driver.version>
+
+        <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
+
+        <jackson.version>2.11.4</jackson.version>
+        <bson4jackson.version>2.12.0</bson4jackson.version>
+
+        <webjars-jquery.version>3.5.1</webjars-jquery.version>
+        <webjars-bootstrap.version>4.6.0</webjars-bootstrap.version>
         <webjars-bootstrap-table.version>1.16.0</webjars-bootstrap-table.version>
-        <webjars-font-awesome.version>4.3.0-1</webjars-font-awesome.version>
+        <webjars-font-awesome.version>5.15.2</webjars-font-awesome.version>
         <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
-
     </properties>
 
     <dependencies>
@@ -68,25 +73,27 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
+            <version>${jackson.version}</version>
         </dependency>
+
         <dependency>
             <groupId>de.undercouch</groupId>
             <artifactId>bson4jackson</artifactId>
-            <version>2.9.2</version>
+            <version>${bson4jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.1</version>
+            <version>${mongo-java-driver.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-drive</artifactId>
-            <version>v3-rev191-1.25.0</version>
+            <version>${google-api-services-drive.version}</version>
         </dependency>
 
 
@@ -127,7 +134,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.1.1</version>
+                        <version>3.1.2</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -140,7 +147,7 @@
                                         <artifactItem>
                                             <groupId>com.github.jsimone</groupId>
                                             <artifactId>webapp-runner-main</artifactId>
-                                            <version>9.0.14.0</version>
+                                            <version>9.0.27.1</version>
                                             <destFileName>webapp-runner.jar</destFileName>
                                         </artifactItem>
                                     </artifactItems>
@@ -160,6 +167,5 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-
     </build>
 </project>

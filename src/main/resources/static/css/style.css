@@ -19,6 +19,14 @@ div.error {
   align-items: flex-end;
 }
 
+th {
+  font-weight: 500 !important;
+}
+
+tr span {
+  font-weight: 400 !important;
+}
+
 button.btn.btn-outline-secondary{
   height: 38px;
   width: 40px;
