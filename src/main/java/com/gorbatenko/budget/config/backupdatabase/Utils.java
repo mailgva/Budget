@@ -42,7 +42,7 @@ public class Utils {
 
         MongoCollection<Document> collection = mongoClient.getDatabase(database).getCollection(name);
         for(Document document : collection.find()) {
-            data.append(document.toJson());
+            data.append(document.toJson() + "\n");
         }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(pathToBackupFile, name)));
