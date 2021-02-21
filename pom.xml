@@ -20,8 +20,6 @@
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
 
-        <mongo-java-driver.version>3.12.1</mongo-java-driver.version>
-
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
 
         <jackson.version>2.11.4</jackson.version>
@@ -79,11 +77,6 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo-java-driver.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-drive</artifactId>

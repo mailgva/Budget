@@ -13,13 +13,12 @@ public class BudgetApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(BudgetApplication.class, args);
-
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void init(){
         BackupDBConfig config = new BackupDBConfig();
         config.createBackupDataBase();
-    }
+    }*/
 }
 

@@ -10,8 +10,13 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+//import com.mongodb.MongoClient;
+//import com.mongodb.MongoClientURI;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.ReadPreference;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -25,10 +30,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
+
+    private MongoClient createMongoClient(ConnectionString uri) {
+        MongoClientSettings.Builder settings = MongoClientSettings.builder();
+        settings.applyConnectionString(uri);
+        settings.readPreference(ReadPreference.primaryPreferred());
+
+        return MongoClients.create(settings.build());
+    }
+
     protected void createBackUp(String connectionURI, String pathToBackupFile) throws IOException {
-        MongoClientURI mongoClientURI = new MongoClientURI(connectionURI);
-        MongoClient mongoClient = new MongoClient(mongoClientURI);
-        String database = mongoClientURI.getDatabase();
+        ConnectionString uri = new ConnectionString(connectionURI);
+
+        MongoClient mongoClient = createMongoClient(uri);
+
+        String database = uri.getDatabase();
         MongoDatabase mongoDatabase = mongoClient.getDatabase(database);
 
         for(String collectionName : mongoDatabase.listCollectionNames()) {
