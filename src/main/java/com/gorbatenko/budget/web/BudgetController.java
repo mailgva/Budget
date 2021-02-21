@@ -511,8 +511,7 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, Model model) {
         budgetRepository.deleteById(id);
-        return getStatistic(null, null, "-1","-1",
-                "allTypes", "", "", "", model);
+        return "redirect:/budget/statistic";
     }
 
 
