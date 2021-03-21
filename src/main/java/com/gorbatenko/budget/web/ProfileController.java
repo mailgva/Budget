@@ -51,7 +51,7 @@ public class ProfileController extends AbstractWebController {
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("mapCurrencies", mapCurrencies);
         model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup())));
+                budgetRepository.getBudgetByuserGroupOrderByDateDesc(user.getGroup())));
         model.addAttribute("pageName", "Профиль");
         return "profile/profile";
     }
@@ -122,7 +122,7 @@ public class ProfileController extends AbstractWebController {
         userService.save(user);
         List<Budget> budgets = budgetRepository.getAllByUserId(user.getId());
         for(Budget budget : budgets) {
-            budget.setUser(user);
+            budget.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
             budgetRepository.save(budget);
         }
         return "redirect:/profile/";

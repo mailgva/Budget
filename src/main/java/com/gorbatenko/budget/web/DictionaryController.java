@@ -31,7 +31,7 @@ public class DictionaryController extends AbstractWebController {
         switch(dictionary) {
             case KINDS:
 
-                List<Budget> budgets = budgetRepository.getAllByUser_Group(user.getGroup());
+                List<Budget> budgets = budgetRepository.getAllByUserGroup(user.getGroup());
 
                 TreeMap<Type, List<Kind>> mapKind = new TreeMap<>();
                 mapKind.putAll(

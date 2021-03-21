@@ -39,12 +39,13 @@ public class SecurityUtil {
     }
 
     public static List<Budget> hidePassword(List<Budget> budgetList) {
-        return budgetList.stream()
+        return budgetList;
+        /*return budgetList.stream()
                 .map(budget -> {
                     budget.getUser().setPassword("");
                     return budget;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); */
     }
 
 }

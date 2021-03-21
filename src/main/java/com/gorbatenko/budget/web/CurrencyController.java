@@ -59,7 +59,7 @@ public class CurrencyController extends AbstractWebController {
       return String.format("redirect:/dictionaries/kinds/edit/%s", id);
     }
 
-    if (budgetRepository.countByUser_GroupAndCurrency(user.getGroup(), currency) > 0) {
+    if (budgetRepository.countByUserGroupAndCurrency(user.getGroup(), currency) > 0) {
       rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
       return String.format("redirect:/dictionaries/currencies/edit/%s", id);
     }
@@ -96,7 +96,7 @@ public class CurrencyController extends AbstractWebController {
     currency.setId(currencyTo.getId());
     currency = currencyRepository.save(currency);
 
-    List<Budget> budgets = budgetRepository.getBudgetByCurrencyAndUser_Group(currencyOld, user.getGroup());
+    List<Budget> budgets = budgetRepository.getBudgetByCurrencyAndUserGroup(currencyOld, user.getGroup());
     for(Budget budget : budgets) {
       budget.setCurrency(currency);
       budgetRepository.save(budget);

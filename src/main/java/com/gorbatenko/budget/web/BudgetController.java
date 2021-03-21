@@ -34,6 +34,7 @@ public class BudgetController extends AbstractWebController {
 
     @PostMapping("/")
     public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
+        User user = SecurityUtil.get().getUser();
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
@@ -44,6 +45,7 @@ public class BudgetController extends AbstractWebController {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
         budget.setId(budgetTo.getId());
+        budget.setUserGroup(user.getGroup());
         budgetRepository.save(budget);
 
         LocalDate date = budget.getDate().toLocalDate();
@@ -67,7 +69,7 @@ public class BudgetController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), b.getKindId());
         Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), b.getCurrencyId());
-        Budget budget = new Budget(user, kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(),
+        Budget budget = new Budget(toDocUser(user), kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(),
                 b.getPrice(), currency);
         return budget;
     }
@@ -115,8 +117,8 @@ public class BudgetController extends AbstractWebController {
         List<Budget> listBudget = hidePassword(
                 filterBudgetByUserCurrencyDefault(
                         period.equals(TypePeriod.ALLTIME) ?
-                                budgetRepository.getAllByUser_Group(user.getGroup()) :
-                                budgetRepository.getBudgetByDateBetweenAndUser_Group(
+                                budgetRepository.getAllByUserGroup(user.getGroup()) :
+                                budgetRepository.getBudgetByDateBetweenAndUserGroup(
                                         offSetStartDate, offSetEndDate, user.getGroup())));
 
         model = getBalanceParts(model, listBudget);
@@ -264,11 +266,11 @@ public class BudgetController extends AbstractWebController {
 
         User user = SecurityUtil.get().getUser();
 
-        List<User> users = budgetRepository.getAllByUser_Group(user.getGroup()).stream()
+        List<com.gorbatenko.budget.model.doc.User> users = budgetRepository.getAllByUserGroup(user.getGroup()).stream()
                 .map(Budget::getUser)
                 .collect(Collectors.toSet())
                 .stream()
-                .sorted(Comparator.comparing(User::getName))
+                .sorted(Comparator.comparing(com.gorbatenko.budget.model.doc.User::getName))
                 .collect(Collectors.toList());
 
         LocalDateTime offSetStartDate;
@@ -297,8 +299,8 @@ public class BudgetController extends AbstractWebController {
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?
-                             budgetRepository.getAllByUser_Group(user.getGroup()) :
-                             budgetRepository.getBudgetByDateBetweenAndUser_Group(offSetStartDate, offSetEndDate, user.getGroup())
+                             budgetRepository.getAllByUserGroup(user.getGroup()) :
+                             budgetRepository.getBudgetByDateBetweenAndUserGroup(offSetStartDate, offSetEndDate, user.getGroup())
                              )
                     ));
         } else {
@@ -306,8 +308,8 @@ public class BudgetController extends AbstractWebController {
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?
-                             budgetRepository.getBudgetByKindAndUser_Group(kind, user.getGroup()) :
-                             budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,offSetStartDate, offSetEndDate, user.getGroup())
+                             budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup()) :
+                             budgetRepository.getBudgetByKindAndDateBetweenAndUserGroup(kind,offSetStartDate, offSetEndDate, user.getGroup())
                             )
 
                     ));
@@ -390,7 +392,7 @@ public class BudgetController extends AbstractWebController {
             Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
 
             listBudget = hidePassword(
-                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUser_Group(kind,
+                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUserGroup(kind,
                             offSetStartDate, offSetEndDate, user.getGroup())));
 
             positionName = kind.getName();
@@ -399,7 +401,7 @@ public class BudgetController extends AbstractWebController {
             positionName = type.getValue();
 
             listBudget = hidePassword(filterBudgetByUserCurrencyDefault(
-                    budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type,
+                    budgetRepository.getAllByKindTypeAndDateBetweenAndUserGroup(type,
                     offSetStartDate, offSetEndDate, user.getGroup())));
 
         }
@@ -541,5 +543,9 @@ public class BudgetController extends AbstractWebController {
         }
 
         return(defaultValue);
+    }
+
+    private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
+        return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
     }
 }

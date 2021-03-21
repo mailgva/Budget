@@ -54,7 +54,7 @@ public class KindController extends AbstractWebController{
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
 
-        if (budgetRepository.countByUser_GroupAndKind(user.getGroup(), kind) > 0) {
+        if (budgetRepository.countByUserGroupAndKind(user.getGroup(), kind) > 0) {
             rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
@@ -92,7 +92,7 @@ public class KindController extends AbstractWebController{
         kind.setId(kindTo.getId());
         kind = kindRepository.save(kind);
 
-        List<Budget> budgets = budgetRepository.getBudgetByKindAndUser_Group(kindOld, user.getGroup());
+        List<Budget> budgets = budgetRepository.getBudgetByKindAndUserGroup(kindOld, user.getGroup());
         for(Budget budget : budgets) {
             budget.setKind(kind);
             budgetRepository.save(budget);

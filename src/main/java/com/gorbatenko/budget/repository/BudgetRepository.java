@@ -19,9 +19,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BudgetRepository extends MongoRepository<Budget, String > {
 
-    default Budget saveBudget(Budget budget) {
+    default Budget saveBudget(Budget budget, User user) {
         if(budget.getUserGroup() == null) {
-            budget.setUserGroup(budget.getUser().getGroup());
+            budget.setUserGroup(user.getGroup());
         }
 
         if(budget.getId() == null) {
@@ -30,31 +30,31 @@ public interface BudgetRepository extends MongoRepository<Budget, String > {
         return save(budget);
     };
 
-    List<Budget> getBudgetByDateAndUser_Group(LocalDateTime date, String userGroup);
+    List<Budget> getBudgetByDateAndUserGroup(LocalDateTime date, String userGroup);
 
-    List<Budget> getBudgetByDateBetweenAndUser_Group(LocalDateTime startDate, LocalDateTime endDate, String userGroup);
+    List<Budget> getBudgetByDateBetweenAndUserGroup(LocalDateTime startDate, LocalDateTime endDate, String userGroup);
 
-    List<Budget> getBudgetByKindAndDateBetweenAndUser_Group(Kind kind, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
+    List<Budget> getBudgetByKindAndDateBetweenAndUserGroup(Kind kind, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
 
-    List<Budget> getBudgetByKindAndUser_Group(Kind kind, String userGroup);
+    List<Budget> getBudgetByKindAndUserGroup(Kind kind, String userGroup);
 
-    List<Budget> getBudgetByCurrencyAndUser_Group(Currency currency, String userGroup);
+    List<Budget> getBudgetByCurrencyAndUserGroup(Currency currency, String userGroup);
 
-    List<Budget> getBudgetByUser_GroupOrderByDateDesc(String userGroup);
+    List<Budget> getBudgetByuserGroupOrderByDateDesc(String userGroup);
 
-    int countByUser_GroupAndKind(String userGroup, Kind kind);
+    int countByUserGroupAndKind(String userGroup, Kind kind);
 
-    int countByUser_GroupAndCurrency(String userGroup, Currency currency);
+    int countByUserGroupAndCurrency(String userGroup, Currency currency);
 
-    List<Budget> getBudgetByUser_GroupAndDateLessThan(String userGroup, LocalDateTime date);
+    List<Budget> getBudgetByUserGroupAndDateLessThan(String userGroup, LocalDateTime date);
 
-    List<Budget> getBudgetByUser_GroupAndDateLessThanEqual(String userGroup, LocalDateTime date);
+    List<Budget> getBudgetByUserGroupAndDateLessThanEqual(String userGroup, LocalDateTime date);
 
-    List<Budget> getAllByUser_Group(String userGroup);
+    List<Budget> getAllByUserGroup(String userGroup);
 
-    List<Budget> getAllByKindTypeAndUser_Group(Type type, String userGroup);
+    List<Budget> getAllByKindTypeAndUserGroup(Type type, String userGroup);
 
-    List<Budget> getAllByKindTypeAndDateBetweenAndUser_Group(Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
+    List<Budget> getAllByKindTypeAndDateBetweenAndUserGroup(Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup);
 
     List<Budget> getAllByUserId(String id);
 

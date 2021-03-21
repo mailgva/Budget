@@ -3,6 +3,7 @@ package com.gorbatenko.budget.config.regularoperations;
 
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.RegularOperation;
+import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class RegularOperationConfig {
     }
 
     private Budget createFromOperation(RegularOperation operation) {
-        Budget budget = new Budget(operation.getUser(),
+        Budget budget = new Budget(new User(operation.getUser().getId(), operation.getUser().getName()),
                 operation.getKind(),
                 LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 operation.getDescription(),

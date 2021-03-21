@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.model;
 
 import com.gorbatenko.budget.BaseEntity;
+import com.gorbatenko.budget.model.doc.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;

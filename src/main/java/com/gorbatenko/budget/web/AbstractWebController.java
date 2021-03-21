@@ -74,7 +74,7 @@ public class AbstractWebController {
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {
 
         List<Budget> listBudget = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getAllByKindTypeAndDateBetweenAndUser_Group(type, startDate, endDate, userGroup));
+                budgetRepository.getAllByKindTypeAndDateBetweenAndUserGroup(type, startDate, endDate, userGroup));
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
         listBudget.stream()
                 .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
@@ -98,13 +98,13 @@ public class AbstractWebController {
     protected Model getBalanceByKind(Model model, Kind kind) {
         User user = SecurityUtil.get().getUser();
         return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByKindAndUser_Group(kind, user.getGroup())));
+                budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup())));
     }
 
     protected Model getBalanceByDate(Model model, LocalDate date) {
         User user = SecurityUtil.get().getUser();
         return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByDateAndUser_Group(setTimeZoneOffset(date), user.getGroup())));
+                budgetRepository.getBudgetByDateAndUserGroup(setTimeZoneOffset(date), user.getGroup())));
     }
 
     protected Model getBalanceParts(Model model, List<Budget> budgets) {
@@ -138,7 +138,7 @@ public class AbstractWebController {
         LocalDateTime startDate = budgets.stream().map(Budget::getDate).min(LocalDateTime::compareTo).get();
 
         List<Budget> budgetsLessStart = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUser_GroupAndDateLessThan(userGroup, startDate));
+                budgetRepository.getBudgetByUserGroupAndDateLessThan(userGroup, startDate));
 
         return budgetsLessStart.stream()
                 .map(budget ->
@@ -155,7 +155,7 @@ public class AbstractWebController {
         LocalDateTime endDate = budgets.stream().map(Budget::getDate).max(LocalDateTime::compareTo).get();
 
         List<Budget> budgetsLessOrEqualsEnd = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUser_GroupAndDateLessThanEqual(userGroup, endDate));
+                budgetRepository.getBudgetByUserGroupAndDateLessThanEqual(userGroup, endDate));
 
         return budgetsLessOrEqualsEnd.stream()
                 .map(budget ->

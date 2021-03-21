@@ -4,6 +4,7 @@ import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.WebAttributes;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
+@Slf4j
 @Controller
 public class MainController extends AbstractWebController {
 
@@ -66,15 +68,14 @@ public class MainController extends AbstractWebController {
             }
         }
         model.addAttribute("errorMessage", errorMessage);
-        model.addAttribute("pageName", "Ошибка - неверные учетные данных");
+        model.addAttribute("pageName", "Ошибка - неверные учетные данные");
         return "login";
     }
 
     @GetMapping("/menu")
     public String getMenu(Model model, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
-
-        List<Budget> listBudget = budgetRepository.getBudgetByUser_GroupOrderByDateDesc(user.getGroup());
+        List<Budget> listBudget = budgetRepository.getBudgetByuserGroupOrderByDateDesc(user.getGroup());
 
         String lastGroupActivityDate = dateToStr(listBudget.stream()
                 .map(Budget::getCreateDateTime)
