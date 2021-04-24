@@ -163,3 +163,14 @@ span.subdate{
   margin-top: 5px;
   margin-bottom: -10px;
 }
+
+div.jumbotron {
+  width: 70%;
+  margin: auto !important;
+}
+
+@media screen and (max-device-width: 900px) {
+  div.jumbotron {
+    width: 96%;
+  }
+}
