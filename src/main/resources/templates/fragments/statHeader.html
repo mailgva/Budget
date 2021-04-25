@@ -1,25 +1,25 @@
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
 <table class="table">
     <tr class="bg-warning-dark border border-warning">
-        <td colspan="2" style="font-weight: bold; padding-left: 10px;">
+        <td colspan="3" style="font-weight: bold; padding-left: 10px;">
             <div align="left"><h4 th:text="'Остаток на начало: ' + ${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
-        <td style="font-weight: bold; padding-right: 10px;">
+        <td colspan="3" style="font-weight: bold; padding-right: 10px;">
             <div align="right"><h4 th:text="'Остаток на конец: ' + ${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
     </tr>
     <tr class="bg-warning border border-warning">
-        <td style="width: 30%; font-weight: bold">
+        <td colspan="2" style="width: 30%; font-weight: bold">
             <div align="left"><h4 th:text="'Приходы: ' + ${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
-        <td style="width: 30%; font-weight: bold">
+        <td colspan="2" style="width: 30%; font-weight: bold">
             <div align="center"><h4 th:text="'Расходы: ' + ${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
-        <td style="width: 30%; font-weight: bold">
+        <td colspan="2" style="width: 30%; font-weight: bold">
             <div align="right"><h4 th:text="'Остаток: ' + ${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
