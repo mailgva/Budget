@@ -171,6 +171,13 @@ div.jumbotron {
 
 @media screen and (max-device-width: 900px) {
   div.jumbotron {
-    width: 96%;
+    width: 100%;
+  }
+}
+
+
+@media screen and (max-device-width: 900px) {
+  span.biggerprice {
+    font-size: x-large;
   }
 }

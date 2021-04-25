@@ -10,95 +10,104 @@
             <div class="card-body ">
                 <div class="form-group ">
                     <form th:action="@{/budget/groupstatistic}" method="get">
-                                <div class="row">
-                                    <div class="col-8">
-                                        <fieldset>
-                                            <legend>Параметры</legend>
-                                            <!--/*--><!--@thymesVar id="period" type="com.gorbatenko.budget.util.TypePeriod"-->
-                                            <!--*/-->
-                                            <div class="row">
-                                                <div class="form-check col-2">
-                                                    <input class="form-check-input" type="radio" id="selperiod"
-                                                           name="period" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).SELPERIOD)}" value="SELPERIOD"
-                                                           onchange="enablePeriod(true);">
-                                                    <label class="form-check-label" for="selperiod">
-                                                        Период
-                                                    </label>
-                                                </div>
-                                                <fieldset class="col-8" id="perioddetail">
+                        <div class="row">
+                            <div class="col-8">
+                                <fieldset>
+                                    <legend>Параметры</legend>
+                                    <!--/*--><!--@thymesVar id="period" type="com.gorbatenko.budget.util.TypePeriod"-->
+                                    <!--*/-->
+                                    <div class="row">
+                                        <div class="form-check col-2">
+                                            <input class="form-check-input" type="radio" id="selperiod"
+                                                   name="period"
+                                                   th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).SELPERIOD)}"
+                                                   value="SELPERIOD"
+                                                   onchange="enablePeriod(true);">
+                                            <label class="form-check-label" for="selperiod">
+                                                Период
+                                            </label>
+                                        </div>
+                                        <fieldset class="col-8" id="perioddetail">
 
-                                                        <div class="form-group row" >
-                                                            <div class="col">
-                                                                <label for="startDate">Дата начала</label>
-                                                                <input class="form-control" name="startDate"
-                                                                       id="startDate"
-                                                                       type="date"
-                                                                       th:value="${startDate}">
-                                                            </div>
-                                                            <div class="col">
-                                                                <label for="endDate">Дата конца</label>
-                                                                <input class="form-control" name="endDate" id="endDate"
-                                                                       type="date"
-                                                                       th:value="${endDate}">
-                                                            </div>
-                                                        </div>
-
-                                                </fieldset>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-check col">
-                                                    <input class="form-check-input" type="radio" id="currentmonth"
-                                                           name="period" value="CURRENTMONTH" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTMONTH)}"
-                                                           onchange="enablePeriod(false);">
-                                                    <label class="form-check-label" for="currentmonth">
-                                                        Текущий месяц
-                                                    </label>
+                                            <div class="form-group row">
+                                                <div class="col">
+                                                    <label for="startDate">Дата начала</label>
+                                                    <input class="form-control" name="startDate"
+                                                           id="startDate"
+                                                           type="date"
+                                                           th:value="${startDate}">
                                                 </div>
-                                                <div class="form-check col">
-                                                    <input class="form-check-input" type="radio" id="currentyear"
-                                                           name="period" value="CURRENTYEAR" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTYEAR)}"
-                                                           onchange="enablePeriod(false);">
-                                                    <label class="form-check-label" for="currentyear">
-                                                        Текущий год
-                                                    </label>
-                                                </div>
-                                                <div class="form-check col">
-                                                    <input class="form-check-input" type="radio" id="alltime"
-                                                           name="period" value="ALLTIME" th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).ALLTIME)}"
-                                                           onchange="enablePeriod(false);">
-                                                    <label class="form-check-label" for="alltime">
-                                                        Все время
-                                                    </label>
+                                                <div class="col">
+                                                    <label for="endDate">Дата конца</label>
+                                                    <input class="form-control" name="endDate" id="endDate"
+                                                           type="date"
+                                                           th:value="${endDate}">
                                                 </div>
                                             </div>
 
                                         </fieldset>
                                     </div>
-                                    <div class="col">
-                                        <fieldset>
-                                            <legend>Сортировка</legend>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" id="sortbyname" name="sorttype" th:checked="${sorttype.isEmpty() || sorttype.equalsIgnoreCase('sortbyname')}"  value="sortbyname">
-                                                <label class="form-check-label" for="sortbyname">
-                                                    По наименованию
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" id="sortbyprice" name="sorttype" th:checked="${sorttype.equalsIgnoreCase('sortbyprice')}" value="sortbyprice">
-                                                <label class="form-check-label" for="sortbyprice">
-                                                    По сумме
-                                                </label>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group col-1 flex-bottom">
-                                            <button id="btnsub" type="submit" class="btn btn-dark fiterbtn">
-                                                <i class="fa fa-filter"></i>
-                                            </button>
+                                    <div class="row">
+                                        <div class="form-check col">
+                                            <input class="form-check-input" type="radio" id="currentmonth"
+                                                   name="period" value="CURRENTMONTH"
+                                                   th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTMONTH)}"
+                                                   onchange="enablePeriod(false);">
+                                            <label class="form-check-label" for="currentmonth">
+                                                Текущий месяц
+                                            </label>
+                                        </div>
+                                        <div class="form-check col">
+                                            <input class="form-check-input" type="radio" id="currentyear"
+                                                   name="period" value="CURRENTYEAR"
+                                                   th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).CURRENTYEAR)}"
+                                                   onchange="enablePeriod(false);">
+                                            <label class="form-check-label" for="currentyear">
+                                                Текущий год
+                                            </label>
+                                        </div>
+                                        <div class="form-check col">
+                                            <input class="form-check-input" type="radio" id="alltime"
+                                                   name="period" value="ALLTIME"
+                                                   th:checked="${period.equals(T(com.gorbatenko.budget.util.TypePeriod).ALLTIME)}"
+                                                   onchange="enablePeriod(false);">
+                                            <label class="form-check-label" for="alltime">
+                                                Все время
+                                            </label>
                                         </div>
                                     </div>
+
+                                </fieldset>
+                            </div>
+                            <div class="col">
+                                <fieldset>
+                                    <legend>Сортировка</legend>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="sortbyname" name="sorttype"
+                                               th:checked="${sorttype.isEmpty() || sorttype.equalsIgnoreCase('sortbyname')}"
+                                               value="sortbyname">
+                                        <label class="form-check-label" for="sortbyname">
+                                            По наименованию
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="sortbyprice" name="sorttype"
+                                               th:checked="${sorttype.equalsIgnoreCase('sortbyprice')}"
+                                               value="sortbyprice">
+                                        <label class="form-check-label" for="sortbyprice">
+                                            По сумме
+                                        </label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col">
+                                <div class="form-group col-1 flex-bottom">
+                                    <button id="btnsub" type="submit" class="btn btn-dark fiterbtn">
+                                        <i class="fa fa-filter"></i>
+                                    </button>
                                 </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -109,10 +118,10 @@
 
         <nav>
             <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                <a class="nav-item nav-link active" id="nav-tableview" data-toggle="tab" href="#tableview" role="tab" aria-controls="tableview" aria-selected="true">Таблица</a>
-                <a class="nav-item nav-link" id="nav-circlediagram" data-toggle="tab" href="#circlediagram" role="tab" aria-controls="circlediagram" aria-selected="false">Круговая диаграмма</a>
-                <a class="nav-item nav-link" id="nav-horizontdiagram" data-toggle="tab" href="#horizontdiagram" role="tab" aria-controls="horizontdiagram" aria-selected="false">Горизонтальная диаграмма</a>
-                <a class="nav-item nav-link" id="nav-totalbardiagram" data-toggle="tab" href="#totalbardiagram" role="tab" aria-controls="totalbardiagram" aria-selected="false">Вертикальная итоговая диаграмма</a>
+                <a class="nav-item nav-link active" id="nav-tableview" data-toggle="tab" href="#tableview" role="tab" aria-controls="tableview" aria-selected="true" style="font-size: x-large">Таблица</a></h6>
+                <a class="nav-item nav-link" id="nav-circlediagram" data-toggle="tab" href="#circlediagram" role="tab" aria-controls="circlediagram" aria-selected="false" style="font-size: x-large">Круговая диаграмма</a>
+                <a class="nav-item nav-link" id="nav-horizontdiagram" data-toggle="tab" href="#horizontdiagram" role="tab" aria-controls="horizontdiagram" aria-selected="false" style="font-size: x-large">Горизонтальная диаграмма</a>
+                <a class="nav-item nav-link" id="nav-totalbardiagram" data-toggle="tab" href="#totalbardiagram" role="tab" aria-controls="totalbardiagram" aria-selected="false" style="font-size: x-large">Вертикальная итоговая диаграмма</a>
             </div>
         </nav>
 
@@ -122,15 +131,15 @@
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                             <td ><h4 th:text="${element.key.getValue()}"></h4></td>
-                            <td colspan="2">
+                            <td >
                                 <a class="text-dark"
                                    th:href="@{/budget/dynamicstatistic(startDate=${startDate},
                                                      endDate=${endDate},
                                                      type=${element.key.name()})}" title="Динамика">
                                     <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
                                 </a>
-
                             </td>
+                            <td style="text-align:right; padding-right: 50px" ><h4 th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(value)]), 1, 'DEFAULT', 0, 'DEFAULT')}"></h4></td>
                         </tr>
                         <th:block th:each="map : ${element.value}">
                             <tr th:class="${map.key.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
@@ -163,17 +172,13 @@
                             </tr>
                         </th:block>
                         <tr>
-                            <td colspan="2" ><h5>Итого:</h5></td>
-                            <td style="text-align:right; padding-right: 50px" ><h5>
-                                <span th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(value)]), 1, 'DEFAULT', 0, 'DEFAULT')}"></span></h5>
-                            </td>
+                            <td colspan="3" ></td>
                         </tr>
                     </th:block>
                 </table>
+                <div class="bg-white" th:style="${'display: inline-block; margin-top:4px; margin-left:4px; height: 12px; width: 12px;'}"></div> - % от общей суммы
                 <br>
-                <div class="bg-white" th:style="${'display: inline-block; margin-top:4px; height: 12px; width: 12px;'}"></div> - % от общей суммы
-                <br>
-                <div class="bg-warning" th:style="${'display: inline-block; margin-top:1px; height: 12px; width: 12px;'}"></div> -  % от максимальной статьи
+                <div class="bg-warning" th:style="${'display: inline-block; margin-top:1px; margin-left:4px; height: 12px; width: 12px;'}"></div> -  % от максимальной статьи
             </div>
             <div class="tab-pane fade" id="circlediagram" role="tabpanel" aria-labelledby="nav-circlediagram">
                 <h4>Приход</h4>

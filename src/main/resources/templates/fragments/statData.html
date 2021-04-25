@@ -36,7 +36,7 @@
 
 
         <tr class="border border-warning budget_detail">
-            <td colspan="7">
+            <td colspan="7" style="padding-top: 0px; padding-bottom: 12px;">
                 <table class="table table-active ">
                     <thead>
                     <tr class="table-active">
@@ -63,7 +63,7 @@
                             <td style="width: 20%"><span th:text="${budget.kind.name}"> Item </span></td>
                             <td style="width: 20%"><span th:text="${budget.description}"> Description </span>
                             </td>
-                            <td style="width: 10%; text-align:right"><span th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
+                            <td style="width: 10%; text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
                             <td style="width: 5%">
                                 <a th:href="@{'/budget/edit/'+${budget.id}}" class="btn btn-warning" role="button"
                                    aria-pressed="true"><i

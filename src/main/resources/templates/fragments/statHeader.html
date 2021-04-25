@@ -2,35 +2,25 @@
 <table class="table">
     <tr class="bg-warning-dark border border-warning">
         <td colspan="2" style="font-weight: bold; padding-left: 10px;">
-            <div align="left"><h6>
-                Остаток на начало периода: <span
-                    th:text="${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></span></h6>
+            <div align="left"><h4 th:text="'Остаток на начало: ' + ${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
         <td style="font-weight: bold; padding-right: 10px;">
-            <div align="right"><h6>
-                Остаток на конец периода: <span
-                    th:text="${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></span></h6>
+            <div align="right"><h4 th:text="'Остаток на конец: ' + ${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
     </tr>
     <tr class="bg-warning border border-warning">
         <td style="width: 30%; font-weight: bold">
-            <div align="left"><h6>
-                Всего приход:
-                <span th:text="${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></span></h6>
+            <div align="left"><h4 th:text="'Приходы: ' + ${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
         <td style="width: 30%; font-weight: bold">
-            <div align="center"><h6>
-                Всего расход:
-                <span th:text="${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></span> </h6>
+            <div align="center"><h4 th:text="'Расходы: ' + ${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
         <td style="width: 30%; font-weight: bold">
-            <div align="right"><h6>
-                Всего Итог:
-                <span th:text="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"></span></h6>
+            <div align="right"><h4 th:text="'Остаток: ' + ${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"></h4>
             </div>
         </td>
     </tr>
