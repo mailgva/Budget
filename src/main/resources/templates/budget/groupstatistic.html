@@ -199,13 +199,19 @@
                 <h4>Приход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
-                        <canvas id="horizontChartProfit" th:style="${'max-width: 80%; max-height: ' + (mapKind.get(T(com.gorbatenko.budget.model.Type).PROFIT).size() * 60) + 'px;'}" ></canvas>
+                        <canvas id="horizontChartProfit"
+                                th:style="${'max-width: 80%; max-height: ' +
+                                mapKind == null || mapKind.get(T(com.gorbatenko.budget.model.Type).PROFIT) == null ? 100 :
+                                    (mapKind.get(T(com.gorbatenko.budget.model.Type).PROFIT).size() * 60) + 'px;'}" ></canvas>
                     </div>
                 </div>
                 <h4>Расход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
-                        <canvas id="horizontChartSpendit" th:style="${'max-width: 80%; max-height: ' + (mapKind.get(T(com.gorbatenko.budget.model.Type).SPENDING).size() * 60) + 'px;'}"></canvas>
+                        <canvas id="horizontChartSpendit"
+                                th:style="${'max-width: 80%; max-height: ' +
+                                mapKind == null || mapKind.get(T(com.gorbatenko.budget.model.Type).SPENDING) == null ? 100 :
+                                  (mapKind.get(T(com.gorbatenko.budget.model.Type).SPENDING).size() * 60) + 'px;'}"></canvas>
                     </div>
                 </div>
             </div>

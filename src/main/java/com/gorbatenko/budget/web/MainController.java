@@ -83,7 +83,7 @@ public class MainController extends AbstractWebController {
                 .orElse(LocalDateTime.now())
                 .toLocalDate());
 
-        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(listBudget));
+        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(listBudget), MIN_DATE_TIME, MAX_DATE_TIME);
 
         int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
 

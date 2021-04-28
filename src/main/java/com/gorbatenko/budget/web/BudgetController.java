@@ -121,7 +121,7 @@ public class BudgetController extends AbstractWebController {
                                 budgetRepository.getBudgetByDateBetweenAndUserGroup(
                                         offSetStartDate, offSetEndDate, user.getGroup())));
 
-        model = getBalanceParts(model, listBudget);
+        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
 
         Map<Type, Map<Kind, Double>> mapKind;
         if (sorttype.isEmpty() || sorttype.equalsIgnoreCase("sortbyname")) {
@@ -338,7 +338,7 @@ public class BudgetController extends AbstractWebController {
                 .filter(budget -> ((priceStr == null) || (priceStr.isEmpty()) || (budget.getPrice() == Double.parseDouble(priceStr))))
                 .collect(Collectors.toList());
 
-        model = getBalanceParts(model, listBudget);
+        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));

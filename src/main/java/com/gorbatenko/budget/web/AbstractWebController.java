@@ -23,6 +23,9 @@ import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
 public class AbstractWebController {
     int POPULARKIND_COUNT = 5;
 
+    protected static final LocalDateTime MIN_DATE_TIME = LocalDateTime.of(0, 1, 1, 0,0,1);
+    protected static final LocalDateTime MAX_DATE_TIME = LocalDateTime.of(3000, 1, 1, 0,0,1);
+
     @Autowired
     protected BudgetRepository budgetRepository;
 
@@ -98,16 +101,24 @@ public class AbstractWebController {
     protected Model getBalanceByKind(Model model, Kind kind) {
         User user = SecurityUtil.get().getUser();
         return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup())));
+                budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup())),
+                MIN_DATE_TIME,
+                MAX_DATE_TIME);
     }
 
     protected Model getBalanceByDate(Model model, LocalDate date) {
         User user = SecurityUtil.get().getUser();
-        return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByDateAndUserGroup(setTimeZoneOffset(date), user.getGroup())));
+        LocalDateTime dateTime = setTimeZoneOffset(date);
+        LocalDateTime startDate = setTimeZoneOffset(date).minusDays(1);
+        LocalDateTime endDate = setTimeZoneOffset(date).plusDays(1);
+        return getBalanceParts(model,
+                filterBudgetByUserCurrencyDefault(
+                    budgetRepository.getBudgetByDateAndUserGroup(dateTime, user.getGroup())),
+                startDate,
+                endDate);
     }
 
-    protected Model getBalanceParts(Model model, List<Budget> budgets) {
+    protected Model getBalanceParts(Model model, List<Budget> budgets, LocalDateTime startDate, LocalDateTime endDate) {
         Double profit = budgets.stream()
                 .filter(b -> b.getKind().getType().equals(Type.PROFIT))
                 .mapToDouble(Budget::getPrice)
@@ -123,19 +134,14 @@ public class AbstractWebController {
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
         model.addAttribute("remain", remain);
-        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(budgets));
-        model.addAttribute("remainOnEndPeriod", getRemainOnEndPeriod(budgets));
+        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(startDate));
+        model.addAttribute("remainOnEndPeriod", getRemainOnEndPeriod(endDate));
 
         return model;
     }
 
-    protected Double getRemainOnStartPeriod(List<Budget> budgets) {
-        if (budgets.isEmpty()) {
-            return 0.0D;
-        }
-
-        String userGroup = SecurityUtil.get().getUser().getGroup();
-        LocalDateTime startDate = budgets.stream().map(Budget::getDate).min(LocalDateTime::compareTo).get();
+    protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
+      String userGroup = SecurityUtil.get().getUser().getGroup();
 
         List<Budget> budgetsLessStart = filterBudgetByUserCurrencyDefault(
                 budgetRepository.getBudgetByUserGroupAndDateLessThan(userGroup, startDate));
@@ -146,13 +152,8 @@ public class AbstractWebController {
 
     }
 
-    protected Double getRemainOnEndPeriod(List<Budget> budgets) {
-        if (budgets.isEmpty()) {
-            return 0.0D;
-        }
-
-        String userGroup = SecurityUtil.get().getUser().getGroup();
-        LocalDateTime endDate = budgets.stream().map(Budget::getDate).max(LocalDateTime::compareTo).get();
+    protected Double getRemainOnEndPeriod(LocalDateTime endDate) {
+       String userGroup = SecurityUtil.get().getUser().getGroup();
 
         List<Budget> budgetsLessOrEqualsEnd = filterBudgetByUserCurrencyDefault(
                 budgetRepository.getBudgetByUserGroupAndDateLessThanEqual(userGroup, endDate));
