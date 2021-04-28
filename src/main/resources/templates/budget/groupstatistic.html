@@ -148,7 +148,7 @@
                                        th:href="@{/budget/statistic(startDate=${startDate},
                                                      endDate=${endDate},
                                                      kindId=${map.key.getId()})}">
-                                        <span th:text="${map.key.name + ' (' + mapKindCount.get(map.key) + ')'} "></span>
+                                        <span  class="summation" th:text="${map.key.name + ' (' + mapKindCount.get(map.key) + ')'} "></span>
 
                                         <div class="bg-white"
                                              th:style="${'margin-top:4px; height: 4px; width:' + (map.value.doubleValue() * 100 / #aggregates.sum(element.value.![(value)])) + '%'}"
@@ -168,7 +168,7 @@
                                         <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
                                     </a>
                                 </td>
-                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span th:text="${#numbers.formatDecimal(map.value.doubleValue(), 1, 'DEFAULT', 0, 'DEFAULT')}">  </span></td>
+                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span class="summation" th:text="${#numbers.formatDecimal(map.value.doubleValue(), 1, 'DEFAULT', 0, 'DEFAULT')}">  </span></td>
                             </tr>
                         </th:block>
                         <tr>
@@ -199,13 +199,13 @@
                 <h4>Приход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
-                        <canvas id="horizontChartProfit" style="max-width: 80%;max-height: 500px;"></canvas>
+                        <canvas id="horizontChartProfit" th:style="${'max-width: 80%; max-height: ' + (mapKind.get(T(com.gorbatenko.budget.model.Type).PROFIT).size() * 60) + 'px;'}" ></canvas>
                     </div>
                 </div>
                 <h4>Расход</h4>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-10">
-                        <canvas id="horizontChartSpendit" style="max-width: 80%;max-height: 500px;"></canvas>
+                        <canvas id="horizontChartSpendit" th:style="${'max-width: 80%; max-height: ' + (mapKind.get(T(com.gorbatenko.budget.model.Type).SPENDING).size() * 60) + 'px;'}"></canvas>
                     </div>
                 </div>
             </div>

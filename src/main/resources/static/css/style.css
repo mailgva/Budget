@@ -175,9 +175,14 @@ div.jumbotron {
   }
 }
 
-
 @media screen and (max-device-width: 900px) {
   span.biggerprice {
     font-size: x-large;
   }
+
+  td span.summation {
+    font-size: x-large;
+  }
 }
+
+
