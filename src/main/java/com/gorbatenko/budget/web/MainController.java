@@ -76,6 +76,7 @@ public class MainController extends AbstractWebController {
     public String getMenu(Model model, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
         List<Budget> listBudget = budgetRepository.getBudgetByuserGroupOrderByDateDesc(user.getGroup());
+        listBudget = filterBudgetByUserCurrencyDefault(listBudget);
 
         String lastGroupActivityDate = dateToStr(listBudget.stream()
                 .map(Budget::getCreateDateTime)
@@ -83,7 +84,7 @@ public class MainController extends AbstractWebController {
                 .orElse(LocalDateTime.now())
                 .toLocalDate());
 
-        model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(listBudget), MIN_DATE_TIME, MAX_DATE_TIME);
+        model = getBalanceParts(model, listBudget, MIN_DATE_TIME, MAX_DATE_TIME);
 
         int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
 

@@ -22,7 +22,7 @@
                             <a class="text-dark"
                                th:href="@{/budget/statistic(alltime='yes',
                                                     kindId=${kind.getId()})}">
-                                <span th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
+                                <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
                             </a>
                         </td>
                         <td style="padding-left: 10px; font-weight: bolder; text-align: center;">
