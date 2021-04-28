@@ -183,6 +183,10 @@ div.jumbotron {
   span.summation {
     font-size: x-large;
   }
+
+  span.fontsizexxx {
+    font-size: xxx-large !important;
+  }
 }
 
 

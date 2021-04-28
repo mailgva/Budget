@@ -15,7 +15,7 @@
                         <th:block th:each="currency : ${listOfCurrencies}">
                             <a class="dropdown-item btn-lg"
                                th:href="${'javascript:changeCurrency( &quot;' + currency.id + '&quot;)'}"
-                               th:text="${'&#8226;  ' + currency.name}"></a>
+                               th:text="${'&#8226;  ' + currency.name}">   </a>
                         </th:block>
                     </div>
                 </li>
@@ -33,17 +33,17 @@
                     <div class="dropdown-menu dropdown-menu-right dropdown-default"
                          aria-labelledby="navbarDropdownMenuLink-333">
                         <a class="dropdown-item btn-lg" href="/budget/create/profit"><i class="fa fa-plus"></i>
-                            Приход</a>
+                            <span class="fontsizexxx">Приход</span></a>
                         <a class="dropdown-item btn-lg" href="/budget/create/spending"><i class="fa fa-minus"></i>
-                            Расход</a>
+                            <span class="fontsizexxx">Расход</span></a>
                         <a class="dropdown-item btn-lg" href="/budget/statistic"><i class="fa fa-list"></i>
-                            Статистика</a>
+                            <span class="fontsizexxx">Статистика</span></a>
                         <a class="dropdown-item btn-lg" href="/budget/groupstatistic"><i class="fa fa-align-left"></i>
-                            Групповая статистика</a>
-                        <a class="dropdown-item btn-lg" href="/dictionaries/"><i class="fa fa-book"></i> Справочники</a>
-                        <a class="dropdown-item btn-lg" href="/regularoperations/"><i class="fa fa-calendar"></i> Регулярные операции</a>
-                        <a class="dropdown-item btn-lg" href="/profile/"><i class="fa fa-user"></i> Профиль</a>
-                        <a class="dropdown-item btn-lg" th:href="@{/logout}"><i class="fa fa-sign-out"></i> Выход</a>
+                            <span class="fontsizexxx">Групповая статистика</span></a>
+                        <a class="dropdown-item btn-lg" href="/dictionaries/"><i class="fa fa-book"></i> <span class="fontsizexxx">Справочники</span></a>
+                        <a class="dropdown-item btn-lg" href="/regularoperations/"><i class="fa fa-calendar"></i> <span class="fontsizexxx">Регулярные операции</span></a>
+                        <a class="dropdown-item btn-lg" href="/profile/"><i class="fa fa-user"></i> <span class="fontsizexxx">Профиль</span></a>
+                        <a class="dropdown-item btn-lg" th:href="@{/logout}"><i class="fa fa-sign-out"></i> <span class="fontsizexxx">Выход</span></a>
                     </div>
                 </li>
             </ul>
