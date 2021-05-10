@@ -184,9 +184,45 @@ div.jumbotron {
     font-size: x-large;
   }
 
+  .form-group {
+    font-size: x-large !important;
+  }
+
+  input {
+    font-size: xx-large !important;
+  }
+
+  select {
+    font-size: xx-large !important;
+  }
+
+  textarea {
+    font-size: xx-large !important;
+  }
+
+  i {
+    font-size: xx-large !important;
+  }
+
+  button.btn.btn-outline-secondary {
+    font-size: xx-large !important;
+    height: 100% !important;
+    width: 60px !important;
+  }
+
+  a.dropdown-item.btn-lg {
+    font-size: xx-large !important;
+  }
   span.fontsizexxx {
     font-size: xxx-large !important;
   }
+
 }
 
-
+.leftmenu {
+  position: fixed;
+  top: 140px;
+  left: 10px;
+  width: 25%;
+  display: none;
+}

@@ -6,7 +6,7 @@
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
-        <div class="col-sm-8 mx-auto">
+        <div>
             <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
             <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
             <form id="form" name="form" th:action="@{/budget/}" method="post">
@@ -78,7 +78,7 @@
                                th:value="${#numbers.formatDecimal(budget.price,1,'NONE',0,'NONE')}">
                         <div class="input-group-append">
                             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
-                            <select id="currencyId" name="currencyId" class="custom-select" style="width: 80px;">
+                            <select id="currencyId" name="currencyId" class="custom-select" style="width: 120px;">
                                 <option th:each="currency : ${currencies}"
                                         th:value="${currency.id}"
                                         th:text="${currency.name}"
