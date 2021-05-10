@@ -103,19 +103,19 @@
 
             <div class="input-group">
                 <div class="input-group-prepend" >
-                    <span class="input-group-text" style="width: 200px;" th:text="${'Всего прихода, ' + defaultCurrencyName}"></span>
+                    <span class="input-group-text" style="width: 300px;" th:text="${'Всего прихода, ' + defaultCurrencyName}"></span>
                 </div>
                 <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="input-group" >
                 <div class="input-group-prepend" >
-                    <span class="input-group-text" style="width: 200px;" th:text="${'Всего расхода, ' + defaultCurrencyName}"></span>
+                    <span class="input-group-text" style="width: 300px;" th:text="${'Всего расхода, ' + defaultCurrencyName}"></span>
                 </div>
                 <input type="text" class="form-control" readonly  style="text-align:right;" th:value="${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="input-group" >
                 <div class="input-group-prepend" >
-                    <span class="input-group-text" style="width: 200px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
+                    <span class="input-group-text" style="width: 300px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
                 </div>
                 <input type="text" class="form-control" readonly style="text-align:right;" th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
             </div>

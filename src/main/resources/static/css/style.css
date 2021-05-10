@@ -184,6 +184,10 @@ div.jumbotron {
     font-size: x-large;
   }
 
+  span.input-group-text {
+    font-size: x-large;
+  }
+
   .form-group {
     font-size: x-large !important;
   }
@@ -215,6 +219,10 @@ div.jumbotron {
   }
   span.fontsizexxx {
     font-size: xxx-large !important;
+  }
+
+  div.form-group.filterb {
+    padding-top: 20px;
   }
 
 }

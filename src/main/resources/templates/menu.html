@@ -6,19 +6,17 @@
 </div>
 <main role="main">
   <div class="jumbotron"  style="background: #c2ff8e">
-    <h2 id="loggedUser" >Пользователь: <span th:text="${userName}"></span></h2>
-
       <div class="input-group mb-3" style="margin-left: 10px">
         <div class="input-group-prepend">
-          <span class="input-group-text" style="width: 220px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
+          <span class="input-group-text" style="width: 300px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
         </div>
-        <input class="form-control col-md-2" type="text" readonly th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
+        <input class="form-control col-4" type="text" readonly th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
       </div>
       <div class="input-group mb-3" style="margin-left: 10px">
       <div class="input-group-prepend">
-        <span class="input-group-text" style="width: 220px;" th:text="${'Последняя активность'}"></span>
+        <span class="input-group-text" style="width: 300px;" th:text="${'Последняя активность'}"></span>
       </div>
-      <input class="form-control col-md-2" type="text" readonly th:value="${lastGroupActivityDate}"
+      <input class="form-control col-4" type="text" readonly th:value="${lastGroupActivityDate}"
              th:data-path="'budget/statistic?startDate=' + ${lastGroupActivityDate} + '&endDate=' + ${lastGroupActivityDate}"
              onclick="location.href = (this.getAttribute('data-path'));">
     </div>
