@@ -88,8 +88,9 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-                <a th:if="${budget.id != null}" th:href="@{'/budget/delete/'+${budget.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+                <button class="btn btn-primary mob"  name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
+                <button th:if="${budget.id != null}" class="btn btn-danger mob" th:data-url="'/budget/delete/'+${budget.id}" type="button"
+                        th:onclick="window.open(this.getAttribute('data-url'))"><i class="fa fa-trash"></i> Удалить</button>
             </form>
         </div>
     </div>

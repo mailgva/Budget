@@ -225,6 +225,17 @@ div.jumbotron {
     padding-top: 20px;
   }
 
+  .mob {
+    font-size: xx-large !important;
+    height: 100px !important;
+    padding: 15px !important;
+  }
+
+  .mobx {
+    font-size: x-large !important;
+    height: 80px !important;
+    padding: 15px !important;
+  }
 }
 
 .leftmenu {

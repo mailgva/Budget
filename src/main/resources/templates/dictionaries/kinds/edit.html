@@ -38,8 +38,9 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-        <a th:if="${kind.id != null}" th:href="@{'/dictionaries/kinds/delete/'+${kind.id}}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fa fa-trash"></i> Удалить</a>
+        <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
+        <button th:if="${kind.id != null}" class="btn btn-danger mob" th:data-url="'/dictionaries/kinds/delete/'+${kind.id}" type="button"
+                th:onclick="window.open(this.getAttribute('data-url'))"><i class="fa fa-trash"></i> Удалить</button>
       </form>
     </div>
   </div>
