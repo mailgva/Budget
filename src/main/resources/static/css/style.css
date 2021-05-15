@@ -236,6 +236,22 @@ div.jumbotron {
     height: 80px !important;
     padding: 15px !important;
   }
+
+  div.mobchkbox {
+    height: 50px !important;
+  }
+
+  input.mobchkbox {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0px !important;
+  }
+
+  label.mob {
+    font-size: 18pt !important;
+    margin-left: 10px !important;
+
+  }
 }
 
 .leftmenu {
