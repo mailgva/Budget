@@ -311,7 +311,6 @@ public class BudgetController extends AbstractWebController {
                              budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup()) :
                              budgetRepository.getBudgetByKindAndDateBetweenAndUserGroup(kind,offSetStartDate, offSetEndDate, user.getGroup())
                             )
-
                     ));
         }
 
@@ -333,9 +332,9 @@ public class BudgetController extends AbstractWebController {
 
         listBudget = listBudget.stream()
                 .filter(budget -> ("allTypes".equals(typeStr) || (budget.getKind().getType().equals(Type.valueOf(typeStr)))))
-                .filter(budget -> ((userId == null) || (userId.isEmpty()) || (userId.equals("-1")) || (budget.getUser().getId().equals(userId))))
-                .filter(budget -> ((comment == null) || (comment.isEmpty()) || (budget.getDescription().toUpperCase().contains(comment.toUpperCase()))))
-                .filter(budget -> ((priceStr == null) || (priceStr.isEmpty()) || (budget.getPrice() == Double.parseDouble(priceStr))))
+                .filter(budget -> ((userId.equals("-1")) || (budget.getUser().getId().equals(userId))))
+                .filter(budget -> ((comment.isEmpty()) || (budget.getDescription().toUpperCase().contains(comment.toUpperCase()))))
+                .filter(budget -> priceFilter(budget.getPrice(), priceStr))
                 .collect(Collectors.toList());
 
         model = getBalanceParts(model, listBudget, offSetStartDate.plusDays(1), offSetEndDate.minusDays(1));
@@ -533,19 +532,29 @@ public class BudgetController extends AbstractWebController {
         int defaultValue = 1;
 
         for ( int i=0; i<cookies.length; i++) {
-
             Cookie cookie = cookies[i];
 
             if (cookieName.equals(cookie.getName()))
-
                 return(Integer.parseInt(cookie.getValue()));
-
         }
-
         return(defaultValue);
     }
 
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
         return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
+    }
+
+    private boolean priceFilter(Double price, String priceStr) {
+        if(priceStr.isEmpty()) {
+            return true;
+        }
+
+        String[] prices = priceStr.trim().split("\\p{P}");
+
+        if(prices.length == 1) {
+            return price.equals(Double.valueOf(prices[0]));
+        } else {
+            return price >= Double.valueOf(prices[0]) && price <= Double.valueOf(prices[1]);
+        }
     }
 }
