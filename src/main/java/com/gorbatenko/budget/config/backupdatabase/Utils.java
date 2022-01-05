@@ -1,6 +1,5 @@
 package com.gorbatenko.budget.config.backupdatabase;
 
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
@@ -10,8 +9,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-//import com.mongodb.MongoClient;
-//import com.mongodb.MongoClientURI;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ReadPreference;
@@ -23,13 +22,18 @@ import org.bson.Document;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
+
+    public static final String MIME_TYPE_FOLDER = "'application/vnd.google-apps.folder'";
 
     private MongoClient createMongoClient(ConnectionString uri) {
         MongoClientSettings.Builder settings = MongoClientSettings.builder();
@@ -115,7 +119,7 @@ public class Utils {
                 }
             }
         }
-        return dir.delete(); // The directory is empty now and can be deleted.
+        return dir.delete();
     }
 
     private String getNewToken(String refreshToken, String clientId, String clientSecret) throws IOException {
@@ -126,15 +130,16 @@ public class Utils {
         return tokenResponse.getAccessToken();
     }
 
-    private Credential getCredentials(String gdriveClientId,
-                                     String gdriveSecret,
-                                     String gdriveRefreshToken) throws GeneralSecurityException, IOException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private GoogleCredential getCredentials(
+            NetHttpTransport httpTransport,
+            JsonFactory jsonFactory,
+            String gdriveClientId,
+            String gdriveSecret,
+            String gdriveRefreshToken) throws IOException {
 
         GoogleCredential credential = new GoogleCredential.Builder()
-                .setTransport(HTTP_TRANSPORT)
-                .setJsonFactory(JSON_FACTORY)
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
                 .setClientSecrets(gdriveClientId, gdriveSecret)
                 .build();
 
@@ -152,25 +157,68 @@ public class Utils {
                                         String gdriveClientId,
                                         String gdriveSecret,
                                         String gdriveRefreshToken
-                                        ) throws GeneralSecurityException, IOException {
+    ) throws GeneralSecurityException, IOException {
 
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        GoogleCredential credentials = getCredentials(httpTransport, jsonFactory, gdriveClientId, gdriveSecret, gdriveRefreshToken);
 
-        Drive driveService = new Drive.Builder(
-                HTTP_TRANSPORT,
-                JSON_FACTORY,
-                getCredentials(gdriveClientId, gdriveSecret, gdriveRefreshToken))
+        Drive driveService = new Drive.Builder(httpTransport, jsonFactory, credentials)
                 .setApplicationName(applicationName).build();
-        com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+
+        String folderYearName = String.valueOf(LocalDate.now().getYear());
+        String folderMonthName = LocalDate.now().getMonth().name();
+
+        File folderYear = getFolderByName(driveService, gdriveFolderId, folderYearName);
+        File folderMonth = getFolderByName(driveService, folderYear.getId(), folderMonthName);
+
+        File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(createBackupFileName());
-        fileMetadata.setParents(Collections.singletonList(gdriveFolderId));
+        fileMetadata.setParents(Collections.singletonList(folderMonth.getId()));
+
         java.io.File file = new java.io.File(pathToBackupZip);
+
         FileContent mediaContent = new FileContent("type:application/zip", file);
+
         driveService.files()
                 .create(fileMetadata, mediaContent)
                 .setFields("id, parents")
                 .execute();
+    }
+
+    private File getFolderByName(Drive driveService, String gdriveFolderId, String folderName) throws IOException {
+        FileList fileList = driveService.files().list()
+                .setQ("mimeType=" + MIME_TYPE_FOLDER + " and '" + gdriveFolderId + "' in parents")
+                .execute();
+
+        List<File> files = fileList.getFiles();
+        if (files == null || files.isEmpty()) {
+            return createGDriveFolder(driveService, gdriveFolderId, folderName);
+        } else {
+            for (File file : files) {
+                if (folderName.equals(file.getName())) {
+                    return file;
+                }
+            }
+        }
+        return createGDriveFolder(driveService, gdriveFolderId, folderName);
+    }
+
+    private File createGDriveFolder(Drive driveService, String folderIdParent, String folderName) throws IOException {
+
+        File fileMetadata = new File();
+
+        fileMetadata.setName(folderName);
+        fileMetadata.setMimeType(MIME_TYPE_FOLDER);
+
+        if (folderIdParent != null) {
+            List<String> parents = Arrays.asList(folderIdParent);
+
+            fileMetadata.setParents(parents);
+        }
+        File file = driveService.files().create(fileMetadata).setFields("id, name").execute();
+
+        return file;
     }
 
     private String createBackupFileName() {

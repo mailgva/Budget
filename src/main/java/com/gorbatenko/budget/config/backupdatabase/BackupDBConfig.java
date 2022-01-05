@@ -40,7 +40,7 @@ public class BackupDBConfig {
     @Value("${app.backup.google-drive-refresh-token:}")
     private String gdriveRefreshToken;
 
-    @Value("${app.backup.google-drive-folderid:}")
+    @Value("${app.backup.google-drive-folder-id:}")
     private String gdriveFolderId;
 
     @Scheduled(cron = "${app.backup.cron.expression:-}")
@@ -58,7 +58,9 @@ public class BackupDBConfig {
         log.info("Backup database started at {}!", LocalDateTime.now());
         Utils utils = new Utils();
         java.io.File folder = new java.io.File(PATH_TO_BACKUP_FOLDER);
-        utils.deleteDir(folder);
+        if (folder.exists()) {
+            utils.deleteDir(folder);
+        }
         folder.mkdir();
 
         try {
