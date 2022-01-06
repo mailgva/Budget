@@ -111,7 +111,7 @@ public class BackupDBConfig {
         }
 
         if (gdriveFolderId.isEmpty()) {
-            log.warn(BACKUP_TO_ROOT_FOLDER, "app.backup.google-drive-folderid");
+            log.warn(BACKUP_TO_ROOT_FOLDER, "app.backup.google-drive-folder-id");
         }
         return result;
     }

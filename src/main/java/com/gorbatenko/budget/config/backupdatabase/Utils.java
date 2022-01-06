@@ -33,7 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
-    public static final String MIME_TYPE_FOLDER = "'application/vnd.google-apps.folder'";
+    public static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
 
     private MongoClient createMongoClient(ConnectionString uri) {
         MongoClientSettings.Builder settings = MongoClientSettings.builder();
@@ -187,8 +187,9 @@ public class Utils {
     }
 
     private File getFolderByName(Drive driveService, String gdriveFolderId, String folderName) throws IOException {
+        String query = String.format("mimeType='%s' and '%s' in parents", MIME_TYPE_FOLDER, gdriveFolderId);
         FileList fileList = driveService.files().list()
-                .setQ("mimeType=" + MIME_TYPE_FOLDER + " and '" + gdriveFolderId + "' in parents")
+                .setQ(query)
                 .execute();
 
         List<File> files = fileList.getFiles();
