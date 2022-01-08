@@ -266,13 +266,13 @@ public class BudgetController extends AbstractWebController {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
         }
-        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
+        offSetStartDate = setTimeZoneOffset(startDate);
 
         if (endDate == null) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
-        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
+        offSetEndDate = setTimeZoneOffset(endDate);
 
         Kind kind = new Kind();
 
