@@ -85,10 +85,11 @@ public class MainController extends AbstractWebController {
 
         int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
 
-        LocalDate now = LocalDate.now();
+        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes);
 
-        LocalDateTime startLocalDate = LocalDateTime.of(now, LocalTime.MIN).plusMinutes(sumTimezoneOffsetMinutes);
-        LocalDateTime endLocalDate = LocalDateTime.of(now, LocalTime.MAX).plusMinutes(sumTimezoneOffsetMinutes);
+        LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.minusDays(1).toLocalDate());
+        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.plusDays(1).toLocalDate());
+
 
         listBudget = listBudget.stream()
                 .filter(budget -> budget.getDate().isAfter(startLocalDate) && budget.getDate().isBefore(endLocalDate))
