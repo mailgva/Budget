@@ -282,7 +282,7 @@ public class BudgetController extends AbstractWebController {
             model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
 
-        model = getBalanceParts(model, listBudget, offSetStartDate.plusDays(1), offSetEndDate.minusDays(1));
+        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
