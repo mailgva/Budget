@@ -62,7 +62,6 @@ public class BudgetController extends AbstractWebController {
             endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
             return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
         }
-
     }
 
     private Budget createBudgetFromBudgetTo(BudgetTo b) {
@@ -78,11 +77,11 @@ public class BudgetController extends AbstractWebController {
     public String getGroupStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                     @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                     @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
-                                    @RequestParam(value = "sorttype", required = false, defaultValue = "") String sorttype,
+                                    @RequestParam(value = "sortType", required = false, defaultValue = "") String sortType,
                                     Model model) {
 
         if(period == null) {
-            period = TypePeriod.SELPERIOD;
+            period = TypePeriod.SELECTED_PERIOD;
         }
 
         User user = SecurityUtil.get().getUser();
@@ -92,31 +91,26 @@ public class BudgetController extends AbstractWebController {
 
         LocalDate now = LocalDate.now();
 
-        if ((startDate == null) || (period.equals(TypePeriod.CURRENTMONTH))) {
+        if ((startDate == null) || (period.equals(TypePeriod.CURRENT_MONTH))) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
-        }
-        if (period.equals(TypePeriod.CURRENTYEAR)) {
-            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), 1, 1), LocalTime.MIN);
-            startDate = offSetStartDate.toLocalDate();
-        }
-
-        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
-
-        if ((endDate == null) || (period.equals(TypePeriod.CURRENTMONTH))) {
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
-        if (period.equals(TypePeriod.CURRENTYEAR)) {
+
+        if (period.equals(TypePeriod.CURRENT_YEAR)) {
+            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), 1, 1), LocalTime.MIN);
+            startDate = offSetStartDate.toLocalDate();
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), 12, 31), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
 
+        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         List<Budget> listBudget = hidePassword(
                 filterBudgetByUserCurrencyDefault(
-                        period.equals(TypePeriod.ALLTIME) ?
+                        period.equals(TypePeriod.ALL_TIME) ?
                                 budgetRepository.getAllByUserGroup(user.getGroup()) :
                                 budgetRepository.getBudgetByDateBetweenAndUserGroup(
                                         offSetStartDate, offSetEndDate, user.getGroup())));
@@ -124,7 +118,7 @@ public class BudgetController extends AbstractWebController {
         model = getBalanceParts(model, listBudget, offSetStartDate.plusDays(1), offSetEndDate.minusDays(1));
 
         Map<Type, Map<Kind, Double>> mapKind;
-        if (sorttype.isEmpty() || sorttype.equalsIgnoreCase("sortbyname")) {
+        if (sortType.isEmpty() || sortType.equalsIgnoreCase("byName")) {
             mapKind = listBudget.stream()
                     .collect(groupingBy(
                             budget ->
@@ -154,12 +148,11 @@ public class BudgetController extends AbstractWebController {
                                         Map.Entry::getKey,
                                         Map.Entry::getValue,
                                         (oldValue, newValue) -> oldValue, LinkedHashMap::new)));
-
             }
 
         }
 
-        if (period.equals(TypePeriod.ALLTIME)) {
+        if (period.equals(TypePeriod.ALL_TIME)) {
             startDate = listBudget.stream().
                     map(Budget::getDate).
                     map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
@@ -208,7 +201,6 @@ public class BudgetController extends AbstractWebController {
         Map<Kind, Long> mapKindCount = listBudget.stream()
                 .collect(groupingBy(Budget::getKind, Collectors.counting()));
 
-
         Double maxPriceProfit = 0.0d;
         Double maxPriceSpending = 0.0d;
 
@@ -246,7 +238,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("totalBarChart", ChartUtil.createDynamicMultiMdbChart(ChartType.BARCHART, totalMap));
 
         model.addAttribute("period", period);
-        model.addAttribute("sorttype", sorttype);
+        model.addAttribute("sortType", sortType);
 
         model.addAttribute("pageName", "Групповая статистика");
 
@@ -257,7 +249,7 @@ public class BudgetController extends AbstractWebController {
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(value = "userId", defaultValue = "-1") String userId,
-                               @RequestParam(value = "kindId", defaultValue = "-1") String id,
+                               @RequestParam(value = "kindId", defaultValue = "-1") String kindId,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
                                @RequestParam(value = "price", defaultValue = "") String priceStr,
                                @RequestParam(value = "comment", defaultValue = "") String comment,
@@ -295,7 +287,7 @@ public class BudgetController extends AbstractWebController {
         List<Budget> listBudget;
 
 
-        if ("-1".equals(id)) {
+        if ("-1".equals(kindId)) {
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?
@@ -304,7 +296,7 @@ public class BudgetController extends AbstractWebController {
                              )
                     ));
         } else {
-            kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
+            kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), kindId);
             listBudget = hidePassword(
                     filterBudgetByUserCurrencyDefault(
                             (allTime.equalsIgnoreCase("YES") ?

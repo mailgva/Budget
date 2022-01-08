@@ -1,20 +1,11 @@
 package com.gorbatenko.budget.repository;
 
-import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BudgetRepository extends MongoRepository<Budget, String > {

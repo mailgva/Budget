@@ -1,5 +1,5 @@
 package com.gorbatenko.budget.util;
 
 public enum TypePeriod {
-    SELPERIOD, CURRENTMONTH, CURRENTYEAR, ALLTIME;
+    SELECTED_PERIOD, CURRENT_MONTH, CURRENT_YEAR, ALL_TIME;
 }
