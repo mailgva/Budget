@@ -3,7 +3,7 @@ package com.gorbatenko.budget.web.charts;
 public enum ChartType {
     HORIZONTALBAR("horizontalBar"), DOUGHNUT("doughnut"), BARCHART("bar");
 
-    private String value;
+    private final String value;
 
     public String getValue() {
         return value;

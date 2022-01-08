@@ -5,8 +5,8 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Role;
 import com.gorbatenko.budget.model.User;
 import com.gorbatenko.budget.util.SecurityUtil;
+import com.gorbatenko.budget.util.TypePeriod;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Controller
 @RequestMapping(value = "/profile/")
 public class ProfileController extends AbstractWebController {
@@ -39,19 +38,19 @@ public class ProfileController extends AbstractWebController {
 
         List<User> usersGroup = userService.getByGroup(user.getGroup());
         String groupMembers = usersGroup.stream()
-                .map(u -> u.getName())
+                .map(User::getName)
                 .collect(Collectors.joining(", "));
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
 
-        currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup())
+        currencyRepository.getAll()
                 .forEach(currency -> mapCurrencies.put(currency, currency.getId().equals(user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("mapCurrencies", mapCurrencies);
         model = getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByuserGroupOrderByDateDesc(user.getGroup())),
+                budgetRepository.getAll()),
                 MIN_DATE_TIME,
                 MAX_DATE_TIME);
         model.addAttribute("pageName", "Профиль");
@@ -65,7 +64,7 @@ public class ProfileController extends AbstractWebController {
     }
 
     @PostMapping("/register")
-    public String newUser(@ModelAttribute User user, Model model) throws Exception{
+    public String newUser(@ModelAttribute User user, Model model) {
         user.setRoles(Collections.singleton(Role.ROLE_USER));
         try {
             user = userService.create(user);
@@ -100,9 +99,9 @@ public class ProfileController extends AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/changedefcurrency")
-    public String changeDefaultCurrency(@RequestParam(value="currencyId", required=true) String currencyId) {
+    public String changeDefaultCurrency(@RequestParam(value="currencyId") String currencyId) {
         User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), currencyId));
+        user.setCurrencyDefault(currencyRepository.getById(currencyId));
         userService.save(user);
         return "redirect:/profile/";
     }
@@ -110,19 +109,19 @@ public class ProfileController extends AbstractWebController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/changedefcurrency")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void changeDefaultCurrencyGet(@RequestParam(value="currencyId", required=true) String currencyId) {
+    public void changeDefaultCurrencyGet(@RequestParam(value="currencyId") String currencyId) {
         User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), currencyId));
+        user.setCurrencyDefault(currencyRepository.getById(currencyId));
         userService.save(user);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/changename")
-    public String changeName(@RequestParam(value="username", required=true) String name) {
+    public String changeName(@RequestParam(value="username") String name) {
         User user = SecurityUtil.get().getUser();
         user.setName(name);
         userService.save(user);
-        List<Budget> budgets = budgetRepository.getAllByUserId(user.getId());
+        List<Budget> budgets = budgetRepository.getFilteredData(null,null, user.getId(), null, null, null, null, TypePeriod.ALL_TIME);
         for(Budget budget : budgets) {
             budget.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
             budgetRepository.save(budget);

@@ -10,7 +10,7 @@
                 <li class="nav-item dropdown" th:if="${defaultCurrencyName}">
                     <a class="dropdown-toggle nav-link my-1 ml-2" data-toggle="dropdown"
                        th:text="${defaultCurrencyName.toUpperCase()}"></a>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu" sec:authorize="isAuthenticated()">
                         <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
                         <th:block th:each="currency : ${listOfCurrencies}">
                             <a class="dropdown-item btn-lg"

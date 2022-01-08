@@ -14,9 +14,9 @@ public enum Every {
     SATURDAY(7,"По субботам"),
     SUNDAY(8, "По воскресеньям");
 
-    private int posit;
+    private final int posit;
 
-    private String value;
+    private final String value;
 
     Every(int posit, String value) {
         this.posit = posit;

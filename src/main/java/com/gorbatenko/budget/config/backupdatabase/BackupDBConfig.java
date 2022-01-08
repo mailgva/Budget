@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 @Configuration
 @EnableScheduling
 public class BackupDBConfig {
-    private final String DATABASE_BACKUP_ERROR =
+    private static final String DATABASE_BACKUP_ERROR =
             "Database backuping. Check needed variable ERROR. Not exists (or is empty) section [{}]! Check your application.properties file.";
 
-    private final String BACKUP_TO_ROOT_FOLDER =
+    private static final String BACKUP_TO_ROOT_FOLDER =
             "Database backuping. Not exists (or is empty) section [{}]! File will be place to root folder on Google Drive.";
 
-    protected final String APPLICATION_NAME = "gva-budget";
-    protected final String PATH_TO_BACKUP = "src/main/resources/";
-    protected final String PATH_TO_BACKUP_FOLDER = PATH_TO_BACKUP + "backup/";
-    protected final String PATH_TO_BACKUP_FILE = PATH_TO_BACKUP_FOLDER + "%s.json";
-    protected final String PATH_TO_BACKUP_ZIP = PATH_TO_BACKUP + "backup.zip";
+    private static final String APPLICATION_NAME = "gva-budget";
+    private static final String PATH_TO_BACKUP = "src/main/resources/";
+    private static final String PATH_TO_BACKUP_FOLDER = PATH_TO_BACKUP + "backup/";
+    private static final String PATH_TO_BACKUP_FILE = PATH_TO_BACKUP_FOLDER + "%s.json";
+    private static final String PATH_TO_BACKUP_ZIP = PATH_TO_BACKUP + "backup.zip";
 
     @Value("${spring.data.mongodb.uri}")
     private String connectionURI;
@@ -51,7 +51,7 @@ public class BackupDBConfig {
 
         if (!doBackupOperations()) {
             log.error("Backup database FAIL at {}!", LocalDateTime.now());
-        };
+        }
     }
 
     private boolean doBackupOperations() {

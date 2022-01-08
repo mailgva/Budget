@@ -1,12 +1,9 @@
 package com.gorbatenko.budget;
 
-import com.gorbatenko.budget.config.backupdatabase.BackupDBConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
-
-import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 public class BudgetApplication extends SpringBootServletInitializer {

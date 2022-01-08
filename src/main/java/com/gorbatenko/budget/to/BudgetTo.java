@@ -1,10 +1,8 @@
 package com.gorbatenko.budget.to;
 
 import com.gorbatenko.budget.BaseEntity;
-import com.gorbatenko.budget.model.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;

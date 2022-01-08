@@ -2,16 +2,12 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.User;
-import com.gorbatenko.budget.util.SecurityUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -24,7 +20,6 @@ import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
-@Slf4j
 @Controller
 public class MainController extends AbstractWebController {
 
@@ -74,15 +69,16 @@ public class MainController extends AbstractWebController {
 
     @GetMapping("/menu")
     public String getMenu(Model model, HttpServletRequest request) {
-        User user = SecurityUtil.get().getUser();
-        List<Budget> listBudget = budgetRepository.getBudgetByuserGroupOrderByDateDesc(user.getGroup());
-        listBudget = filterBudgetByUserCurrencyDefault(listBudget);
+        List<Budget> listBudget = budgetRepository.getAll();
 
-        String lastGroupActivityDate = dateToStr(listBudget.stream()
-                .map(Budget::getCreateDateTime)
+        LocalDate lastActivity = listBudget.stream()
+                .map(Budget::getDate)
                 .max(LocalDateTime::compareTo)
                 .orElse(LocalDateTime.now())
-                .toLocalDate());
+                .toLocalDate();
+
+        String lastGroupActivityDate = dateToStr(lastActivity);
+        String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
 
         model = getBalanceParts(model, listBudget, MIN_DATE_TIME, MAX_DATE_TIME);
 
@@ -101,6 +97,7 @@ public class MainController extends AbstractWebController {
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
 
         model.addAttribute("lastGroupActivityDate", lastGroupActivityDate);
+        model.addAttribute("lastGroupActivityDateCustom", lastGroupActivityDateCustom);
         model.addAttribute("listBudget", map);
         return "menu";
     }

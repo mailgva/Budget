@@ -33,7 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
-    public static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
+    private static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
 
     private MongoClient createMongoClient(ConnectionString uri) {
         MongoClientSettings.Builder settings = MongoClientSettings.builder();
@@ -62,7 +62,7 @@ public class Utils {
 
         MongoCollection<Document> collection = mongoClient.getDatabase(database).getCollection(name);
         for(Document document : collection.find()) {
-            data.append(document.toJson() + "\n");
+            data.append(document.toJson()).append("\n");
         }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(pathToBackupFile, name)));
@@ -112,8 +112,8 @@ public class Utils {
     public boolean deleteDir(java.io.File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new java.io.File(dir, children[i]));
+            for (String child : children) {
+                boolean success = deleteDir(new java.io.File(dir, child));
                 if (!success) {
                     return false;
                 }
@@ -213,13 +213,12 @@ public class Utils {
         fileMetadata.setMimeType(MIME_TYPE_FOLDER);
 
         if (folderIdParent != null) {
-            List<String> parents = Arrays.asList(folderIdParent);
+            List<String> parents = List.of(folderIdParent);
 
             fileMetadata.setParents(parents);
         }
-        File file = driveService.files().create(fileMetadata).setFields("id, name").execute();
 
-        return file;
+        return driveService.files().create(fileMetadata).setFields("id, name").execute();
     }
 
     private String createBackupFileName() {

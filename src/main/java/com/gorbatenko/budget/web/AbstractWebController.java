@@ -1,27 +1,28 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.repository.BudgetRepository;
 import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.util.SecurityUtil;
+import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
-
 
 public class AbstractWebController {
-    int POPULARKIND_COUNT = 5;
+    private static final int POPULARKIND_COUNT = 5;
 
     protected static final LocalDateTime MIN_DATE_TIME = LocalDateTime.of(0, 1, 1, 0,0,1);
     protected static final LocalDateTime MAX_DATE_TIME = LocalDateTime.of(3000, 1, 1, 0,0,1);
@@ -44,7 +45,7 @@ public class AbstractWebController {
     @ModelAttribute("userName")
     protected String getUserName(){
         try {
-            return  SecurityUtil.authUserName();
+            return SecurityUtil.authUserName();
         } catch (Exception e) {
             return null;
         }
@@ -53,31 +54,30 @@ public class AbstractWebController {
     @ModelAttribute("defaultCurrencyName")
     protected String getDefaultCurrency(){
         try {
-            return  SecurityUtil.get().getUser().getCurrencyDefault().getName();
+            return SecurityUtil.getCurrencyDefault().getName();
         } catch (Exception e) {
             return null;
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     protected List<Kind> getKinds() {
-        User user = SecurityUtil.get().getUser();
-        return kindRepository.getKindByUserGroupOrderByTypeAscNameAsc(user.getGroup());
+        return kindRepository.getAll();
     }
 
     @ModelAttribute("listOfCurrencies")
     protected List<Currency> getCurrencies() {
         try {
-            User user = SecurityUtil.get().getUser();
-            return currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
+            SecurityUtil.get();
+            return currencyRepository.getAll();
         } catch (Exception e) {
             return null;
         }
     }
 
-    protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate, String userGroup) {
+    protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Budget> listBudget = budgetRepository.getFilteredData(startDate, endDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
 
-        List<Budget> listBudget = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getAllByKindTypeAndDateBetweenAndUserGroup(type, startDate, endDate, userGroup));
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
         listBudget.stream()
                 .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
@@ -98,26 +98,6 @@ public class AbstractWebController {
         return result;
     }
 
-    protected Model getBalanceByKind(Model model, Kind kind) {
-        User user = SecurityUtil.get().getUser();
-        return getBalanceParts(model, filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup())),
-                MIN_DATE_TIME,
-                MAX_DATE_TIME);
-    }
-
-    protected Model getBalanceByDate(Model model, LocalDate date) {
-        User user = SecurityUtil.get().getUser();
-        LocalDateTime dateTime = setTimeZoneOffset(date);
-        LocalDateTime startDate = setTimeZoneOffset(date).minusDays(1);
-        LocalDateTime endDate = setTimeZoneOffset(date).plusDays(1);
-        return getBalanceParts(model,
-                filterBudgetByUserCurrencyDefault(
-                    budgetRepository.getBudgetByDateAndUserGroup(dateTime, user.getGroup())),
-                startDate,
-                endDate);
-    }
-
     protected Model getBalanceParts(Model model, List<Budget> budgets, LocalDateTime startDate, LocalDateTime endDate) {
         Double profit = budgets.stream()
                 .filter(b -> b.getKind().getType().equals(Type.PROFIT))
@@ -135,33 +115,17 @@ public class AbstractWebController {
         model.addAttribute("spending", spending);
         model.addAttribute("remain", remain);
         model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(startDate));
-        model.addAttribute("remainOnEndPeriod", getRemainOnEndPeriod(endDate));
+        model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(endDate));
 
         return model;
     }
 
-    protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
-      String userGroup = SecurityUtil.get().getUser().getGroup();
-
-        List<Budget> budgetsLessStart = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUserGroupAndDateLessThan(userGroup, startDate));
-
-        return budgetsLessStart.stream()
+    private Double getRemainOnStartPeriod(LocalDateTime startDate) {
+        List<Budget> budgets =
+                budgetRepository.getFilteredData(null, startDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
+        return budgets.stream()
                 .map(budget ->
                         (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
-
-    }
-
-    protected Double getRemainOnEndPeriod(LocalDateTime endDate) {
-       String userGroup = SecurityUtil.get().getUser().getGroup();
-
-        List<Budget> budgetsLessOrEqualsEnd = filterBudgetByUserCurrencyDefault(
-                budgetRepository.getBudgetByUserGroupAndDateLessThanEqual(userGroup, endDate));
-
-        return budgetsLessOrEqualsEnd.stream()
-                .map(budget ->
-                        (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
-
     }
 
     protected List<Budget> filterBudgetByUserCurrencyDefault(List<Budget> budgets) {

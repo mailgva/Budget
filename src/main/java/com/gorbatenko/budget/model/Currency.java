@@ -15,6 +15,10 @@ public class Currency extends BaseEntity implements Comparable {
 
   private String userGroup;
 
+  public Currency(String name) {
+    this.name = name;
+  }
+
   public Currency(String name, String userGroup) {
     this.name = name;
     this.userGroup = userGroup;

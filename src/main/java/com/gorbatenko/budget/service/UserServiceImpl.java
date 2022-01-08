@@ -7,9 +7,7 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
-import com.gorbatenko.budget.repository.CurrencyRepository;
-import com.gorbatenko.budget.repository.KindRepository;
-import com.gorbatenko.budget.repository.UserRepository;
+import com.gorbatenko.budget.repository.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,8 +24,8 @@ import java.util.List;
 @Service("userService")
 public class UserServiceImpl implements UserService {
 
-    private Map<String, Type> mapStartKinds = new HashMap();
-    private List<String> listStartCurrencies = new ArrayList<>();
+    private final Map<String, Type> mapStartKinds = new HashMap<>();
+    private final List<String> listStartCurrencies = new ArrayList<>();
 
     {
         mapStartKinds.put("Зарплата", Type.PROFIT);
@@ -69,11 +67,11 @@ public class UserServiceImpl implements UserService {
 
 
     public User create(User user) throws Exception {
-        Assert.notNull(user, "user must not be null");
+        Assert.notNull(user, "User must not be null");
         User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
         createStartKindsForUser(newUser);
         createStartCurrenciesForUser(newUser);
-        newUser.setCurrencyDefault(currencyRepository.getCurrencyByUserGroupAndNameIgnoreCase(newUser.getGroup(), "грн"));
+        newUser.setCurrencyDefault(currencyRepository.getByName("грн"));
         return save(newUser);
     }
 

@@ -3,20 +3,19 @@ package com.gorbatenko.budget.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gorbatenko.budget.BaseEntity;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.Email;
-import org.springframework.util.CollectionUtils;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor

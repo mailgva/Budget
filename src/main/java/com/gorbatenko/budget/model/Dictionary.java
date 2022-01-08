@@ -3,7 +3,7 @@ package com.gorbatenko.budget.model;
 public enum Dictionary {
     KINDS("Виды Приходов/Расходов"), CURRENCIES("Валюты");
 
-    private String value;
+    private final String value;
 
     Dictionary(String value) {
         this.value = value;

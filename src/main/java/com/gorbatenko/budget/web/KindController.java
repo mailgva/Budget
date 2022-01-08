@@ -1,8 +1,10 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.RegularOperation;
+import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.KindTo;
-import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,9 +27,7 @@ public class KindController extends AbstractWebController{
         String referer = request.getHeader("referer");
         model.addAttribute("kind", kind);
         model.addAttribute("referer", referer);
-
         model.addAttribute("pageName", "Создание");
-
         return "/dictionaries/kinds/edit";
     }
 
@@ -36,30 +36,26 @@ public class KindController extends AbstractWebController{
         if(!error.isEmpty()) {
             model.addAttribute("error", error);
         }
-        model.addAttribute("kind", kindRepository.findById(id).get());
-
+        model.addAttribute("kind", kindRepository.getById(id));
         model.addAttribute("pageName", "Изменение");
-
         return "/dictionaries/kinds/edit";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
         String errorMessage = "Невозможно удалить статью, так как она $s";
-
-        User user = SecurityUtil.get().getUser();
-        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
+        Kind kind = kindRepository.getById(id);
         if (kind == null) {
             rm.addFlashAttribute("error", String.format(errorMessage, "не найдена"));
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
 
-        if (budgetRepository.countByUserGroupAndKind(user.getGroup(), kind) > 0) {
+        if (!budgetRepository.getByKindId(id).isEmpty()) {
             rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
 
-        if (regularOperationRepository.countByUserGroupAndKind(user.getGroup(), kind) > 0) {
+        if (!regularOperationRepository.getByKindId(id).isEmpty()) {
             rm.addFlashAttribute("error", String.format(errorMessage, "используется в регулярных операциях"));
             return String.format("redirect:/dictionaries/kinds/edit/%s", id);
         }
@@ -69,15 +65,14 @@ public class KindController extends AbstractWebController{
     }
 
     @PostMapping("/edit")
-    public String editNewDicKind(@Valid @ModelAttribute KindTo kindTo,
+    public String editKind(@Valid @ModelAttribute KindTo kindTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  RedirectAttributes rm) {
-        User user = SecurityUtil.get().getUser();
         if(kindTo.getId().isEmpty()) {
             kindTo.setId(null);
         }
-        Kind check = kindRepository.getKindByUserGroupAndTypeAndNameIgnoreCase(user.getGroup(), kindTo.getType(), kindTo.getName());
-        if(check != null) {
+
+        if(!kindRepository.getFilteredData(null, kindTo.getName(), kindTo.getType()).isEmpty()) {
             rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                     " уже используется в '" + kindTo.getType().getValue() + "'!");
             if (referer.isEmpty()) {
@@ -87,18 +82,24 @@ public class KindController extends AbstractWebController{
             }
         }
 
-        Kind kindOld = kindRepository.getKindByUserGroupAndId(user.getGroup(), kindTo.getId());
+        if (kindTo.getId() != null) {
+            if (kindRepository.getById(kindTo.getId()) == null) {
+                rm.addFlashAttribute("error", "Невозможно изменить, статья не найдена!");
+                return "redirect:/dictionaries/kinds/";
+            }
+        }
+
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
         kind = kindRepository.save(kind);
 
-        List<Budget> budgets = budgetRepository.getBudgetByKindAndUserGroup(kindOld, user.getGroup());
+        List<Budget> budgets = budgetRepository.getByKindId(kind.getId());
         for(Budget budget : budgets) {
             budget.setKind(kind);
             budgetRepository.save(budget);
         }
 
-        List<RegularOperation> operations = regularOperationRepository.getByKindAndUserGroup(kindOld, user.getGroup());
+        List<RegularOperation> operations = regularOperationRepository.getByKindId(kind.getId());
         for(RegularOperation operation : operations) {
             operation.setKind(kind);
             regularOperationRepository.save(operation);
@@ -109,8 +110,6 @@ public class KindController extends AbstractWebController{
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {
-        User user = SecurityUtil.get().getUser();
-        Kind kind = new Kind(kindTo.getType(), kindTo.getName(), user.getGroup());
-        return kind;
+        return new Kind(kindTo.getType(), kindTo.getName());
     }
 }

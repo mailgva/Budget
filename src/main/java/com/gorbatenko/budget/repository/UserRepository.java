@@ -19,11 +19,7 @@ public interface UserRepository extends MongoRepository<User, String> {
             user = save(user);
         }
         return save(user);
-    };
-
-    //User findByNameIgnoreCase(String name);
-
-    User getByNameIgnoreCase(String name);
+    }
 
     User getByEmail(String email);
 

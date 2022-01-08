@@ -1,21 +1,18 @@
 package com.gorbatenko.budget.util;
 
-import static java.util.Objects.requireNonNull;
-
 import com.gorbatenko.budget.AuthorizedUser;
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Currency;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.Objects.requireNonNull;
 
 public class SecurityUtil {
 
     private SecurityUtil() {
     }
 
-    public static AuthorizedUser safeGet() {
+    private static AuthorizedUser safeGet() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             return null;
@@ -34,18 +31,12 @@ public class SecurityUtil {
         return get().getUser().getName();
     }
 
-    public static String authUserEmail() {
-        return get().getUsername();
+    public static Currency getCurrencyDefault() {
+        return get().getUser().getCurrencyDefault();
     }
 
-    public static List<Budget> hidePassword(List<Budget> budgetList) {
-        return budgetList;
-        /*return budgetList.stream()
-                .map(budget -> {
-                    budget.getUser().setPassword("");
-                    return budget;
-                })
-                .collect(Collectors.toList()); */
+    public static String getUserGroup() {
+        return SecurityUtil.get().getUser().getGroup();
     }
 
 }

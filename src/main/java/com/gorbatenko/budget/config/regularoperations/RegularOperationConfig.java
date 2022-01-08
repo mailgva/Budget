@@ -36,9 +36,9 @@ public class RegularOperationConfig {
     public void startAddOperation() {
         if (! enabled) return;
 
-        List<RegularOperation> operations = regularOperationRepository.findAll();
+        List<RegularOperation> operations = regularOperationRepository.adminGetAll();
         operations.forEach(operation -> {
-            boolean execute = false;
+            boolean execute;
 
             switch (operation.getEvery()) {
                 case DEFINITE_DAY_OF_MONTH :
@@ -52,7 +52,9 @@ public class RegularOperationConfig {
                     break;
             }
 
-            if (execute) budgetRepository.save(createFromOperation(operation));
+            if (execute) {
+                budgetRepository.adminSave(createFromOperation(operation));
+            }
         });
     }
 

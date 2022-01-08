@@ -17,13 +17,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
-import static com.gorbatenko.budget.util.SecurityUtil.hidePassword;
+import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static java.util.stream.Collectors.groupingBy;
 
 
@@ -33,8 +36,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class BudgetController extends AbstractWebController {
 
     @PostMapping("/")
-    public String createNewBudgetItem(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
-        User user = SecurityUtil.get().getUser();
+    public String createBudget(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
@@ -45,7 +47,6 @@ public class BudgetController extends AbstractWebController {
         Budget budget = createBudgetFromBudgetTo(budgetTo);
         budget.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
         budget.setId(budgetTo.getId());
-        budget.setUserGroup(user.getGroup());
         budgetRepository.save(budget);
 
         LocalDate date = budget.getDate().toLocalDate();
@@ -65,12 +66,14 @@ public class BudgetController extends AbstractWebController {
     }
 
     private Budget createBudgetFromBudgetTo(BudgetTo b) {
-        User user = SecurityUtil.get().getUser();
-        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), b.getKindId());
-        Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), b.getCurrencyId());
-        Budget budget = new Budget(toDocUser(user), kind, LocalDateTime.of(b.getDate(), LocalTime.MIN), b.getDescription(),
-                b.getPrice(), currency);
-        return budget;
+        Kind kind = kindRepository.getById(b.getKindId());
+        Currency currency = currencyRepository.getById(b.getCurrencyId());
+        return new Budget(toDocUser(SecurityUtil.get().getUser()),
+                kind,
+                LocalDateTime.of(b.getDate(), LocalTime.MIN),
+                b.getDescription(),
+                b.getPrice(),
+                currency);
     }
 
     @GetMapping("/groupstatistic")
@@ -83,8 +86,6 @@ public class BudgetController extends AbstractWebController {
         if(period == null) {
             period = TypePeriod.SELECTED_PERIOD;
         }
-
-        User user = SecurityUtil.get().getUser();
 
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
@@ -108,14 +109,7 @@ public class BudgetController extends AbstractWebController {
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
-        List<Budget> listBudget = hidePassword(
-                filterBudgetByUserCurrencyDefault(
-                        period.equals(TypePeriod.ALL_TIME) ?
-                                budgetRepository.getAllByUserGroup(user.getGroup()) :
-                                budgetRepository.getBudgetByDateBetweenAndUserGroup(
-                                        offSetStartDate, offSetEndDate, user.getGroup())));
-
-        model = getBalanceParts(model, listBudget, offSetStartDate.plusDays(1), offSetEndDate.minusDays(1));
+        List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
 
         Map<Type, Map<Kind, Double>> mapKind;
         if (sortType.isEmpty() || sortType.equalsIgnoreCase("byName")) {
@@ -137,19 +131,18 @@ public class BudgetController extends AbstractWebController {
                                             Budget::getKind,
                                             HashMap::new,
                                             Collectors.summingDouble(Budget::getPrice))))
-                            );
+                    );
 
             for (Map.Entry<Type, Map<Kind, Double>> entry : mapKind.entrySet()) {
                 entry.setValue(
-                        (Map<Kind, Double>) entry.getValue().entrySet()
-                        .stream()
+                        entry.getValue().entrySet()
+                                .stream()
                                 .sorted((s1,s2)->s2.getValue().compareTo(s1.getValue()) /*Map.Entry.comparingByValue()*/)
                                 .collect(Collectors.toMap(
                                         Map.Entry::getKey,
                                         Map.Entry::getValue,
                                         (oldValue, newValue) -> oldValue, LinkedHashMap::new)));
             }
-
         }
 
         if (period.equals(TypePeriod.ALL_TIME)) {
@@ -170,8 +163,8 @@ public class BudgetController extends AbstractWebController {
         Map<String, Double> mapDateProfit = listBudget.stream()
                 .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
                 .collect(groupingBy(
-                                (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
-                                 Collectors.summingDouble(Budget::getPrice)));
+                        (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
+                        Collectors.summingDouble(Budget::getPrice)));
 
         Map<String, Double> mapDateSpending = listBudget.stream()
                 .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
@@ -195,34 +188,33 @@ public class BudgetController extends AbstractWebController {
             totalMap.put(entry.getKey(), map);
         }
 
-        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>();
-        mapKindSort.putAll(mapKind);
+        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>(mapKind);
 
         Map<Kind, Long> mapKindCount = listBudget.stream()
                 .collect(groupingBy(Budget::getKind, Collectors.counting()));
 
-        Double maxPriceProfit = 0.0d;
-        Double maxPriceSpending = 0.0d;
+        Double maxPriceProfit;
+        Double maxPriceSpending;
 
         maxPriceProfit = listBudget.stream()
                 .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
                 .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .entrySet().stream()
-                .map(Map.Entry::getValue)
+                .values().stream()
                 .max(Double::compareTo)
                 .orElse(0.0);
 
         maxPriceSpending = listBudget.stream()
                 .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
                 .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .entrySet().stream()
-                .map(Map.Entry::getValue)
+                .values().stream()
                 .max(Double::compareTo)
                 .orElse(0.0);
 
         Map<Type, Double> mapMaxPrice = new HashMap<>();
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
+
+        model = getBalanceParts(model, listBudget, LocalDateTime.of(startDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
 
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
@@ -252,15 +244,15 @@ public class BudgetController extends AbstractWebController {
                                @RequestParam(value = "kindId", defaultValue = "-1") String kindId,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
                                @RequestParam(value = "price", defaultValue = "") String priceStr,
-                               @RequestParam(value = "comment", defaultValue = "") String comment,
-                               @RequestParam(value = "alltime", required = false, defaultValue = "") String allTime,
+                               @RequestParam(value = "description", defaultValue = "") String description,
+                               @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
                                Model model) {
 
-        User user = SecurityUtil.get().getUser();
+        if(period == null) {
+            period = TypePeriod.SELECTED_PERIOD;
+        }
 
-        List<com.gorbatenko.budget.model.doc.User> users = budgetRepository.getAllByUserGroup(user.getGroup()).stream()
-                .map(Budget::getUser)
-                .collect(Collectors.toSet())
+        List<com.gorbatenko.budget.model.doc.User> users = new HashSet<>(budgetRepository.getUsersForAllPeriod())
                 .stream()
                 .sorted(Comparator.comparing(com.gorbatenko.budget.model.doc.User::getName))
                 .collect(Collectors.toList());
@@ -284,50 +276,11 @@ public class BudgetController extends AbstractWebController {
 
         Kind kind = new Kind();
 
-        List<Budget> listBudget;
-
-
-        if ("-1".equals(kindId)) {
-            listBudget = hidePassword(
-                    filterBudgetByUserCurrencyDefault(
-                            (allTime.equalsIgnoreCase("YES") ?
-                             budgetRepository.getAllByUserGroup(user.getGroup()) :
-                             budgetRepository.getBudgetByDateBetweenAndUserGroup(offSetStartDate, offSetEndDate, user.getGroup())
-                             )
-                    ));
-        } else {
-            kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), kindId);
-            listBudget = hidePassword(
-                    filterBudgetByUserCurrencyDefault(
-                            (allTime.equalsIgnoreCase("YES") ?
-                             budgetRepository.getBudgetByKindAndUserGroup(kind, user.getGroup()) :
-                             budgetRepository.getBudgetByKindAndDateBetweenAndUserGroup(kind,offSetStartDate, offSetEndDate, user.getGroup())
-                            )
-                    ));
-        }
-
-        if(allTime.equalsIgnoreCase("YES")) {
-            startDate = listBudget.stream()
-                    .map(budget -> budget.getDate().toLocalDate())
-                    .min(LocalDate::compareTo)
-                    .get();
-
-            endDate = listBudget.stream()
-                    .map(budget -> budget.getDate().toLocalDate())
-                    .max(LocalDate::compareTo)
-                    .get();
-        }
+        List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, userId, typeStr, kindId, priceStr, description, period);
 
         if ((typeStr != null) && (!("allTypes".equals(typeStr)))) {
-                model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
+            model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
-
-        listBudget = listBudget.stream()
-                .filter(budget -> ("allTypes".equals(typeStr) || (budget.getKind().getType().equals(Type.valueOf(typeStr)))))
-                .filter(budget -> ((userId.equals("-1")) || (budget.getUser().getId().equals(userId))))
-                .filter(budget -> ((comment.isEmpty()) || (budget.getDescription().toUpperCase().contains(comment.toUpperCase()))))
-                .filter(budget -> priceFilter(budget.getPrice(), priceStr))
-                .collect(Collectors.toList());
 
         model = getBalanceParts(model, listBudget, offSetStartDate.plusDays(1), offSetEndDate.minusDays(1));
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
@@ -338,7 +291,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
         model.addAttribute("kindName", kind.getName());
-        model.addAttribute("comment", comment);
+        model.addAttribute("description", description);
         model.addAttribute("price", priceStr);
 
         model.addAttribute("pageName", "Статистика");
@@ -353,7 +306,6 @@ public class BudgetController extends AbstractWebController {
                                       @RequestParam(value = "type", required = false, defaultValue = "") Type type,
                                       Model model) {
 
-
         if ((startDate == null) || (endDate == null)) {
             return "redirect:budget/groupstatistic";
         }
@@ -362,16 +314,14 @@ public class BudgetController extends AbstractWebController {
             return "redirect:budget/groupstatistic";
         }
 
-        User user = SecurityUtil.get().getUser();
-
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
 
         offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
-        String positionName = "";
-        double positionSum = 0.0D;
+        String positionName;
+        double positionSum;
 
         List<Budget> listBudget;
 
@@ -380,21 +330,17 @@ public class BudgetController extends AbstractWebController {
 
 
         if(! id.isEmpty()) {
-            Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), id);
+            Kind kind = kindRepository.getById(id);
 
-            listBudget = hidePassword(
-                    filterBudgetByUserCurrencyDefault(budgetRepository.getBudgetByKindAndDateBetweenAndUserGroup(kind,
-                            offSetStartDate, offSetEndDate, user.getGroup())));
+            listBudget =
+                    budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, TypePeriod.SELECTED_PERIOD);
 
             positionName = kind.getName();
-
         } else {
+            listBudget =
+                    budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
+
             positionName = type.getValue();
-
-            listBudget = hidePassword(filterBudgetByUserCurrencyDefault(
-                    budgetRepository.getAllByKindTypeAndDateBetweenAndUserGroup(type,
-                    offSetStartDate, offSetEndDate, user.getGroup())));
-
         }
 
         Map<String, Double> mapKind = listBudget.stream()
@@ -419,13 +365,11 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/create/{type}")
     public String create(@PathVariable("type") String typeStr, Model model,
                          HttpServletRequest request) {
-        User user = SecurityUtil.get().getUser();
-
         int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
 
         Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
-        List<Kind> kinds = kindRepository.getKindByTypeAndUserGroup(type, user.getGroup());
+        List<Kind> kinds = kindRepository.getFilteredData(null,null, type);
 
         if (kinds.size() == 0) {
             return "redirect:/dictionaries/kinds/create/"+typeStr;
@@ -443,7 +387,7 @@ public class BudgetController extends AbstractWebController {
         offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
         offSetEndDate = setTimeZoneOffset(offSetEndDate.toLocalDate()).plusDays(1);
 
-        kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate, user.getGroup());
+        kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate);
 
         budget.setKind(kinds.get(0));
 
@@ -457,15 +401,15 @@ public class BudgetController extends AbstractWebController {
         budget.setDate(LocalDateTime.of(
                 LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
                 LocalTime.of(0,0)));
-        budget.setCurrency(user.getCurrencyDefault());
+        budget.setCurrency(getCurrencyDefault());
 
-        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
+        List<Currency> currencies = currencyRepository.getFilteredData(null, null);
 
         model.addAttribute("budget", budget);
         model.addAttribute("type", type);
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
-        model.addAttribute("defaultCurrency", user.getCurrencyDefault());
+        model.addAttribute("defaultCurrency", getCurrencyDefault());
 
         model.addAttribute("pageName", "Создание");
 
@@ -474,14 +418,13 @@ public class BudgetController extends AbstractWebController {
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
-        User user = SecurityUtil.get().getUser();
-        Budget budget = budgetRepository.findById(id).get();
+        Budget budget = budgetRepository.getById(id);
         Type type = budget.getKind().getType();
 
-        List<Kind> kinds = kindRepository.getKindByTypeAndUserGroup(type, user.getGroup());
+        List<Kind> kinds = kindRepository.getFilteredData(null, null, type);
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
+        List<Currency> currencies = currencyRepository.getFilteredData(null, null);
 
         String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
 
@@ -494,7 +437,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("kinds", kinds);
         model.addAttribute("type", type);
         model.addAttribute("currencies", currencies);
-        model.addAttribute("defaultCurrency", user.getCurrencyDefault());
+        model.addAttribute("defaultCurrency", getCurrencyDefault());
 
         model.addAttribute("pageName", "Изменение");
 
@@ -523,30 +466,14 @@ public class BudgetController extends AbstractWebController {
 
         int defaultValue = 1;
 
-        for ( int i=0; i<cookies.length; i++) {
-            Cookie cookie = cookies[i];
-
+        for (Cookie cookie : cookies) {
             if (cookieName.equals(cookie.getName()))
-                return(Integer.parseInt(cookie.getValue()));
+                return (Integer.parseInt(cookie.getValue()));
         }
         return(defaultValue);
     }
 
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
         return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
-    }
-
-    private boolean priceFilter(Double price, String priceStr) {
-        if(priceStr.isEmpty()) {
-            return true;
-        }
-
-        String[] prices = priceStr.trim().split("\\p{P}");
-
-        if(prices.length == 1) {
-            return price.equals(Double.valueOf(prices[0]));
-        } else {
-            return price >= Double.valueOf(prices[0]) && price <= Double.valueOf(prices[1]);
-        }
     }
 }

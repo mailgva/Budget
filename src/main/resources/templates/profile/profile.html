@@ -120,8 +120,8 @@
                 <input type="text" class="form-control" readonly style="text-align:right;" th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
             </div>
             <div class="form-group text-right">
-                <button th:if="${budget.id != null}" class="btn btn-secondary mob" th:data-url="'/profile/jointogroup/'+${user.getId()}" type="button"
-                        th:onclick="window.open(this.getAttribute('data-url'))"><i class="fa fa-user-times"></i> Выйти из группы</button>
+                <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
+                   aria-pressed="true"><i class="fa fa-user-times"></i> Выйти из группы</a>
             </div>
         </div>
     </div>

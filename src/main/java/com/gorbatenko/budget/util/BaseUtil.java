@@ -15,25 +15,28 @@ public class BaseUtil {
         return date.format(formatter);
     }
 
+    public static String dateToStrCustom(LocalDate date, String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return date.format(formatter);
+    }
+
+
     public static LocalDateTime setTimeZoneOffset(LocalDate ld) {
         TimeZone timeZone = TimeZone.getDefault();
         long hours = TimeUnit.MILLISECONDS.toHours(timeZone.getOffset(System.currentTimeMillis()));
-        LocalDateTime ldt = LocalDateTime.of(ld, LocalTime.MIN).plusHours(hours);
-        return ldt;
+        return LocalDateTime.of(ld, LocalTime.MIN).plusHours(hours);
     }
 
     public static TreeMap<LocalDate, List<Budget>> listBudgetToTreeMap(List<Budget> listBudget) {
         TreeMap<LocalDate, List<Budget>> map = new TreeMap<>(Collections.reverseOrder());
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        listBudget.stream()
-                .forEach(budget -> {
-                    LocalDate key = budget.getDate().toLocalDate(); // budget.getDate().format(formatter);
-                    if(map.containsKey(key)) {
-                        map.get(key).add(budget);
-                    } else {
-                        map.put(key, new ArrayList<>(Arrays.asList(budget)));
-                    }
-                });
+        for (Budget budget : listBudget) {
+            LocalDate key = budget.getDate().toLocalDate();
+            if (map.containsKey(key)) {
+                map.get(key).add(budget);
+            } else {
+                map.put(key, new ArrayList<>(Arrays.asList(budget)));
+            }
+        }
         return map;
     }
 }

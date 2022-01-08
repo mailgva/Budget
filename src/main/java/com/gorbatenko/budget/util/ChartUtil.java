@@ -76,12 +76,12 @@ public class ChartUtil {
     }
 
     private static ChartData createChartDynamicData(ChartType chartType, String label, Map<String, Double> data) {
-        String[] labels = data.keySet().stream().toArray(String[]::new);
+        String[] labels = data.keySet().toArray(new String[0]);
         return new ChartData(labels, createChartDataset(chartType, label, labels, data));
     }
 
     private static ChartData createChartDynamicMultiData(ChartType chartType, TreeMap<String, TreeMap<Type, Double>> data) {
-        String[] labels = data.keySet().stream().toArray(String[]::new);
+        String[] labels = data.keySet().toArray(new String[0]);
 
         ChartDatasets[] chartDatasets = new ChartDatasets[2];
 

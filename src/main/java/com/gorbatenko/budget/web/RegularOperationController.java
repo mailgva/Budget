@@ -1,8 +1,6 @@
 package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.*;
-import com.gorbatenko.budget.to.CurrencyTo;
-import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.to.RegularOperationTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,13 +11,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.web.BudgetController.getSumTimezoneOffsetMinutes;
 
 @Controller
@@ -29,21 +26,19 @@ public class RegularOperationController extends AbstractWebController{
 
     @GetMapping("/")
     String getRegularOperations(Model model) {
-        User user = SecurityUtil.get().getUser();
-        model.addAttribute("operations", regularOperationRepository.getByUserGroupOrderByEveryPositAsc(user.getGroup()));
+        model.addAttribute("operations", regularOperationRepository.getAll());
         model.addAttribute("pageName", "Регулярные операции");
         return "/regularoperations/operations";
     }
 
     @GetMapping("/create")
     public String create(Model model) {
-        User user = SecurityUtil.get().getUser();
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindRepository.getKindByUserGroupOrderByTypeAscNameAsc(user.getGroup());
-        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
+        List<Kind> kinds = kindRepository.getAll();
+        List<Currency> currencies = currencyRepository.getAll();
 
-        operation.setCurrency(user.getCurrencyDefault());
+        operation.setCurrency(getCurrencyDefault());
 
         model.addAttribute("operation", operation);
         model.addAttribute("everies", everies);
@@ -56,8 +51,7 @@ public class RegularOperationController extends AbstractWebController{
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
-        User user = SecurityUtil.get().getUser();
-        RegularOperation operation = regularOperationRepository.getRegularOperationByUserGroupAndId(user.getGroup(), id);
+        RegularOperation operation = regularOperationRepository.getById(id);
         if (operation == null) {
             rm.addFlashAttribute("error", "Невозможно удалить операцию, так как она не найдена");
             return String.format("redirect:/regularoperations/edit/%s", id);
@@ -73,12 +67,11 @@ public class RegularOperationController extends AbstractWebController{
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  HttpServletRequest request,
                                  RedirectAttributes rm) {
-        User user = SecurityUtil.get().getUser();
 
         if(regularOperationTo.getId().isEmpty()) {
             regularOperationTo.setId(null);
         } else {
-            if(regularOperationRepository.getRegularOperationByUserGroupAndId(user.getGroup(), regularOperationTo.getId()) == null) {
+            if(regularOperationRepository.getById(regularOperationTo.getId()) == null) {
                 rm.addFlashAttribute("error", "Невозможно изменить операцию, так как она не найдена");
                 return String.format("redirect:/regularoperations/edit/%s", regularOperationTo.getId());
             }
@@ -94,16 +87,15 @@ public class RegularOperationController extends AbstractWebController{
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, @RequestParam(name="error", defaultValue = "") String error, Model model) {
-        User user = SecurityUtil.get().getUser();
         if(!error.isEmpty()) {
             model.addAttribute("error", error);
         }
 
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindRepository.getKindByUserGroupOrderByTypeAscNameAsc(user.getGroup());
-        List<Currency> currencies = currencyRepository.getCurrencyByUserGroupOrderByNameAsc(user.getGroup());
+        List<Kind> kinds = kindRepository.getAll();
+        List<Currency> currencies = currencyRepository.getAll();
 
-        model.addAttribute("operation", regularOperationRepository.findById(id).get());
+        model.addAttribute("operation", regularOperationRepository.getById(id));
 
         model.addAttribute("everies", everies);
         model.addAttribute("kinds", kinds);
@@ -117,9 +109,9 @@ public class RegularOperationController extends AbstractWebController{
     private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
         int countTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
-        Kind kind = kindRepository.getKindByUserGroupAndId(user.getGroup(), regularOperationTo.getKindId());
-        Currency currency = currencyRepository.getCurrencyByUserGroupAndId(user.getGroup(), regularOperationTo.getCurrencyId());
-        RegularOperation regularOperation = new RegularOperation(
+        Kind kind = kindRepository.getById(regularOperationTo.getKindId());
+        Currency currency = currencyRepository.getById(regularOperationTo.getCurrencyId());
+        return new RegularOperation(
                 user,
                 user.getGroup(),
                 countTimezoneOffsetMinutes,
@@ -129,6 +121,5 @@ public class RegularOperationController extends AbstractWebController{
                 regularOperationTo.getDescription(),
                 regularOperationTo.getPrice(),
                 currency);
-        return regularOperation;
     }
 }

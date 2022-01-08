@@ -3,7 +3,7 @@ package com.gorbatenko.budget.model;
 public enum Type {
     PROFIT("Приход"), SPENDING("Расход");
 
-    private String value;
+    private final String value;
 
 
     Type(String value) {
