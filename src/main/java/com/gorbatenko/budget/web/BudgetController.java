@@ -106,8 +106,8 @@ public class BudgetController extends AbstractWebController {
             endDate = offSetEndDate.toLocalDate();
         }
 
-        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
-        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
+        offSetStartDate = setTimeZoneOffset(startDate);
+        offSetEndDate = setTimeZoneOffset(endDate);
 
         List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
 
@@ -282,7 +282,8 @@ public class BudgetController extends AbstractWebController {
             model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
 
-        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
+        model = getBalanceParts(model, listBudget, LocalDateTime.of(startDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
+
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));

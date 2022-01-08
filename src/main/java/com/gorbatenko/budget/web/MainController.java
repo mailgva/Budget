@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
@@ -84,10 +85,10 @@ public class MainController extends AbstractWebController {
 
         int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
 
-        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes);
+        LocalDate now = LocalDate.now();
 
-        LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.minusDays(1).toLocalDate());
-        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.plusDays(1).toLocalDate());
+        LocalDateTime startLocalDate = LocalDateTime.of(now, LocalTime.MIN).plusMinutes(sumTimezoneOffsetMinutes);
+        LocalDateTime endLocalDate = LocalDateTime.of(now, LocalTime.MAX).plusMinutes(sumTimezoneOffsetMinutes);
 
         listBudget = listBudget.stream()
                 .filter(budget -> budget.getDate().isAfter(startLocalDate) && budget.getDate().isBefore(endLocalDate))

@@ -127,13 +127,4 @@ public class AbstractWebController {
                 .map(budget ->
                         (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
     }
-
-    protected List<Budget> filterBudgetByUserCurrencyDefault(List<Budget> budgets) {
-        Currency userCurrencyDefault = SecurityUtil.get().getUser().getCurrencyDefault();
-        return budgets.stream()
-                .filter(budget -> budget.getCurrency().getId().equals(userCurrencyDefault.getId()))
-                .collect(Collectors.toList());
-    }
-
-
 }
