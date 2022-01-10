@@ -2,6 +2,8 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.WebAttributes;
@@ -13,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
@@ -70,29 +71,27 @@ public class MainController extends AbstractWebController {
 
     @GetMapping("/menu")
     public String getMenu(Model model, HttpServletRequest request) {
-        List<Budget> listBudget = budgetRepository.getAll();
-
-        LocalDate lastActivity = listBudget.stream()
-                .map(Budget::getDate)
-                .max(LocalDateTime::compareTo)
-                .orElse(LocalDateTime.now())
-                .toLocalDate();
+        LocalDate lastActivity = budgetRepository.getMaxDate().toLocalDate();
 
         String lastGroupActivityDate = dateToStr(lastActivity);
         String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
 
-        model = getBalanceParts(model, listBudget, MIN_DATE_TIME, MAX_DATE_TIME);
+        Double profit = budgetRepository.getSumPriceByType(Type.PROFIT);
+        Double spending = budgetRepository.getSumPriceByType(Type.SPENDING);
+        model.addAttribute("profit", profit);
+        model.addAttribute("spending", spending);
+        model.addAttribute("remain", profit-spending);
 
         int sumTimezoneOffsetMinutes = BudgetController.getSumTimezoneOffsetMinutes(request);
 
         LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes);
 
         LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.minusDays(1).toLocalDate());
-        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.plusDays(1).toLocalDate());
+        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
 
-
-        listBudget = listBudget.stream()
-                .filter(budget -> budget.getDate().isAfter(startLocalDate) && budget.getDate().isBefore(endLocalDate))
+        List<Budget> listBudget =
+                budgetRepository.getFilteredData(startLocalDate, endLocalDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD)
+                .stream()
                 .sorted(Comparator.comparing(Budget::getCreateDateTime))
                 .collect(Collectors.toList());
 

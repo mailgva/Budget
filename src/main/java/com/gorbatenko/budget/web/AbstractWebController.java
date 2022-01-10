@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.web;
 
+import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
@@ -13,6 +14,7 @@ import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -43,21 +45,19 @@ public class AbstractWebController {
     protected RegularOperationRepository regularOperationRepository;
 
     @ModelAttribute("userName")
-    protected String getUserName(){
-        try {
-            return SecurityUtil.authUserName();
-        } catch (Exception e) {
+    protected String getUserName(@AuthenticationPrincipal AuthorizedUser authUser){
+        if (authUser == null) {
             return null;
         }
+        return SecurityUtil.authUserName();
     }
 
     @ModelAttribute("defaultCurrencyName")
-    protected String getDefaultCurrency(){
-        try {
-            return SecurityUtil.getCurrencyDefault().getName();
-        } catch (Exception e) {
+    protected String getDefaultCurrency(@AuthenticationPrincipal AuthorizedUser authUser){
+        if (authUser == null) {
             return null;
         }
+        return SecurityUtil.getCurrencyDefault().getName();
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -66,13 +66,11 @@ public class AbstractWebController {
     }
 
     @ModelAttribute("listOfCurrencies")
-    protected List<Currency> getCurrencies() {
-        try {
-            SecurityUtil.get();
-            return currencyRepository.getAll();
-        } catch (Exception e) {
+    protected List<Currency> getCurrencies(@AuthenticationPrincipal AuthorizedUser authUser) {
+        if (authUser == null) {
             return null;
         }
+        return currencyRepository.getAll();
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate) {

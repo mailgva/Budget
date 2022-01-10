@@ -103,6 +103,16 @@ public class BudgetRepository extends AbstractRepository {
         return findAll(criteria, null, Budget.class);
     }
 
+    public LocalDateTime getMaxDate() {
+        return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class);
+    }
+
+    public Double getSumPriceByType(Type type) {
+        Criteria criteria = new Criteria();
+        criteria.and("kind.type").is(type);
+        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class);
+    }
+
     public List<User> getUsersForAllPeriod() {
         return findDistinctSubclassInCollection(null, "user", Budget.class, User.class);
     }
