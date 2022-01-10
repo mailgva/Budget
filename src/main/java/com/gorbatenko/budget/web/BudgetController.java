@@ -1,8 +1,10 @@
 package com.gorbatenko.budget.web;
 
 
+import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.util.ChartUtil;
 import com.gorbatenko.budget.util.SecurityUtil;

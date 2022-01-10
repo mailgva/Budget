@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static java.util.Objects.requireNonNull;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
 @Repository
@@ -25,10 +26,9 @@ public class AbstractRepository {
     private Criteria addCriteriaUserGroup(Criteria criteria) {
         String userGroup = getUserGroup();
         if (criteria == null) {
-            criteria = new Criteria();
+            return new Criteria().andOperator(Criteria.where("userGroup").is(userGroup));
         }
-        criteria.and("userGroup").is(userGroup);
-        return criteria;
+        return new Criteria().andOperator(Criteria.where("userGroup").is(userGroup), criteria);
     }
 
     protected <T> List<T> findAll(Criteria criteria, Sort sort, Class<T> clazz) {
@@ -59,7 +59,7 @@ public class AbstractRepository {
     public <E, R> R aggregationOnlyResultField(Criteria criteria, GroupOps groupOps, String field, Class<E> entityClass, Class<R> resultClass) {
         ProjectionOperation excludeIdField = project().andExclude("_id");
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(addCriteriaUserGroup(criteria)),
+                match(addCriteriaUserGroup(criteria)),
                 addGroupOperation(groupOps, field),
                 excludeIdField
         );
@@ -75,7 +75,7 @@ public class AbstractRepository {
     }
 
     public enum GroupOps {
-        SUM, MIN, MAX, AVG
+        SUM, MIN, MAX, AVG, COUNT
     }
 
     private GroupOperation addGroupOperation(GroupOps groupOps, String field) {
@@ -85,6 +85,7 @@ public class AbstractRepository {
             case MIN: return result.min(field).as(field);
             case MAX: return result.max(field).as(field);
             case SUM: return result.sum(field).as(field);
+            case COUNT: return result.count().as(field);
             default: throw new IllegalArgumentException("GroupOps does not exist");
         }
     }

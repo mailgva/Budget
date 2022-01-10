@@ -107,21 +107,17 @@ public class BudgetRepository extends AbstractRepository {
         return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class);
     }
 
-    public Double getSumPriceByType(LocalDateTime startDate, LocalDateTime endDate, Type type) {
-        Criteria criteria = new Criteria();
-        criteria.and("date").gte(startDate).lte(endDate);
-        criteria.and("kind.type").is(type);
-        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class);
-    }
-
     public Double getSumPriceByType(Type type) {
         Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(getCurrencyDefault().getId());
         criteria.and("kind.type").is(type);
         return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class);
     }
 
     public List<User> getUsersForAllPeriod() {
-        return findDistinctSubclassInCollection(null, "user", Budget.class, User.class);
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        return findDistinctSubclassInCollection(criteria, "user", Budget.class, User.class);
     }
 
     private boolean isFakeValue(String str) {
