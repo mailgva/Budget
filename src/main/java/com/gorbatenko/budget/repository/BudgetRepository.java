@@ -107,6 +107,13 @@ public class BudgetRepository extends AbstractRepository {
         return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class);
     }
 
+    public Double getSumPriceByType(LocalDateTime startDate, LocalDateTime endDate, Type type) {
+        Criteria criteria = new Criteria();
+        criteria.and("date").gte(startDate).lte(endDate);
+        criteria.and("kind.type").is(type);
+        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class);
+    }
+
     public Double getSumPriceByType(Type type) {
         Criteria criteria = new Criteria();
         criteria.and("kind.type").is(type);

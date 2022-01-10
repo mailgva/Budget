@@ -214,8 +214,7 @@ public class BudgetController extends AbstractWebController {
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
 
-        model = getBalanceParts(model, listBudget, LocalDateTime.of(startDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
-
+        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
@@ -282,7 +281,7 @@ public class BudgetController extends AbstractWebController {
             model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
 
-        model = getBalanceParts(model, listBudget, LocalDateTime.of(startDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
+        model = getBalanceParts(model, listBudget, offSetStartDate, offSetEndDate);
 
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
         model.addAttribute("startDate", dateToStr(startDate));
