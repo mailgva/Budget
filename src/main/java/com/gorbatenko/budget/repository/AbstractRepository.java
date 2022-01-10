@@ -25,10 +25,11 @@ public class AbstractRepository {
 
     private Criteria addCriteriaUserGroup(Criteria criteria) {
         String userGroup = getUserGroup();
+        Criteria userGroupCriteria = Criteria.where("userGroup").is(userGroup);
         if (criteria == null) {
-            return new Criteria().andOperator(Criteria.where("userGroup").is(userGroup));
+            return new Criteria().andOperator(userGroupCriteria);
         }
-        return new Criteria().andOperator(Criteria.where("userGroup").is(userGroup), criteria);
+        return new Criteria().andOperator(userGroupCriteria, criteria);
     }
 
     protected <T> List<T> findAll(Criteria criteria, Sort sort, Class<T> clazz) {
