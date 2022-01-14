@@ -104,14 +104,14 @@ public class BudgetRepository extends AbstractRepository {
     }
 
     public LocalDateTime getMaxDate() {
-        return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class);
+        return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
     }
 
     public Double getSumPriceByType(Type type) {
         Criteria criteria = new Criteria();
         criteria.and("currency._id").is(getCurrencyDefault().getId());
         criteria.and("kind.type").is(type);
-        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class);
+        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class, 0.0D);
     }
 
     public List<User> getUsersForAllPeriod() {

@@ -57,7 +57,7 @@ public class AbstractRepository {
         return mongoTemplate.findDistinct(query, field, entityClass, resultClass);
     }
 
-    public <E, R> R aggregationOnlyResultField(Criteria criteria, GroupOps groupOps, String field, Class<E> entityClass, Class<R> resultClass) {
+    public <E, R> R aggregationOnlyResultField(Criteria criteria, GroupOps groupOps, String field, Class<E> entityClass, Class<R> resultClass, Object defaultValue) {
         ProjectionOperation excludeIdField = project().andExclude("_id");
         Aggregation aggregation = Aggregation.newAggregation(
                 match(addCriteriaUserGroup(criteria)),
@@ -65,9 +65,10 @@ public class AbstractRepository {
                 excludeIdField
         );
         try {
-            return mongoTemplate.aggregate(aggregation, entityClass, resultClass).getUniqueMappedResult();
+            R result = mongoTemplate.aggregate(aggregation, entityClass, resultClass).getUniqueMappedResult();
+            return (result == null ? (R) defaultValue : result);
         } catch (Exception e) {
-            return (R) mongoTemplate.aggregate(aggregation, entityClass, Map.class).getUniqueMappedResult().get(field);
+            return (R) mongoTemplate.aggregate(aggregation, entityClass, Map.class).getUniqueMappedResult().getOrDefault(field, defaultValue);
         }
     }
 
