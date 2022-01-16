@@ -275,8 +275,6 @@ public class BudgetController extends AbstractWebController {
         }
         offSetEndDate = setTimeZoneOffset(endDate);
 
-        Kind kind = new Kind();
-
         List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, userId, typeStr, kindId, priceStr, description, period);
 
         if ((typeStr != null) && (!("allTypes".equals(typeStr)))) {
@@ -291,7 +289,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("users", users);
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
-        model.addAttribute("kindName", kind.getName());
+        model.addAttribute("kindId", kindId);
         model.addAttribute("description", description);
         model.addAttribute("price", priceStr);
 
@@ -303,7 +301,7 @@ public class BudgetController extends AbstractWebController {
     @GetMapping("/dynamicstatistic")
     public String getDynamicStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                       @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                                      @RequestParam(value = "kindId", defaultValue = "") String id,
+                                      @RequestParam(value = "kindId", defaultValue = "") String kindId,
                                       @RequestParam(value = "type", required = false, defaultValue = "") Type type,
                                       Model model) {
 
@@ -311,7 +309,7 @@ public class BudgetController extends AbstractWebController {
             return "redirect:budget/groupstatistic";
         }
 
-        if ((id.isEmpty() && type == null)) {
+        if ((kindId.isEmpty() && type == null)) {
             return "redirect:budget/groupstatistic";
         }
 
@@ -330,8 +328,8 @@ public class BudgetController extends AbstractWebController {
                 (endDate.getMonth().equals(startDate.getMonth())));
 
 
-        if(! id.isEmpty()) {
-            Kind kind = kindRepository.getById(id);
+        if(! kindId.isEmpty()) {
+            Kind kind = kindRepository.getById(kindId);
 
             listBudget =
                     budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, TypePeriod.SELECTED_PERIOD);

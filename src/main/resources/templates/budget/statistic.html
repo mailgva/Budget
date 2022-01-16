@@ -70,7 +70,7 @@
                                     <option th:each="kind : ${kindList}"
                                             th:value="${kind.id}"
                                             th:text="${(kind.type.equals(T(com.gorbatenko.budget.model.Type).PROFIT) ? ' + ' : ' - ') +  kind.name}"
-                                            th:selected="${kind.getName().equalsIgnoreCase(kindName)}">
+                                            th:selected="${kind.getId().equals(kindId)}">
                                     </option>
                                 </select>
                             </div>
