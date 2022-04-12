@@ -49,7 +49,7 @@ public class ProfileController extends AbstractWebController {
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("mapCurrencies", mapCurrencies);
-        model = getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
+        getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
         model.addAttribute("pageName", "Профиль");
         return "profile/profile";
     }

@@ -96,7 +96,7 @@ public class AbstractWebController {
         return result;
     }
 
-    protected Model getBalanceParts(Model model, List<Budget> budgets, LocalDateTime startDate, LocalDateTime endDate) {
+    protected void getBalanceParts(Model model, List<Budget> budgets, LocalDateTime startDate, LocalDateTime endDate) {
         Double profit = budgets.stream()
                 .filter(b -> b.getKind().getType().equals(Type.PROFIT))
                 .mapToDouble(Budget::getPrice)
@@ -114,8 +114,6 @@ public class AbstractWebController {
         model.addAttribute("remain", remain);
         model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(startDate));
         model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(endDate));
-
-        return model;
     }
 
     private Double getRemainOnStartPeriod(LocalDateTime startDate) {
