@@ -7,7 +7,7 @@
             <h2 style="display: inline-block;"> Бюджет</h2></a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto nav-flex-icons">
-                <li class="nav-item" th:if="${(pageName == 'Статистика' || pageName == 'Групповая статистика')}">
+                <li class="nav-item" th:if="${(filteredPage)}">
                     <button id="btnsub" type="button" class="btn btn-dark" onclick="showHideFilter()">
                         <i class="fa fa-filter"></i>
                     </button>
@@ -72,7 +72,12 @@
 
     function showHideFilter() {
         var filterParams = document.getElementById("filteredparams");
-        filterParams.style.display = (filterParams.style.display == 'none') ? '' : 'none';
+        if (filterParams.style.display == 'none') {
+            filterParams.style.display = '';
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        } else {
+            filterParams.style.display = 'none';
+        }
     }
 
     var prevScrollpos = window.pageYOffset;

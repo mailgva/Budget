@@ -238,6 +238,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("sortType", sortType);
 
         model.addAttribute("pageName", "Групповая статистика");
+        model.addAttribute("filteredPage", true);
 
         return "budget/groupstatistic";
     }
@@ -298,6 +299,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("price", priceStr);
 
         model.addAttribute("pageName", "Статистика");
+        model.addAttribute("filteredPage", true);
 
         return "budget/statistic";
     }

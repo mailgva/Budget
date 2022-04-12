@@ -8,7 +8,7 @@
 
     <th:block th:each="element : ${listBudget}">
         <tr th:id="${'d_' + #temporals.format(element.key, 'yyyy-MM-dd')}"
-              th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'day bg-warning' : 'day bg-warning-light')}" onclick="hide_detail(this);">
+              th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'day bg-warning' : 'day bg-warning-light')}" onclick="hide_detail(this);" style="cursor: pointer;">
             <td colspan="7">
                 <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
                 <div style="display:inline-block;font-weight: bold; width : 64%;" align="right">
