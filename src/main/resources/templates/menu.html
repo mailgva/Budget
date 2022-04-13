@@ -57,12 +57,81 @@
 
     <table th:replace="fragments/statData :: table">
     </table>
+
+    <div class="info" th:if="${info}" th:text="${info}"></div>
+    <table class="table" th:if="${(joinRequests.size() > 0)}">
+      <tbody>
+        <tr class="border border-warning">
+          <td>Желающие присоединиться к вашей группе</td>
+        </tr>
+        <tr class="border border-warning budget_detail">
+          <td style="padding-top: 0px; padding-bottom: 12px;">
+            <table class="table table-active ">
+              <thead>
+              <tr class="table-active">
+                <th style="width: 5%"> #</th>
+                <th style="width: 25%"> Пользователь</th>
+                <th style="width: 20%"> Email</th>
+                <th style="width: 20%"> Дата запроса</th>
+                <th style="width: 10%"> Принять</th>
+                <th style="width: 10%"> Отказать</th>
+              </tr>
+              </thead>
+              <tbody>
+              <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.JoinRequest"--><!--*/-->
+              <th:block th:each="request,row : ${joinRequests}">
+
+                <tr th:id="${request.id}">
+                  <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
+                  <td style="width: 15%"><span th:text="${request.user.name}"> User </span></td>
+                  <td style="width: 15%"><span th:text="${request.user.email}"> Email </span></td>
+                  <td style="width: 10%"><span th:text="${#temporals.format(request.created, 'yyyy-MM-dd HH:mm')}"> </span>
+                  </td>
+                  <td style="width: 5%">
+                    <a th:href="${'javascript:joinGroupAccept(&quot;' + request.id + '&quot;)'}" class="btn btn-warning" role="button"
+                       aria-pressed="true"><i
+                            class="fa fa-check"></i></a>
+                  </td>
+                  <td style="width: 5%">
+                    <a th:href="${'javascript:joinGroupDecline(&quot;' + request.id + '&quot;)'}" class="btn btn-warning" role="button"
+                       aria-pressed="true"><i
+                            class="fa fa-times"></i></a>
+                  </td>
+                </tr>
+              </th:block>
+            </table>
+          </td>
+        </tr>
+      <tbody>
+    </table>
   </div>
 </main>
 <script>
   $(document).ready(function () {
-    hide_detail($('.day'));
+    hideDetail($('.day'));
   });
+
+  function joinGroupAccept(requestId) {
+    $.ajax({
+      type: "GET",
+      url:  "/profile/joinrequest/" + requestId + "/accept",
+      success: function (status) {
+        var request = document.getElementById(requestId);
+        request.style.display = 'none';
+      }
+    });
+  }
+
+  function joinGroupDecline(requestId) {
+    $.ajax({
+      type: "GET",
+      url: "/profile/joinrequest/" + requestId + "/decline",
+      success: function (status) {
+        var request = document.getElementById(requestId);
+        request.style.display = 'none';
+      }
+    });
+  }
 </script>
 </body>
 </html>

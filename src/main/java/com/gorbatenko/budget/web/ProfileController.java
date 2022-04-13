@@ -1,14 +1,12 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.Budget;
-import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Role;
-import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +34,13 @@ public class ProfileController extends AbstractWebController {
     @GetMapping("/")
     @PreAuthorize("isAuthenticated()")
     public String profile(Model model) {
+        reloadUserContext(SecurityUtil.get().getUser());
         User user = SecurityUtil.get().getUser();
 
         List<User> usersGroup = userService.getByGroup(user.getGroup());
         String groupMembers = usersGroup.stream()
                 .map(User::getName)
+                .sorted()
                 .collect(Collectors.joining(", "));
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
@@ -62,15 +64,14 @@ public class ProfileController extends AbstractWebController {
 
     @PostMapping("/register")
     public String newUser(@ModelAttribute User user, Model model) {
-        user.setRoles(Collections.singleton(Role.ROLE_USER));
         try {
-            user = userService.create(user);
-            UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
-                        userDetails.getPassword(), userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(token);
+            if (userService.findByEmail(user.getEmail()) != null) {
+                model.addAttribute("error", "Пользователь с email '" + user.getEmail() + "' уже существует.");
+                return "/profile/register";
+            }
+            user.setRoles(Collections.singleton(Role.ROLE_USER));
+            reloadUserContext(userService.create(user));
         } catch (Exception e) {
-            e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             return "/profile/register";
         }
@@ -79,19 +80,65 @@ public class ProfileController extends AbstractWebController {
 
     @SneakyThrows
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/jointogroup/{id}")
-    public String joinToGroup(@PathVariable("id") String id) {
-        List<User> groupUser = userService.getByGroup(id);
-        if (groupUser.size() == 0) {
-            throw new Exception(String.format("Невозможно присоедиться к группе!<br>Группы с идентификатором [%s] не существует!", id));
+    @GetMapping("/jointogroup/{groupId}")
+    public String joinToGroup(@PathVariable("groupId") String groupId, RedirectAttributes rm) {
+        User user = SecurityUtil.get().getUser();
+        List<User> groupUser = userService.getByGroup(groupId);
+        if (groupUser.size() == 0 && !user.getId().equals(groupId)) {
+            throw new Exception(String.format("Невозможно присоедиться к группе!<br>Группы с идентификатором [%s] не существует!", groupId));
         }
 
-        User user = SecurityUtil.get().getUser();
-        User owner = userService.findById(id);
-        user.setGroup(id);
-        user.setCurrencyDefault(owner.getCurrencyDefault());
-        userService.save(user);
+        if (!user.getId().equals(groupId)) {
+            if (!joinRequestRepository.isExistsNoAnsweredRequest(groupId)) {
+                JoinRequest joinRequest = new JoinRequest();
+                joinRequest.setUserGroup(groupId);
+                joinRequestRepository.save(joinRequest);
+            }
+            rm.addFlashAttribute("info", "Отправлен запрос на присоединение к группе. Ожидайте решения администратора группы.");
+        } else {
+            user.setGroup(groupId);
+            userService.save(user);
+            reloadUserContext(user);
+        }
         return "redirect:/profile/";
+    }
+
+    private void reloadUserContext(User user) {
+        UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails,
+                userDetails.getPassword(), userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(token);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/joinrequest/{id}/accept")
+    public ResponseEntity joinToGroupAccept(@PathVariable("id") String id, Model model) {
+        User userAdmin = SecurityUtil.get().getUser();
+        JoinRequest joinRequest = joinRequestRepository.findById(id);
+        if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
+            return ResponseEntity.badRequest().build();
+        }
+        joinRequest.setAccepted(LocalDateTime.now());
+        joinRequestRepository.save(joinRequest);
+
+        User user = joinRequest.getUser();
+        user.setGroup(joinRequest.getUserGroup());
+        user.setCurrencyDefault(userService.findById(joinRequest.getUserGroup()).getCurrencyDefault());
+        userService.save(user);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/joinrequest/{id}/decline")
+    public ResponseEntity joinToGroupDecline(@PathVariable("id") String id, Model model) {
+        User userAdmin = SecurityUtil.get().getUser();
+        JoinRequest joinRequest = joinRequestRepository.findById(id);
+        if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
+            return ResponseEntity.badRequest().build();
+        }
+        joinRequest.setDeclined(LocalDateTime.now());
+        joinRequestRepository.save(joinRequest);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PreAuthorize("isAuthenticated()")

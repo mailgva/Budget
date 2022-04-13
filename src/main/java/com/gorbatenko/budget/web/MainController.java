@@ -97,9 +97,10 @@ public class MainController extends AbstractWebController {
 
         TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
 
-        model.addAttribute("lastGroupActivityDate", lastGroupActivityDate);
-        model.addAttribute("lastGroupActivityDateCustom", lastGroupActivityDateCustom);
+        model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));
+        model.addAttribute("lastGroupActivityDateCustom", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDateCustom));
         model.addAttribute("listBudget", map);
+        model.addAttribute("joinRequests", joinRequestRepository.getNewJoinRequests());
         return "menu";
     }
 

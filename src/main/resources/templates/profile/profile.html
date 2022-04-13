@@ -9,6 +9,7 @@
         <div>
             <h2 th:text="'Профиль'"></h2>
             <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
+            <div class="info" th:if="${info}" th:text="${info}"></div>
             <form id="formChangeName" name="formChangeName"
                   th:action="@{/profile/changename/}" method="post">
                 <div class="form-group">
@@ -119,7 +120,7 @@
                 </div>
                 <input type="text" class="form-control" readonly style="text-align:right;" th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
             </div>
-            <div class="form-group text-right">
+            <div class="form-group text-right" th:if="${(user.getId() != user.getGroup())}">
                 <a th:href="@{'/profile/jointogroup/'+${user.getId()}}" class="btn btn-secondary" role="button"
                    aria-pressed="true"><i class="fa fa-user-times"></i> Выйти из группы</a>
             </div>

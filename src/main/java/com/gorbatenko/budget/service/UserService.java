@@ -16,4 +16,5 @@ public interface UserService extends UserDetailsService {
 
     List<User> getByGroup(String name);
 
+    User findByEmail(String email);
 }

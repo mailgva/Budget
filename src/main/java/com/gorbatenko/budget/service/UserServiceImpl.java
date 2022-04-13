@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
         createStartKindsForUser(newUser);
         createStartCurrenciesForUser(newUser);
-        newUser.setCurrencyDefault(currencyRepository.getByName("грн"));
+        newUser.setCurrencyDefault(currencyRepository.getByUserGroupAndName(newUser.getGroup(),"грн"));
         return save(newUser);
     }
 
@@ -101,6 +101,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getByGroup(String name) {
         return repository.getByGroupIgnoreCase(name);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return repository.getByEmail(email);
     }
 
     @Override

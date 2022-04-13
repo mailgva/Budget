@@ -5,10 +5,7 @@ import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.repository.BudgetRepository;
-import com.gorbatenko.budget.repository.CurrencyRepository;
-import com.gorbatenko.budget.repository.KindRepository;
-import com.gorbatenko.budget.repository.RegularOperationRepository;
+import com.gorbatenko.budget.repository.*;
 import com.gorbatenko.budget.service.UserService;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
@@ -43,6 +40,9 @@ public class AbstractWebController {
 
     @Autowired
     protected RegularOperationRepository regularOperationRepository;
+
+    @Autowired
+    protected JoinRequestRepository joinRequestRepository;
 
     @ModelAttribute("userName")
     protected String getUserName(@AuthenticationPrincipal AuthorizedUser authUser){

@@ -3,7 +3,9 @@ package com.gorbatenko.budget.repository;
 import com.gorbatenko.budget.model.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,6 +15,9 @@ import static java.util.Objects.requireNonNull;
 
 @Repository
 public class CurrencyRepository extends AbstractRepository {
+    @Autowired
+    private MongoTemplate mongoRepository;
+
     @Autowired
     private ICurrencyRepository repository;
 
@@ -41,6 +46,14 @@ public class CurrencyRepository extends AbstractRepository {
         Criteria criteria = new Criteria();
         criteria.and("name").is(name);
         return findOne(criteria, Currency.class);
+    }
+
+    public Currency getByUserGroupAndName(String userGroup, String name) {
+        Criteria criteria = new Criteria();
+        criteria.and("userGroup").is(userGroup);
+        criteria.and("name").is(name);
+        Query query = new Query(criteria);
+        return mongoRepository.findOne(query, Currency.class);
     }
 
     public List<Currency> getFilteredData(String id, String name) {
