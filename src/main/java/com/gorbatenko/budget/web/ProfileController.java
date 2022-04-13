@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
 import lombok.SneakyThrows;
@@ -18,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -37,9 +35,11 @@ public class ProfileController extends AbstractWebController {
         reloadUserContext(SecurityUtil.get().getUser());
         User user = SecurityUtil.get().getUser();
 
-        List<User> usersGroup = userService.getByGroup(user.getGroup());
+        List<User> usersGroup = userService.getByGroup(user.getGroup()).stream()
+                .sorted(Comparator.comparing(User::getName))
+                .collect(Collectors.toList());
         String groupMembers = usersGroup.stream()
-                .map(User::getName)
+                .map(u -> u.getName() + (u.getId().equals(u.getGroup()) ? " (Админ)" : ""))
                 .sorted()
                 .collect(Collectors.joining(", "));
 
@@ -50,6 +50,7 @@ public class ProfileController extends AbstractWebController {
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
+        model.addAttribute("usersGroup", usersGroup);
         model.addAttribute("mapCurrencies", mapCurrencies);
         getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
         model.addAttribute("pageName", "Профиль");
@@ -101,6 +102,16 @@ public class ProfileController extends AbstractWebController {
             reloadUserContext(user);
         }
         return "redirect:/profile/";
+    }
+
+    @SneakyThrows
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/removefromgroup/{userId}")
+    public ResponseEntity removeFromGroup(@PathVariable("userId") String userId) {
+        User user = userService.findById(userId);
+        user.setGroup(userId);
+        userService.save(user);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     private void reloadUserContext(User user) {

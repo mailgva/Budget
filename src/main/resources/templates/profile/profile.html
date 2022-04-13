@@ -38,7 +38,8 @@
                            th:value="${user.getEmail()}">
                 </div>
             </div>
-            <div class="form-group">
+            <!--no group admin-->
+            <div class="form-group" th:if="${(!user.id.equals(user.getGroup()) && usersGroup.size() > 1)}">
                 <label for="groupmembers">Группа</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -47,6 +48,45 @@
                     <input type="text" name="groupmembers" id="groupmembers" class="form-control" readonly
                            th:value="${groupMembers}">
                 </div>
+            </div>
+            <!--group admin-->
+            <div class="form-group" th:if="${(user.id.equals(user.getGroup()) && usersGroup.size() > 1)}">
+                <label>Группа</label>
+                <table class="table">
+                    <tbody>
+                    <tr class="border border-warning budget_detail">
+                        <td style="padding-top: 0px; padding-bottom: 12px;">
+                            <table class="table table-active ">
+                                <thead>
+                                <tr class="table-active">
+                                    <th style="width: 5%"> #</th>
+                                    <th style="width: 25%"> Пользователь</th>
+                                    <th style="width: 20%"> Email</th>
+                                    <th style="width: 10%"> Удалить</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.JoinRequest"--><!--*/-->
+                                <th:block th:each="member,row : ${usersGroup}">
+                                    <tr th:id="${member.id}">
+                                        <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
+                                        <td style="width: 15%"><span th:text="${member.name +
+                                            (user.id.equals(member.id) ? ' (Вы)' : '') }"> User </span></td>
+                                        <td style="width: 15%"><span th:text="${member.email}"> Email </span></td>
+                                        <td style="width: 5%">
+                                            <a th:href="${'javascript:removeFromGroup(&quot;' + member.id + '&quot;)'}"
+                                               th:if="${(!member.id.equals(member.getGroup()))}"
+                                               class="btn btn-warning" role="button"
+                                               aria-pressed="true"><i
+                                                    class="fa fa-times"></i></a>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </table>
+                        </td>
+                    </tr>
+                    <tbody>
+                </table>
             </div>
             <div class="form-group">
                 <label for="groupid">GROUPID</label>
@@ -130,6 +170,20 @@
         (function(){
             new Clipboard($('#copy-joinbutton')[0]);
         })();
+
+        function removeFromGroup(userId) {
+            if (! window.confirm('Удалить пользователя из группы?')) {
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url:  "/profile/removefromgroup/" + userId,
+                success: function (status) {
+                    var request = document.getElementById(userId);
+                    request.style.display = 'none';
+                }
+            });
+        }
     </script>
 </main>
 </body>
