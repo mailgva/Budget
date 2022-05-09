@@ -151,20 +151,20 @@
                                 <thead>
                                 <tr class="table-active">
                                     <th style="width: 5%"> #</th>
-                                    <th style="width: 25%"> Валюта</th>
-                                    <th style="width: 20%"> Приход</th>
-                                    <th style="width: 10%"> Расход</th>
-                                    <th style="width: 10%"> Остаток</th>
+                                    <th style="width: 35%"> Валюта</th>
+                                    <th style="width: 15%; text-align:right"> Приход</th>
+                                    <th style="width: 15%; text-align:right"> Расход</th>
+                                    <th style="width: 15%; text-align:right"> Остаток</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <th:block th:each="reminder,row : ${mapCurrencyRemainders}">
                                     <tr>
-                                        <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
-                                        <td style="width: 50%;"><span th:text="${reminder.key.name}"> Валюта </span></td>
-                                        <td style="width: 15%;"><span th:text="${#numbers.formatDecimal(reminder.value.profit, 1, 'DEFAULT', 0, 'DEFAULT')}"> Приход </span></td>
-                                        <td style="width: 15%;"><span th:text="${#numbers.formatDecimal(reminder.value.spending, 1, 'DEFAULT', 0, 'DEFAULT')}"> Расход </span></td>
-                                        <td style="width: 15%;"><span th:text="${#numbers.formatDecimal(reminder.value.remainder, 1, 'DEFAULT', 0, 'DEFAULT')}"> Остаток </span></td>
+                                        <td><span th:text="${row.index+1}"> # </span></td>
+                                        <td><span th:text="${reminder.key.name}"> Валюта </span></td>
+                                        <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.profit, 1, 'DEFAULT', 0, 'DEFAULT')}"> Приход </span></td>
+                                        <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.spending, 1, 'DEFAULT', 0, 'DEFAULT')}"> Расход </span></td>
+                                        <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.remainder, 1, 'DEFAULT', 0, 'DEFAULT')}"> Остаток </span></td>
                                     </tr>
                                 </th:block>
                             </table>
