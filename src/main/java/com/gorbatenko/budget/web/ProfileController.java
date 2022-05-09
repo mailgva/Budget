@@ -53,7 +53,6 @@ public class ProfileController extends AbstractWebController {
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("usersGroup", usersGroup);
         model.addAttribute("mapCurrencies", mapCurrencies);
-        //getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
         model.addAttribute("mapCurrencyRemainders", getCurrencyRemainders());
         model.addAttribute("pageName", "Профиль");
         return "profile/profile";
@@ -186,13 +185,12 @@ public class ProfileController extends AbstractWebController {
         return "redirect:/profile/";
     }
 
-    private Map<Currency, RemainderTo> getCurrencyRemainders() {
-        Map<Currency, RemainderTo> result = new HashMap<>();
+    private Map<String, RemainderTo> getCurrencyRemainders() {
+        Map<String, RemainderTo> result = new HashMap<>();
         for (Currency currency : currencyRepository.getAll()) {
             Double profit = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
             Double spending = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
-            result.put(currency, new RemainderTo(profit, spending));
-
+            result.put(currency.getName(), new RemainderTo(profit, spending));
         }
         return result;
     }

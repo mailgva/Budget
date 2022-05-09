@@ -161,7 +161,7 @@
                                 <th:block th:each="reminder,row : ${mapCurrencyRemainders}">
                                     <tr>
                                         <td><span th:text="${row.index+1}"> # </span></td>
-                                        <td><span th:text="${reminder.key.name}"> Валюта </span></td>
+                                        <td><span th:text="${reminder.key}"> Валюта </span></td>
                                         <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.profit, 1, 'DEFAULT', 0, 'DEFAULT')}"> Приход </span></td>
                                         <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.spending, 1, 'DEFAULT', 0, 'DEFAULT')}"> Расход </span></td>
                                         <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.remainder, 1, 'DEFAULT', 0, 'DEFAULT')}"> Остаток </span></td>
