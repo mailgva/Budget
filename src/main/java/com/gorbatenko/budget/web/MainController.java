@@ -76,8 +76,8 @@ public class MainController extends AbstractWebController {
         String lastGroupActivityDate = dateToStr(lastActivity);
         String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
 
-        Double profit = budgetRepository.getSumPriceByType(Type.PROFIT);
-        Double spending = budgetRepository.getSumPriceByType(Type.SPENDING);
+        Double profit = budgetRepository.getSumPriceByDefaultCurrencyAndType(Type.PROFIT);
+        Double spending = budgetRepository.getSumPriceByDefaultCurrencyAndType(Type.SPENDING);
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
         model.addAttribute("remain", profit-spending);

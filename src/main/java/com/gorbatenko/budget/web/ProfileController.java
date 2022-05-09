@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.to.RemainderTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
 import lombok.SneakyThrows;
@@ -52,7 +53,8 @@ public class ProfileController extends AbstractWebController {
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("usersGroup", usersGroup);
         model.addAttribute("mapCurrencies", mapCurrencies);
-        getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
+        //getBalanceParts(model, budgetRepository.getAll(), MIN_DATE_TIME, MAX_DATE_TIME);
+        model.addAttribute("mapCurrencyRemainders", getCurrencyRemainders());
         model.addAttribute("pageName", "Профиль");
         return "profile/profile";
     }
@@ -182,5 +184,16 @@ public class ProfileController extends AbstractWebController {
             budgetRepository.save(budget);
         }
         return "redirect:/profile/";
+    }
+
+    private Map<Currency, RemainderTo> getCurrencyRemainders() {
+        Map<Currency, RemainderTo> result = new HashMap<>();
+        for (Currency currency : currencyRepository.getAll()) {
+            Double profit = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
+            Double spending = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
+            result.put(currency, new RemainderTo(profit, spending));
+
+        }
+        return result;
     }
 }

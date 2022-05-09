@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.util.TypePeriod;
@@ -107,9 +108,13 @@ public class BudgetRepository extends AbstractRepository {
         return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
     }
 
-    public Double getSumPriceByType(Type type) {
+    public Double getSumPriceByDefaultCurrencyAndType(Type type) {
+        return getSumPriceByCurrencyAndType(getCurrencyDefault(), type);
+    }
+
+    public Double getSumPriceByCurrencyAndType(Currency currency, Type type) {
         Criteria criteria = new Criteria();
-        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        criteria.and("currency._id").is(currency.getId());
         criteria.and("kind.type").is(type);
         return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class, 0.0D);
     }
