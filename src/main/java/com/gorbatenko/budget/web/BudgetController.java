@@ -1,14 +1,10 @@
 package com.gorbatenko.budget.web;
 
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.BudgetTo;
-import com.gorbatenko.budget.util.ChartUtil;
-import com.gorbatenko.budget.util.SecurityUtil;
-import com.gorbatenko.budget.util.TypePeriod;
+import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +21,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
@@ -111,39 +108,43 @@ public class BudgetController extends AbstractWebController {
         offSetStartDate = setTimeZoneOffset(startDate);
         offSetEndDate = setTimeZoneOffset(endDate);
 
-        List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
+        List<KindTotals> totals = budgetRepository.getTotalsByKinds(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
 
-        if (period.equals(TypePeriod.ALL_TIME) && listBudget.size() > 0) {
-            offSetStartDate = listBudget.stream().min(Comparator.comparing(Budget::getDate)).get().getDate();
+        if (period.equals(TypePeriod.ALL_TIME) && totals.size() > 0) {
+            offSetStartDate = totals.stream()
+                    .map(total -> total.getMinCreateDateTime())
+                    .min(LocalDateTime::compareTo)
+                    .get();
         }
 
-        Map<Type, Map<Kind, Double>> mapKind;
+        TreeMap<Type, Map<Kind, Double>> mapKind;
+
         if (sortType.isEmpty() || sortType.equalsIgnoreCase("byName")) {
-            mapKind = listBudget.stream()
+            mapKind = new TreeMap(totals.stream()
                     .collect(groupingBy(
-                            budget ->
-                                    budget.getKind().getType(), (
+                            total ->
+                                    total.getKind().getType(), (
                                     groupingBy(
-                                            Budget::getKind,
+                                            KindTotals::getKind,
                                             TreeMap::new,
-                                            Collectors.summingDouble(Budget::getPrice)))
-                    ));
-        } else {
-            mapKind = listBudget.stream()
+                                            Collectors.summingDouble(KindTotals::getSumPrice)))
+                    )));
+        } else { /* sort by price */
+            mapKind = new TreeMap(totals.stream()
                     .collect(groupingBy(
-                            budget ->
-                                    budget.getKind().getType(), (
+                            total ->
+                                    total.getKind().getType(), (
                                     groupingBy(
-                                            Budget::getKind,
+                                            KindTotals::getKind,
                                             HashMap::new,
-                                            Collectors.summingDouble(Budget::getPrice))))
-                    );
+                                            Collectors.summingDouble(KindTotals::getSumPrice))))
+                    ));
 
             for (Map.Entry<Type, Map<Kind, Double>> entry : mapKind.entrySet()) {
                 entry.setValue(
                         entry.getValue().entrySet()
                                 .stream()
-                                .sorted((s1,s2)->s2.getValue().compareTo(s1.getValue()) /*Map.Entry.comparingByValue()*/)
+                                .sorted((s1, s2) -> s2.getValue().compareTo(s1.getValue()))
                                 .collect(Collectors.toMap(
                                         Map.Entry::getKey,
                                         Map.Entry::getValue,
@@ -152,31 +153,27 @@ public class BudgetController extends AbstractWebController {
         }
 
         if (period.equals(TypePeriod.ALL_TIME)) {
-            startDate = listBudget.stream().
-                    map(Budget::getDate).
-                    map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
-                    min(LocalDate::compareTo).get();
+            startDate = totals.stream()
+                    .map(KindTotals::getMinCreateDateTime)
+                    .min(LocalDateTime::compareTo)
+                    .get()
+                    .toLocalDate();
 
-            endDate = listBudget.stream().
-                    map(Budget::getDate).
-                    map(d -> LocalDate.of(d.getYear(), d.getMonth(), d.getDayOfMonth())).
-                    max(LocalDate::compareTo).get();
+            endDate = totals.stream()
+                    .map(KindTotals::getMaxCreateDateTime)
+                    .max(LocalDateTime::compareTo)
+                    .get()
+                    .toLocalDate();
         }
 
         boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
                 (endDate.getMonth().equals(startDate.getMonth())));
 
-        Map<String, Double> mapDateProfit = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
-                .collect(groupingBy(
-                        (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
-                        Collectors.summingDouble(Budget::getPrice)));
+        Map<String, Double> mapDateProfit =
+                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, isInMonth);
 
-        Map<String, Double> mapDateSpending = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
-                .collect(groupingBy(
-                        (isInMonth ?  Budget::getStrDate : Budget::getStrYearMonth),
-                        Collectors.summingDouble(Budget::getPrice)));
+        Map<String, Double> mapDateSpending =
+                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, isInMonth);
 
         TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
 
@@ -194,25 +191,18 @@ public class BudgetController extends AbstractWebController {
             totalMap.put(entry.getKey(), map);
         }
 
-        TreeMap<Type, Map<Kind, Double>> mapKindSort = new TreeMap<>(mapKind);
+        Map<Kind, Long> mapKindCount = totals.stream()
+                .collect(Collectors.toMap(KindTotals::getKind, KindTotals::getCount));
 
-        Map<Kind, Long> mapKindCount = listBudget.stream()
-                .collect(groupingBy(Budget::getKind, Collectors.counting()));
-
-        Double maxPriceProfit;
-        Double maxPriceSpending;
-
-        maxPriceProfit = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.PROFIT))
-                .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .values().stream()
+        Double maxPriceProfit = totals.stream()
+                .filter(total -> total.getKind().getType().equals(Type.PROFIT))
+                .map(total -> total.getSumPrice())
                 .max(Double::compareTo)
                 .orElse(0.0);
 
-        maxPriceSpending = listBudget.stream()
-                .filter(budget -> budget.getKind().getType().equals(Type.SPENDING))
-                .collect(groupingBy(Budget::getKind, Collectors.summingDouble(Budget::getPrice)))
-                .values().stream()
+        Double maxPriceSpending = totals.stream()
+                .filter(total -> total.getKind().getType().equals(Type.SPENDING))
+                .map(total -> total.getSumPrice())
                 .max(Double::compareTo)
                 .orElse(0.0);
 
@@ -220,17 +210,34 @@ public class BudgetController extends AbstractWebController {
         mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
         mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
 
-        getBalanceParts(model, listBudget, offSetStartDate.minusDays(1), offSetEndDate);
+        Double profit = totals.stream()
+                .filter(total -> total.getKind().getType().equals(Type.PROFIT))
+                .mapToDouble(KindTotals::getSumPrice)
+                .sum();
+
+        Double spending = totals.stream()
+                .filter(total -> total.getKind().getType().equals(Type.SPENDING))
+                .mapToDouble(KindTotals::getSumPrice)
+                .sum();
+
+        Double remain = profit - spending;
+
+        model.addAttribute("profit", profit);
+        model.addAttribute("spending", spending);
+        model.addAttribute("remain", remain);
+        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(offSetStartDate.minusDays(1)));
+        model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(offSetEndDate));
+
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
         model.addAttribute("mapKindCount", mapKindCount);
-        model.addAttribute("mapKind", mapKindSort);
+        model.addAttribute("mapKind", mapKind);
         model.addAttribute("mapMaxPrice", mapMaxPrice);
 
-        model.addAttribute("circleChartProfit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.PROFIT, mapKindSort));
-        model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKindSort));
-        model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKindSort));
-        model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKindSort));
+        model.addAttribute("circleChartProfit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.PROFIT, mapKind));
+        model.addAttribute("circleChartSpendit", ChartUtil.createMdbChart(ChartType.DOUGHNUT, Type.SPENDING, mapKind));
+        model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, mapKind));
+        model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, mapKind));
 
         model.addAttribute("totalBarChart", ChartUtil.createDynamicMultiMdbChart(ChartType.BARCHART, totalMap));
 

@@ -39,4 +39,24 @@ public class BaseUtil {
         }
         return map;
     }
+
+    public static String getStrDateTime(LocalDateTime ldt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return ldt.format(formatter);
+    }
+
+    public static String getStrDate(LocalDateTime ldt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return ldt.format(formatter);
+    }
+
+    public static String getStrYearMonthDay(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return dateTime.format(formatter);
+    }
+
+    public static String getStrYearMonth(LocalDateTime ldt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        return ldt.format(formatter);
+    }
 }

@@ -4,6 +4,8 @@ import com.gorbatenko.budget.model.Budget;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.doc.User;
+import com.gorbatenko.budget.util.BaseUtil;
+import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -11,8 +13,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
@@ -46,6 +52,82 @@ public class BudgetRepository extends AbstractRepository {
     }
 
     public List<Budget> getFilteredData(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period) {
+        Criteria criteria = createBaseFilterCriteria(startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
+        Sort sort = Sort.by(Sort.Direction.ASC, "date");
+        return findAll(criteria, sort, Budget.class);
+    }
+
+    public Budget getById(String id) {
+        return findById(id, Budget.class);
+    }
+
+    public List<Budget> getByCurrencyId(String currencyId) {
+        requireNonNull(currencyId, "Argument 'currencyId' can not be null!");
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(currencyId);
+        return findAll(criteria, null, Budget.class);
+    }
+
+    public List<Budget> getByKindId(String kindId) {
+        requireNonNull(kindId, "Argument 'kindId' can not be null!");
+        Criteria criteria = new Criteria();
+        criteria.and("kind._id").is(kindId);
+        return findAll(criteria, null, Budget.class);
+    }
+
+    public LocalDateTime getMinDateByCurrencyDefault() {
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        return aggregationOnlyResultField(criteria, GroupOps.MIN, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
+    }
+
+    public LocalDateTime getMaxDateByCurrencyDefault() {
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        return aggregationOnlyResultField(criteria, GroupOps.MAX, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
+    }
+
+    public LocalDateTime getMaxDate() {
+        return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
+    }
+
+    public Double getSumPriceByDefaultCurrencyAndType(Type type) {
+        return getSumPriceByCurrencyAndType(getCurrencyDefault(), type);
+    }
+
+    public Double getSumPriceByCurrencyAndType(Currency currency, Type type) {
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(currency.getId());
+        criteria.and("kind.type").is(type);
+        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class, 0.0D);
+    }
+
+    public Map<String, Double> getSumPriceForPeriodByDateAndDefaultCurrency(LocalDateTime startDate, LocalDateTime endDate,
+                                                                     Type type, TypePeriod period, boolean isInMonth) {
+        Criteria criteria = createBaseFilterCriteria(startDate, endDate, null, type.name(), null, null, null, period);
+
+        List<DateSumPrice> dateSumPrices = aggregationByField(criteria, GroupOps.SUM, "createDateTime", "price", "sumPrice", Budget.class, DateSumPrice.class);
+
+        Map<String, Double> result = new HashMap<>();
+        dateSumPrices.stream().forEach(
+            item -> result.put(isInMonth ?
+                    BaseUtil.getStrYearMonthDay(item.getCreateDateTime()) :  BaseUtil.getStrYearMonth(item.getCreateDateTime()), item.sumPrice)
+        );
+        return result;
+    }
+
+    public List<User> getUsersForAllPeriod() {
+        Criteria criteria = new Criteria();
+        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        return findDistinctSubclassInCollection(criteria, "user", Budget.class, User.class);
+    }
+
+    public List<KindTotals> getTotalsByKinds(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period){
+        Criteria criteria = createBaseFilterCriteria(startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
+        return getTotalsByKinds(criteria);
+    }
+
+    private Criteria createBaseFilterCriteria(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period) {
         Criteria criteria = new Criteria();
         criteria.and("currency._id").is(getCurrencyDefault().getId());
 
@@ -82,47 +164,7 @@ public class BudgetRepository extends AbstractRepository {
                 criteria.and("price").gte(Double.valueOf(prices[0])).lte(Double.valueOf(prices[1]));
             }
         }
-        Sort sort = Sort.by(Sort.Direction.ASC, "date");
-        return findAll(criteria, sort, Budget.class);
-    }
-
-    public Budget getById(String id) {
-        return findById(id, Budget.class);
-    }
-
-    public List<Budget> getByCurrencyId(String currencyId) {
-        requireNonNull(currencyId, "Argument 'currencyId' can not be null!");
-        Criteria criteria = new Criteria();
-        criteria.and("currency._id").is(currencyId);
-        return findAll(criteria, null, Budget.class);
-    }
-
-    public List<Budget> getByKindId(String kindId) {
-        requireNonNull(kindId, "Argument 'kindId' can not be null!");
-        Criteria criteria = new Criteria();
-        criteria.and("kind._id").is(kindId);
-        return findAll(criteria, null, Budget.class);
-    }
-
-    public LocalDateTime getMaxDate() {
-        return aggregationOnlyResultField(null, GroupOps.MAX, "date", Budget.class, LocalDateTime.class, LocalDateTime.MIN);
-    }
-
-    public Double getSumPriceByDefaultCurrencyAndType(Type type) {
-        return getSumPriceByCurrencyAndType(getCurrencyDefault(), type);
-    }
-
-    public Double getSumPriceByCurrencyAndType(Currency currency, Type type) {
-        Criteria criteria = new Criteria();
-        criteria.and("currency._id").is(currency.getId());
-        criteria.and("kind.type").is(type);
-        return aggregationOnlyResultField(criteria, GroupOps.SUM, "price", Budget.class, Double.class, 0.0D);
-    }
-
-    public List<User> getUsersForAllPeriod() {
-        Criteria criteria = new Criteria();
-        criteria.and("currency._id").is(getCurrencyDefault().getId());
-        return findDistinctSubclassInCollection(criteria, "user", Budget.class, User.class);
+        return criteria;
     }
 
     private boolean isFakeValue(String str) {
@@ -130,4 +172,21 @@ public class BudgetRepository extends AbstractRepository {
         return fakes.contains(str.toUpperCase());
     }
 
+    class DateSumPrice {
+        private LocalDateTime createDateTime;
+        private Double sumPrice;
+
+        public DateSumPrice(LocalDateTime createDateTime, Double sumPrice) {
+            this.createDateTime = createDateTime;
+            this.sumPrice = sumPrice;
+        }
+
+        public LocalDateTime getCreateDateTime() {
+            return createDateTime;
+        }
+
+        public Double getSumPrice() {
+            return sumPrice;
+        }
+    }
 }

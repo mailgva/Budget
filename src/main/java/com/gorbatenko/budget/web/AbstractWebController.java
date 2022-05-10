@@ -116,7 +116,7 @@ public class AbstractWebController {
         model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(endDate));
     }
 
-    private Double getRemainOnStartPeriod(LocalDateTime startDate) {
+    protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
         List<Budget> budgets =
                 budgetRepository.getFilteredData(null, startDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
         return budgets.stream()

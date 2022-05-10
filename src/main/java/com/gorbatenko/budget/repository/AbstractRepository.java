@@ -1,5 +1,7 @@
 package com.gorbatenko.budget.repository;
 
+import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.util.KindTotals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,8 +17,7 @@ import java.util.Map;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static java.util.Objects.requireNonNull;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Repository
 public class AbstractRepository {
@@ -61,7 +62,7 @@ public class AbstractRepository {
         ProjectionOperation excludeIdField = project().andExclude("_id");
         Aggregation aggregation = Aggregation.newAggregation(
                 match(addCriteriaUserGroup(criteria)),
-                addGroupOperation(groupOps, field),
+                addGroupOperation(groupOps, null, field, field),
                 excludeIdField
         );
         try {
@@ -72,6 +73,31 @@ public class AbstractRepository {
         }
     }
 
+    public <E, R> List<R> aggregationByField(Criteria criteria, GroupOps groupOps, String groupByField, String field, String asField, Class<E> entityClass, Class<R> resultClass) {
+        ProjectionOperation projection = project(asField).and(groupByField).previousOperation();
+        Aggregation aggregation = Aggregation.newAggregation(
+                match(addCriteriaUserGroup(criteria)),
+                addGroupOperation(groupOps, groupByField, field, asField),
+                projection
+        );
+        return mongoTemplate.aggregate(aggregation, entityClass, resultClass).getMappedResults();
+    }
+
+    public List<KindTotals> getTotalsByKinds(Criteria criteria) {
+        ProjectionOperation projection = project("sumPrice", "count", "minCreateDateTime", "maxCreateDateTime")
+                .and("kind").previousOperation();
+        Aggregation aggregation = Aggregation.newAggregation(
+                match(addCriteriaUserGroup(criteria)),
+                group("kind")
+                        .sum("price").as("sumPrice")
+                        .count().as("count")
+                        .min("createDateTime").as("minCreateDateTime")
+                        .max("createDateTime").as("maxCreateDateTime"),
+                projection
+        );
+        return mongoTemplate.aggregate(aggregation, Budget.class, KindTotals.class).getMappedResults();
+    }
+
     protected boolean isBlank(String str) {
         return str == null || str.trim().isEmpty();
     }
@@ -80,14 +106,14 @@ public class AbstractRepository {
         SUM, MIN, MAX, AVG, COUNT
     }
 
-    private GroupOperation addGroupOperation(GroupOps groupOps, String field) {
-        GroupOperation result = Aggregation.group();
+    private GroupOperation addGroupOperation(GroupOps groupOps, String groupByField, String field, String asField) {
+        GroupOperation result = groupByField == null ? Aggregation.group() : Aggregation.group(groupByField);
         switch (groupOps) {
-            case AVG: return result.avg(field).as(field);
-            case MIN: return result.min(field).as(field);
-            case MAX: return result.max(field).as(field);
-            case SUM: return result.sum(field).as(field);
-            case COUNT: return result.count().as(field);
+            case AVG: return result.avg(field).as(asField == null ? field : asField);
+            case MIN: return result.min(field).as(asField == null ? field : asField);
+            case MAX: return result.max(field).as(asField == null ? field : asField);
+            case SUM: return result.sum(field).as(asField == null ? field : asField);
+            case COUNT: return result.count().as(asField == null ? field : asField);
             default: throw new IllegalArgumentException("GroupOps does not exist");
         }
     }
