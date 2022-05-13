@@ -22,7 +22,7 @@
 
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
 
-        <jackson.version>2.11.4</jackson.version>
+        <jackson.version>2.12.6.1</jackson.version>
 
         <webjars-jquery.version>3.5.1</webjars-jquery.version>
         <webjars-bootstrap.version>4.6.0</webjars-bootstrap.version>
