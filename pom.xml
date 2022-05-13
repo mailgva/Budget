@@ -27,6 +27,7 @@
         <webjars-jquery.version>3.5.1</webjars-jquery.version>
         <webjars-bootstrap.version>4.6.0</webjars-bootstrap.version>
         <webjars-bootstrap-table.version>1.16.0</webjars-bootstrap-table.version>
+        <webjars-bootstrap-toggle.version>3.6.1</webjars-bootstrap-toggle.version>
         <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
         <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
     </properties>
@@ -108,6 +109,11 @@
             <groupId>org.webjars.bower</groupId>
             <artifactId>bootstrap-table</artifactId>
             <version>${webjars-bootstrap-table.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>bootstrap4-toggle</artifactId>
+            <version>${webjars-bootstrap-toggle.version}</version>
         </dependency>
 
     </dependencies>

@@ -3,6 +3,9 @@ function hideDetail(elm) {
     tr.style.display = (tr.style.display == 'none') ? '' : 'none';
 }
 
-function hideAllDetail(elm) {
-    $('tr.budget_detail').css('display', ($(elm).is(':checked') ? 'none' : ''));
-}
+$(function() {
+    $('#check-hide').change(function() {
+        checked = $(this).prop('checked');
+        $('tr.budget_detail').css('display', (checked ? '' : 'none'));
+    })
+})
