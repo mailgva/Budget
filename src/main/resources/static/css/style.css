@@ -257,6 +257,11 @@ div.jumbotron {
   }
 }
 
+input.largebox {
+  width: 30px !important;
+  height: 30px !important;
+}
+
 .leftmenu {
   position: fixed;
   top: 140px;

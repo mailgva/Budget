@@ -132,7 +132,7 @@
                     <th:block th:each="element : ${mapKind}">
                         <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                             <td ><h4 th:text="${element.key.getValue()}"></h4></td>
-                            <td >
+                            <td colspan="2">
                                 <a class="text-dark"
                                    th:href="@{/budget/dynamicstatistic(startDate=${startDate},
                                                      endDate=${endDate},
@@ -169,11 +169,25 @@
                                         <i class="fa fa-bar-chart" style="border-style: solid; border-width: thin; padding: 8px" aria-hidden="true"></i>
                                     </a>
                                 </td>
-                                <td style="font-weight: bolder; text-align:right; padding-right: 50px"><span class="summation" th:text="${#numbers.formatDecimal(map.value.doubleValue(), 1, 'DEFAULT', 0, 'DEFAULT')}">  </span></td>
+                                <td>
+                                    <input th:attr="data-chk=${(element.key.name().equals('PROFIT') ? 'profit' : 'spending')}"
+                                           class="largebox" type="checkbox">
+                                </td>
+                                <td style="font-weight: bolder; text-align:right; padding-right: 50px">
+                                    <span th:attr="data-item-sum=${(element.key.name().equals('PROFIT') ? 'profit' : 'spending')}"
+                                          class="summation"
+                                          th:text="${#numbers.formatDecimal(map.value.doubleValue(), 1, 'DEFAULT', 0, 'DEFAULT')}"></span>
+                                </td>
                             </tr>
                         </th:block>
+                        <tr style="display: none">
+                            <td colspan="3" align="right"><span class="summation">Сумма выбранных:</span></td>
+                            <td style="font-weight: bolder; text-align:right; padding-right: 50px">
+                                <span th:attr="data-sum-seleted=${(element.key.name().equals('PROFIT') ? 'profit' : 'spending')}" class="summation"></span>
+                            </td>
+                        </tr>
                         <tr>
-                            <td colspan="3" ></td>
+                            <td colspan="4" ></td>
                         </tr>
                     </th:block>
                 </table>
@@ -239,6 +253,29 @@
             new Chart(document.getElementById("horizontChartSpendit"), [(${horizontChartSpendit})]);
             new Chart(document.getElementById("totalBarChart").getContext('2d'), [(${totalBarChart})]);
         } );
+    </script>
+    <script>
+        $(function() {
+            $('input[data-chk="profit"]').change(function() {
+                sumSelectedItems($(this), 'profit');
+            })
+            $('input[data-chk="spending"]').change(function() {
+                sumSelectedItems($(this), 'spending');
+            })
+        })
+
+        function sumSelectedItems($element, type) {
+            checked = $element.prop('checked');
+            var sum = 0;
+            $('input[data-chk="'+type+'"]').each(function() {
+                if ($(this).prop('checked')) {
+                    var value = $(this).closest('td').next().children().text().replaceAll(/\s/g, '');
+                    sum = sum + parseInt(value);
+                }
+            });
+            $('span[data-sum-seleted="' + type + '"]').text(sum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '));
+            $('span[data-sum-seleted="' + type + '"]').parent().parent().css('display', sum == 0 ? 'none' : '');
+        }
     </script>
 </main>
 </body>
