@@ -306,6 +306,7 @@ public class BudgetController extends AbstractWebController {
         model.addAttribute("price", priceStr);
 
         model.addAttribute("pageName", "Статистика");
+        model.addAttribute("detailToggler", true);
         model.addAttribute("filteredPage", true);
 
         return "budget/statistic";

@@ -9,7 +9,7 @@
         <div>
             <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
             <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
-            <form id="form" name="form" th:action="@{/budget/}" method="post">
+            <form id="form" name="form" th:action="@{/budget/}" method="post" onsubmit="return compare();">
                 <input type="hidden" name="id" th:value="${budget.id}">
                 <fieldset disabled style="display: none">
                     <div class="form-group">
@@ -58,13 +58,13 @@
                             <span class="input-group-text"><i class="fa fa-pencil"></i></span>
                         </div>
                         <textarea name="description" id="description" class="form-control" rows="4"
-                               th:placeholder="${budget.description}" onkeyup="calculate(this)"
+                               th:placeholder="${budget.description}" onkeyup="calculate()"
                                th:text="${budget.description}"></textarea>
                     </div>
                 </div>
                 <div class="form-check mobchkbox">
                     <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="${budget.id == null}"
-                           onclick="calculate(document.getElementById('description'))">
+                           onclick="calculate()">
                     <label class="form-check-label mob" for="autocalc">Автоматический подсчет</label>
                 </div>
                 <div class="form-group">
@@ -96,18 +96,35 @@
     </div>
 </main>
 <script>
-    function calculate(input){
+    function calculate(){
         if (!$('#autocalc').is(":checked")) return;
-        var str = input.value;
-        str = str.replace(/[^\.0-9]/g, " ");
-        var arr = str.split(" ");
-        var result = 0.0;
-        arr.forEach(function(item) {
-            result+= ((item.replace(" ","") === "") ? 0.0 : parseFloat(item));
-        });
+        var result = getSum();
         if(result > 0) {
             $('#price').val(result);
-        };
+        }
+    }
+
+    function getSum(){
+        var str = $('#description').val();
+        str = str.replace(/[^0-9]/g, " ");
+        var arr = str.split(" ");
+        var result = 0;
+        arr.forEach(function(item) {
+            result+= ((item.replace(" ","") === "") ? 0.0 : parseInt(item));
+        });
+        return result;
+    }
+
+    function compare(){
+        var sumDescription = getSum();
+        var sumPrice = parseInt($('#price').val());
+        if (sumDescription != sumPrice) {
+            return confirm("Суммы отличаются!\n\n" +
+                "Сумма описания: " + sumDescription + "\n" +
+                "Итоговой суммы: " + sumPrice + "\n\n" +
+                "Все верно?");
+        }
+        return true;
     }
 </script>
 </body>
