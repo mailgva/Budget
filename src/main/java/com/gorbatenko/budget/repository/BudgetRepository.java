@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gorbatenko.budget.util.BaseUtil.getStrYearMonth;
+import static com.gorbatenko.budget.util.BaseUtil.getStrYearMonthDay;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static java.util.Objects.requireNonNull;
@@ -106,13 +108,14 @@ public class BudgetRepository extends AbstractRepository {
                                                                      Type type, TypePeriod period, boolean isInMonth) {
         Criteria criteria = createBaseFilterCriteria(startDate, endDate, null, type.name(), null, null, null, period);
 
-        List<DateSumPrice> dateSumPrices = aggregationByField(criteria, GroupOps.SUM, "createDateTime", "price", "sumPrice", Budget.class, DateSumPrice.class);
+        List<DateSumPrice> dateSumPrices = aggregationByField(criteria, GroupOps.SUM, "date", "price", "sumPrice", Budget.class, DateSumPrice.class);
 
         Map<String, Double> result = new HashMap<>();
-        dateSumPrices.stream().forEach(
-            item -> result.put(isInMonth ?
-                    BaseUtil.getStrYearMonthDay(item.getCreateDateTime()) :  BaseUtil.getStrYearMonth(item.getCreateDateTime()), item.sumPrice)
-        );
+        for(DateSumPrice item : dateSumPrices) {
+            String key = isInMonth ? getStrYearMonthDay(item.getDate()) :  getStrYearMonth(item.getDate());
+            Double value = result.getOrDefault(key, 0.0D) + item.sumPrice;
+            result.put(key, value);
+        }
         return result;
     }
 
@@ -173,16 +176,16 @@ public class BudgetRepository extends AbstractRepository {
     }
 
     class DateSumPrice {
-        private LocalDateTime createDateTime;
+        private LocalDateTime date;
         private Double sumPrice;
 
-        public DateSumPrice(LocalDateTime createDateTime, Double sumPrice) {
-            this.createDateTime = createDateTime;
+        public DateSumPrice(LocalDateTime date, Double sumPrice) {
+            this.date = date;
             this.sumPrice = sumPrice;
         }
 
-        public LocalDateTime getCreateDateTime() {
-            return createDateTime;
+        public LocalDateTime getDate() {
+            return date;
         }
 
         public Double getSumPrice() {
