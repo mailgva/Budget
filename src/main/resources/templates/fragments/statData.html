@@ -42,9 +42,8 @@
                     <tr class="table-active">
                         <th style="width: 5%"> #</th>
                         <th style="width: 15%"> Пользователь</th>
-                        <th style="width: 10%"> Операция</th>
-                        <th style="width: 20%"> Вид</th>
-                        <th style="width: 20%"> Описание</th>
+                        <th style="width: 15%"> Вид</th>
+                        <th style="width: 35%"> Описание</th>
                         <th style="width: 10%; text-align:right"> Сумма</th>
                         <th style="width: 5%"></th>
                     </tr>
@@ -54,17 +53,14 @@
                     <th:block th:each="budget,row : ${element.value}">
 
                         <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                            <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
-                            <td style="width: 15%"><span th:text="${budget.user.name}"> User </span> <br>
+                            <td><span th:text="${row.index+1}"> # </span></td>
+                            <td><span th:text="${budget.user.name}"> User </span> <br>
                                 <span class="subdate" th:text="${#temporals.format(budget.createDateTime, 'yyyy-MM-dd HH:mm')}"> </span></td>
-                            <td style="width: 10%"><span
-                                    th:text="${budget.kind.getType().getValue()}"> Type </span>
+                            <td><span th:text="${budget.kind.name}"> Item </span></td>
+                            <td><span th:text="${budget.description}"> Description </span>
                             </td>
-                            <td style="width: 20%"><span th:text="${budget.kind.name}"> Item </span></td>
-                            <td style="width: 20%"><span th:text="${budget.description}"> Description </span>
-                            </td>
-                            <td style="width: 10%; text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
-                            <td style="width: 5%">
+                            <td style="text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
+                            <td>
                                 <a th:href="@{'/budget/edit/'+${budget.id}}" class="btn btn-warning" role="button"
                                    aria-pressed="true"><i
                                         class="fa fa-pencil"></i></a>
