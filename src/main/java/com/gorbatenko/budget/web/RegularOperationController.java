@@ -2,7 +2,9 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RegularOperationTo;
+import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,17 +51,15 @@ public class RegularOperationController extends AbstractWebController{
         return "/regularoperations/edit";
     }
 
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         RegularOperation operation = regularOperationRepository.getById(id);
         if (operation == null) {
-            rm.addFlashAttribute("error", "Невозможно удалить операцию, так как она не найдена");
-            return String.format("redirect:/regularoperations/edit/%s", id);
+            String message = "Невозможно удалить операцию, так как она не найдена";
+            return ResponseEntity.badRequest().body(new Response(400, message));
         }
-
         regularOperationRepository.deleteById(id);
-
-        return "redirect:/regularoperations/";
+        return ResponseEntity.ok(new Response(200, null));
     }
 
     @PostMapping("/")
@@ -86,21 +86,15 @@ public class RegularOperationController extends AbstractWebController{
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") String id, @RequestParam(name="error", defaultValue = "") String error, Model model) {
-        if(!error.isEmpty()) {
-            model.addAttribute("error", error);
-        }
-
+    public String edit(@PathVariable("id") String id, Model model) {
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindRepository.getAll();
         List<Currency> currencies = currencyRepository.getAll();
 
         model.addAttribute("operation", regularOperationRepository.getById(id));
-
         model.addAttribute("everies", everies);
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
-
         model.addAttribute("pageName", "Изменение");
 
         return "/regularoperations/edit";

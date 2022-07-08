@@ -7,6 +7,7 @@ import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -457,10 +458,10 @@ public class BudgetController extends AbstractWebController {
         return "/budget/edit";
     }
 
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String id, Model model) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         budgetRepository.deleteById(id);
-        return "redirect:/budget/statistic";
+        return ResponseEntity.ok(new Response(200, null));
     }
 
 

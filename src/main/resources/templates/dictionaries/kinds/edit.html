@@ -9,23 +9,23 @@
     <div>
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
       <h2 th:text="${(kind.id == null ? 'Добавление' : 'Изменение') + ' вида Прихода/Расхода'}"> </h2>
-      <div class="error" role="alert" th:if="${error}" th:text="${error}">
+      <div class="error" style="display: none;" id="error-message" role="alert" th:text="${error}">
       </div>
       <form id="form" name="form" th:action="@{/dictionaries/kinds/edit}" method="post">
         <input type="hidden" name="referer" th:value="@{${referer}}">
         <input type="hidden" name="id" th:value="${kind.getId()}">
         <!--<fieldset disabled>-->
-          <div class="form-group">
-            <!--<label for="type">Тип</label>-->
-            <select id="type" name="type"  readonly class="form-control">
-              <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
-                      th:value="${val}"
-                      th:text="${val.value}"
-                      th:selected="${kind.getType().name().equalsIgnoreCase(val)}"
-              >
-              </option>
-            </select>
-          </div>
+        <div class="form-group">
+          <!--<label for="type">Тип</label>-->
+          <select id="type" name="type"  readonly class="form-control">
+            <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
+                    th:value="${val}"
+                    th:text="${val.value}"
+                    th:selected="${kind.getType().name().equalsIgnoreCase(val)}"
+            >
+            </option>
+          </select>
+        </div>
         <!--</fieldset>-->
         <div class="form-group">
           <label for="name">Вид</label>
@@ -39,11 +39,34 @@
         </div>
 
         <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-        <button th:if="${kind.id != null}" class="btn btn-danger mob" th:data-url="'/dictionaries/kinds/delete/'+${kind.id}" type="button"
-                th:onclick="window.open(this.getAttribute('data-url'))"><i class="fa fa-trash"></i> Удалить</button>
+        <button th:if="${kind.id != null}" class="btn btn-danger mob" type="button"
+                th:onclick="remove()"><i class="fa fa-trash"></i> Удалить</button>
       </form>
     </div>
   </div>
 </main>
+<script>
+  function remove() {
+    var csrfheader = $('meta[name="_csrf_header"]').prop('content');
+    var csrftoken = $('meta[name="_csrf"]').prop('content');
+    var id = $("input[name='id']").val();
+    $.ajax({
+      type: "DELETE",
+      url: "/dictionaries/kinds/" + id,
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader(csrfheader, csrftoken);
+      },
+      success: function (status) {
+        history.back();
+      },
+      error: function (jqXHR) {
+        var message = jqXHR.responseJSON.message;
+        var error = $("#error-message");
+        error.text(message);
+        error.css("display", "block");
+      }
+    });
+  }
+</script>
 </body>
 </html>

@@ -5,6 +5,8 @@ import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.KindTo;
+import com.gorbatenko.budget.util.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,36 +34,33 @@ public class KindController extends AbstractWebController{
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") String id, @RequestParam(name="error", defaultValue = "") String error, Model model) {
-        if(!error.isEmpty()) {
-            model.addAttribute("error", error);
-        }
+    public String edit(@PathVariable("id") String id, Model model) {
         model.addAttribute("kind", kindRepository.getById(id));
         model.addAttribute("pageName", "Изменение");
         return "/dictionaries/kinds/edit";
     }
 
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String id, RedirectAttributes rm) {
-        String errorMessage = "Невозможно удалить статью, так как она $s";
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
+        String errorMessage = "Невозможно удалить статью, так как она %s";
         Kind kind = kindRepository.getById(id);
         if (kind == null) {
-            rm.addFlashAttribute("error", String.format(errorMessage, "не найдена"));
-            return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+            String message = String.format(errorMessage, "не найдена");
+            return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
         if (!budgetRepository.getByKindId(id).isEmpty()) {
-            rm.addFlashAttribute("error", String.format(errorMessage, "используется в бюджете"));
-            return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+            String message = String.format(errorMessage, "используется в бюджете");
+            return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
         if (!regularOperationRepository.getByKindId(id).isEmpty()) {
-            rm.addFlashAttribute("error", String.format(errorMessage, "используется в регулярных операциях"));
-            return String.format("redirect:/dictionaries/kinds/edit/%s", id);
+            String message = String.format(errorMessage, "используется в регулярных операциях");
+            return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
         kindRepository.deleteById(id);
-        return "redirect:/dictionaries/kinds";
+        return ResponseEntity.ok(new Response(200, null));
     }
 
     @PostMapping("/edit")
