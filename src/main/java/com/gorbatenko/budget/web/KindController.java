@@ -9,6 +9,7 @@ import com.gorbatenko.budget.util.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -63,6 +64,7 @@ public class KindController extends AbstractWebController{
         return ResponseEntity.ok(new Response(200, null));
     }
 
+    @Transactional
     @PostMapping("/edit")
     public String editKind(@Valid @ModelAttribute KindTo kindTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
