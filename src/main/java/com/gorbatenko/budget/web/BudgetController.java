@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.function.Predicate;
@@ -167,14 +164,13 @@ public class BudgetController extends AbstractWebController {
                     .toLocalDate();
         }
 
-        boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
-                (endDate.getMonth().equals(startDate.getMonth())));
+        GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
 
         Map<String, Double> mapDateProfit =
-                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, isInMonth);
+                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, groupPeriod);
 
         Map<String, Double> mapDateSpending =
-                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, isInMonth);
+                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, groupPeriod);
 
         TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
 
@@ -341,7 +337,7 @@ public class BudgetController extends AbstractWebController {
 
         boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
                 (endDate.getMonth().equals(startDate.getMonth())));
-
+        GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
 
         if(! kindId.isEmpty()) {
             Kind kind = kindRepository.getById(kindId);
@@ -359,7 +355,8 @@ public class BudgetController extends AbstractWebController {
 
         Map<String, Double> mapKind = listBudget.stream()
                 .collect(groupingBy(
-                        (isInMonth ? Budget::getStrDate : Budget::getStrYearMonth),
+                        (groupPeriod.equals(GroupPeriod.BY_DAYS) ? Budget::getStrDate :
+                                groupPeriod.equals(GroupPeriod.BY_MONTHS) ? Budget::getStrYearMonth : Budget::getStrYear),
                         Collectors.summingDouble(Budget::getPrice)));
 
         TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
@@ -464,7 +461,6 @@ public class BudgetController extends AbstractWebController {
         return ResponseEntity.ok(new Response(200, null));
     }
 
-
     public static int getSumTimezoneOffsetMinutes(HttpServletRequest request) {
         int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
 
@@ -490,4 +486,18 @@ public class BudgetController extends AbstractWebController {
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
         return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
     }
+
+    private GroupPeriod getGroupPeriod(LocalDate startDate, LocalDate endDate) {
+        if ((endDate.getYear() == startDate.getYear()) &&
+                (endDate.getMonth().equals(startDate.getMonth()))) {
+            return GroupPeriod.BY_DAYS;
+        } else {
+            Period age = Period.between(startDate, endDate);
+            if (age.getMonths() <= 12 && age.getYears() < 1) {
+                return GroupPeriod.BY_MONTHS;
+            }
+            return GroupPeriod.BY_YEARS;
+        }
+    }
+
 }

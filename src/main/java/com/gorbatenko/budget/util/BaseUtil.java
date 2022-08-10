@@ -59,4 +59,9 @@ public class BaseUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         return ldt.format(formatter);
     }
+
+    public static String getStrYear(LocalDateTime ldt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        return ldt.format(formatter);
+    }
 }

@@ -5,6 +5,7 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.util.BaseUtil;
+import com.gorbatenko.budget.util.GroupPeriod;
 import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.gorbatenko.budget.util.BaseUtil.getStrYearMonth;
-import static com.gorbatenko.budget.util.BaseUtil.getStrYearMonthDay;
+import static com.gorbatenko.budget.util.BaseUtil.*;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static java.util.Objects.requireNonNull;
@@ -105,14 +105,14 @@ public class BudgetRepository extends AbstractRepository {
     }
 
     public Map<String, Double> getSumPriceForPeriodByDateAndDefaultCurrency(LocalDateTime startDate, LocalDateTime endDate,
-                                                                     Type type, TypePeriod period, boolean isInMonth) {
+                                                                     Type type, TypePeriod period, GroupPeriod groupPeriod) {
         Criteria criteria = createBaseFilterCriteria(startDate, endDate, null, type.name(), null, null, null, period);
 
         List<DateSumPrice> dateSumPrices = aggregationByField(criteria, GroupOps.SUM, "date", "price", "sumPrice", Budget.class, DateSumPrice.class);
 
         Map<String, Double> result = new HashMap<>();
         for(DateSumPrice item : dateSumPrices) {
-            String key = isInMonth ? getStrYearMonthDay(item.getDate()) :  getStrYearMonth(item.getDate());
+            String key = getKeyByGroupPeriod(groupPeriod, item.getDate());
             Double value = result.getOrDefault(key, 0.0D) + item.sumPrice;
             result.put(key, value);
         }
@@ -173,6 +173,15 @@ public class BudgetRepository extends AbstractRepository {
     private boolean isFakeValue(String str) {
         List<String> fakes = List.of("-1", "ALLTYPES");
         return fakes.contains(str.toUpperCase());
+    }
+
+    private String getKeyByGroupPeriod(GroupPeriod groupPeriod, LocalDateTime date) {
+        switch (groupPeriod) {
+            case BY_DAYS: return getStrYearMonthDay(date);
+            case BY_MONTHS: return getStrYearMonth(date);
+            case BY_YEARS: return getStrYear(date);
+            default: return getStrYearMonthDay(date);
+        }
     }
 
     class DateSumPrice {
