@@ -20,7 +20,7 @@
                     <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                         <td style="padding-left: 50px; font-weight: bolder">
                             <a class="text-dark"
-                               th:href="@{/budget/statistic(alltime='yes',
+                               th:href="@{/budget/statistic(period='ALL_TIME',
                                                     kindId=${kind.getId()})}">
                                 <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
                             </a>
