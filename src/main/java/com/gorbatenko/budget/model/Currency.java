@@ -15,6 +15,8 @@ public class Currency extends BaseEntity implements Comparable {
 
   private String userGroup;
 
+  private boolean hidden = false;
+
   public Currency(String name) {
     this.name = name;
   }
@@ -22,6 +24,11 @@ public class Currency extends BaseEntity implements Comparable {
   public Currency(String name, String userGroup) {
     this.name = name;
     this.userGroup = userGroup;
+  }
+
+  public Currency(String name, boolean hidden) {
+    this.name = name;
+    this.hidden = hidden;
   }
 
   @Override
@@ -36,6 +43,7 @@ public class Currency extends BaseEntity implements Comparable {
             "id='" + getId() + '\'' +
             ", name='" + name + '\'' +
             ", userGroup='" + userGroup + '\'' +
+            ", hidden='" + hidden + '\'' +
             '}';
   }
 }

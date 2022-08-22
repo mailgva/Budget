@@ -13,13 +13,15 @@
             <thead>
             <tr>
                 <th data-field="name" data-sortable="true">Наименование</th>
+                <th data-field="visibility" data-sortable="true">Видимость</th>
                 <th> </th>
             </tr>
             </thead>
             <tbody>
             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
-            <tr th:class="${'bg-success'}"  th:each="currency : ${ currencies}">
+            <tr th:class="${'bg-success'}"  th:each="currency : ${currencies}">
                 <td><span class="summation"  th:text="${currency.getName()}"> Name </span></td>
+                <td><span class="summation"  th:text="${currency.isHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
                 <td>
                     <a th:href="@{'/dictionaries/currencies/edit/'+${currency.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>

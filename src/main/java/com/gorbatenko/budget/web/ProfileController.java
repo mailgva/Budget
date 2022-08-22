@@ -47,7 +47,7 @@ public class ProfileController extends AbstractWebController {
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
 
-        currencyRepository.getAll()
+        currencyRepository.getVisibled()
                 .forEach(currency -> mapCurrencies.put(currency, currency.getId().equals(user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
@@ -190,7 +190,7 @@ public class ProfileController extends AbstractWebController {
 
     private Map<String, RemainderTo> getCurrencyRemainders() {
         Map<String, RemainderTo> result = new HashMap<>();
-        for (Currency currency : currencyRepository.getAll()) {
+        for (Currency currency : currencyRepository.getVisibled()) {
             Double profit = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
             Double spending = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
             result.put(currency.getName(), new RemainderTo(profit, spending));

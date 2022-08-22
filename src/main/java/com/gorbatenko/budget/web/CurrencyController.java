@@ -27,9 +27,7 @@ public class CurrencyController extends AbstractWebController {
     public String create(Model model) {
         Currency currency = new Currency();
         model.addAttribute("currency", currency);
-
         model.addAttribute("pageName", "Создание");
-
         return "/dictionaries/currencies/edit";
     }
 
@@ -75,7 +73,10 @@ public class CurrencyController extends AbstractWebController {
         if (currencyTo.getId().isEmpty()) {
             currencyTo.setId(null);
         }
-        if (currencyRepository.getByName(currencyTo.getName()) != null) {
+        Currency currencyByName = currencyRepository.getByName(currencyTo.getName());
+
+        if (currencyByName != null &&
+                (currencyTo.getId() != null && !currencyTo.getId().equals(currencyByName.getId()))) {
             rm.addFlashAttribute("error", "Валюта с наименованием '" + currencyTo.getName() + "'" +
                     " уже используется!");
             return String.format("redirect:/dictionaries/currencies/edit/%s", currencyTo.getId());
@@ -88,7 +89,7 @@ public class CurrencyController extends AbstractWebController {
             }
         }
 
-        Currency currency = new Currency(currencyTo.getName());
+        Currency currency = new Currency(currencyTo.getName(), currencyTo.isHidden());
         currency.setId(currencyTo.getId());
         currency = currencyRepository.save(currency);
 

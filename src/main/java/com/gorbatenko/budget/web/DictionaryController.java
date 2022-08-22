@@ -44,7 +44,7 @@ public class DictionaryController extends AbstractWebController {
                 model.addAttribute("pageName", "Виды приходов//расходов");
                 return "/dictionaries/kinds/kinds";
             case CURRENCIES:
-                List<Currency> currencies = getCurrencies(authUser);
+                List<Currency> currencies = currencyRepository.getAll();
                 currencies.sort(Comparator.comparing(Currency::getName));
                 model.addAttribute("currencies", currencies);
                 model.addAttribute("pageName", "Валюты");

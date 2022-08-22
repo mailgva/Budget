@@ -37,6 +37,13 @@ public class CurrencyRepository extends AbstractRepository {
         return findAll(null, sort, Currency.class);
     }
 
+    public List<Currency> getVisibled() {
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        Criteria criteria = new Criteria();
+        criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
+        return findAll(criteria, sort, Currency.class);
+    }
+
     public Currency getById(String id) {
         return findById(id, Currency.class);
     }
@@ -56,7 +63,7 @@ public class CurrencyRepository extends AbstractRepository {
         return mongoRepository.findOne(query, Currency.class);
     }
 
-    public List<Currency> getFilteredData(String id, String name) {
+    public List<Currency> getFilteredData(String id, String name, boolean hidden) {
         Criteria criteria = new Criteria();
 
         if (!isBlank(id)) {
@@ -65,7 +72,12 @@ public class CurrencyRepository extends AbstractRepository {
         if (!isBlank(name)) {
             criteria.and("name").is(name);
         }
+        if (hidden) {
+            criteria.and("hidden").is(hidden);
+        } else {
+            criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
 
+        }
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         return findAll(criteria, sort, Currency.class);
     }

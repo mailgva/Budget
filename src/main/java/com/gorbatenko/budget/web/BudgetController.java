@@ -414,7 +414,7 @@ public class BudgetController extends AbstractWebController {
                 LocalTime.of(0,0)));
         budget.setCurrency(getCurrencyDefault());
 
-        List<Currency> currencies = currencyRepository.getFilteredData(null, null);
+        List<Currency> currencies = currencyRepository.getFilteredData(null, null, false);
 
         model.addAttribute("budget", budget);
         model.addAttribute("type", type);
@@ -435,7 +435,7 @@ public class BudgetController extends AbstractWebController {
         List<Kind> kinds = kindRepository.getFilteredData(null, null, type);
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        List<Currency> currencies = currencyRepository.getFilteredData(null, null);
+        List<Currency> currencies = currencyRepository.getFilteredData(null, null, false);
 
         String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
 

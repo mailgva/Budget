@@ -70,7 +70,7 @@ public class AbstractWebController {
         if (authUser == null) {
             return null;
         }
-        return currencyRepository.getAll();
+        return currencyRepository.getVisibled();
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate) {

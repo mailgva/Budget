@@ -38,7 +38,7 @@ public class RegularOperationController extends AbstractWebController{
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindRepository.getAll();
-        List<Currency> currencies = currencyRepository.getAll();
+        List<Currency> currencies = currencyRepository.getVisibled();
 
         operation.setCurrency(getCurrencyDefault());
 
@@ -89,7 +89,7 @@ public class RegularOperationController extends AbstractWebController{
     public String edit(@PathVariable("id") String id, Model model) {
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindRepository.getAll();
-        List<Currency> currencies = currencyRepository.getAll();
+        List<Currency> currencies = currencyRepository.getVisibled();
 
         model.addAttribute("operation", regularOperationRepository.getById(id));
         model.addAttribute("everies", everies);
