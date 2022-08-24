@@ -310,11 +310,13 @@ public class BudgetController extends AbstractWebController {
     }
 
     @GetMapping("/dynamicstatistic")
-    public String getDynamicStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                                      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                                      @RequestParam(value = "kindId", defaultValue = "") String kindId,
-                                      @RequestParam(value = "type", required = false, defaultValue = "") Type type,
-                                      Model model) {
+    public String getDynamicStatistic(
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(value = "kindId", defaultValue = "") String kindId,
+            @RequestParam(value = "type", required = false, defaultValue = "") Type type,
+            @RequestParam(value = "groupPeriod", required = false, defaultValue = "BY_DEFAULT") GroupPeriod groupPeriod,
+            Model model) {
 
         if ((startDate == null) || (endDate == null)) {
             return "redirect:budget/groupstatistic";
@@ -335,11 +337,11 @@ public class BudgetController extends AbstractWebController {
 
         List<Budget> listBudget;
 
-        boolean isInMonth = ((endDate.getYear() == startDate.getYear()) &&
-                (endDate.getMonth().equals(startDate.getMonth())));
-        GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
+        if (groupPeriod == GroupPeriod.BY_DEFAULT) {
+            groupPeriod = getGroupPeriod(startDate, endDate);
+        }
 
-        if(! kindId.isEmpty()) {
+        if (!kindId.isEmpty()) {
             Kind kind = kindRepository.getById(kindId);
 
             listBudget =
@@ -364,12 +366,15 @@ public class BudgetController extends AbstractWebController {
         positionSum = listBudget.stream()
                 .mapToDouble(Budget::getPrice).sum();
 
+        model.addAttribute("startDate", dateToStr(startDate));
+        model.addAttribute("endDate", dateToStr(endDate));
+        model.addAttribute("type", type);
+        model.addAttribute("kindId", kindId);
         model.addAttribute("positionName", positionName);
         model.addAttribute("positionSum", positionSum);
         model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, positionName, mapKindSort));
-
+        model.addAttribute("groupPeriod", groupPeriod);
         model.addAttribute("pageName", "Динамика");
-
         return "budget/dynamicstatistic";
     }
 

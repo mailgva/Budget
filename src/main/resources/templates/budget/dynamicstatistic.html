@@ -7,6 +7,52 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <h4 th:text="${positionName + ' - ' + #numbers.formatDecimal(positionSum,1,'DEFAULT',0,'DEFAULT')}"></h4>
+        <!--/*--><!--@thymesVar id="groupPeriod" type="com.gorbatenko.budget.util.GroupPeriod"-->
+        <!--*/-->
+        <div class="form-group row">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_days"
+                       th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_DAYS)}">
+                <label class="form-check-label" for="by_days" >
+                    <a class="text-dark"
+                       th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_DAYS.getValue())}"
+                       th:href="@{/budget/dynamicstatistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     kindId=${kindId},
+                                                     type=${type},
+                                                     groupPeriod=${(T(com.gorbatenko.budget.util.GroupPeriod).BY_DAYS).name()})}">
+                    </a>
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_months"
+                       th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_MONTHS)}">
+                <label class="form-check-label" for="by_months">
+                    <a class="text-dark"
+                       th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_MONTHS.getValue())}"
+                       th:href="@{/budget/dynamicstatistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     kindId=${kindId},
+                                                     type=${type},
+                                                     groupPeriod=${(T(com.gorbatenko.budget.util.GroupPeriod).BY_MONTHS).name()})}">
+                    </a>
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_years"
+                       th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_YEARS)}">
+                <label class="form-check-label" for="by_years">
+                    <a class="text-dark"
+                       th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_YEARS.getValue())}"
+                       th:href="@{/budget/dynamicstatistic(startDate=${startDate},
+                                                     endDate=${endDate},
+                                                     kindId=${kindId},
+                                                     type=${type},
+                                                     groupPeriod=${(T(com.gorbatenko.budget.util.GroupPeriod).BY_YEARS).name()})}">
+                    </a>
+                </label>
+            </div>
+        </div>
         <canvas id="barChart" style="max-width: 80%;max-height: 500px;"></canvas>
     </div>
     <script th:inline="javascript">
