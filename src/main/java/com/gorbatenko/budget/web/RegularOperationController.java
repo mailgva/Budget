@@ -26,14 +26,14 @@ import static com.gorbatenko.budget.web.BudgetController.getSumTimezoneOffsetMin
 @RequestMapping("/regularoperations/")
 public class RegularOperationController extends AbstractWebController{
 
-    @GetMapping("/")
+    @GetMapping
     String getRegularOperations(Model model) {
         model.addAttribute("operations", regularOperationRepository.getAll());
         model.addAttribute("pageName", "Регулярные операции");
         return "/regularoperations/operations";
     }
 
-    @GetMapping("/create")
+    @GetMapping("create")
     public String create(Model model) {
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class RegularOperationController extends AbstractWebController{
         return "/regularoperations/edit";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         RegularOperation operation = regularOperationRepository.getById(id);
         if (operation == null) {
@@ -62,7 +62,7 @@ public class RegularOperationController extends AbstractWebController{
         return ResponseEntity.ok(new Response(200, null));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public String editCreateRegularOperation(@Valid @ModelAttribute RegularOperationTo regularOperationTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  HttpServletRequest request,
@@ -85,7 +85,7 @@ public class RegularOperationController extends AbstractWebController{
         return (referer.isEmpty() ? "redirect:/regularoperations/" : "redirect:" + referer);
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindRepository.getAll();

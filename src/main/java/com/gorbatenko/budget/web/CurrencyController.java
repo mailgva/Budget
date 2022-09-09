@@ -23,7 +23,7 @@ import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 @RequestMapping(value = "/dictionaries/currencies/")
 public class CurrencyController extends AbstractWebController {
 
-    @GetMapping("/create")
+    @GetMapping("create")
     public String create(Model model) {
         Currency currency = new Currency();
         model.addAttribute("currency", currency);
@@ -31,7 +31,7 @@ public class CurrencyController extends AbstractWebController {
         return "/dictionaries/currencies/edit";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         model.addAttribute("currency", currencyRepository.getById(id));
         model.addAttribute("pageName", "Изменение");
@@ -68,7 +68,7 @@ public class CurrencyController extends AbstractWebController {
     }
 
     @Transactional
-    @PostMapping("/edit")
+    @PostMapping("edit")
     public String editCurrency(@Valid @ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
         if (currencyTo.getId().isEmpty()) {
             currencyTo.setId(null);

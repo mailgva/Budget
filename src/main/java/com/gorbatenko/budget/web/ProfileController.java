@@ -31,7 +31,7 @@ public class ProfileController extends AbstractWebController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @GetMapping("/")
+    @GetMapping
     @PreAuthorize("isAuthenticated()")
     public String profile(Model model) {
         reloadUserContext(SecurityUtil.get().getUser());
@@ -59,13 +59,13 @@ public class ProfileController extends AbstractWebController {
         return "profile/profile";
     }
 
-    @GetMapping("/register")
+    @GetMapping("register")
     public String register(Model model) {
         model.addAttribute("pageName", "Регистрация");
         return "/profile/register";
     }
 
-    @PostMapping("/register")
+    @PostMapping("register")
     public String newUser(@ModelAttribute User user, Model model) {
         try {
             if (userService.findByEmail(user.getEmail()) != null) {
@@ -83,7 +83,7 @@ public class ProfileController extends AbstractWebController {
 
     @SneakyThrows
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/jointogroup/{groupId}")
+    @GetMapping("jointogroup/{groupId}")
     public String joinToGroup(@PathVariable("groupId") String groupId, RedirectAttributes rm) {
         User user = SecurityUtil.get().getUser();
         List<User> groupUser = userService.getByGroup(groupId);
@@ -108,7 +108,7 @@ public class ProfileController extends AbstractWebController {
 
     @SneakyThrows
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/removefromgroup/{userId}")
+    @GetMapping("removefromgroup/{userId}")
     public ResponseEntity removeFromGroup(@PathVariable("userId") String userId) {
         User user = userService.findById(userId);
         user.setGroup(userId);
@@ -143,7 +143,7 @@ public class ProfileController extends AbstractWebController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/joinrequest/{id}/decline")
+    @GetMapping("joinrequest/{id}/decline")
     public ResponseEntity joinToGroupDecline(@PathVariable("id") String id, Model model) {
         User userAdmin = SecurityUtil.get().getUser();
         JoinRequest joinRequest = joinRequestRepository.findById(id);
@@ -156,7 +156,7 @@ public class ProfileController extends AbstractWebController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/changedefcurrency")
+    @PostMapping("changedefcurrency")
     public String changeDefaultCurrency(@RequestParam(value="currencyId") String currencyId) {
         User user = SecurityUtil.get().getUser();
         user.setCurrencyDefault(currencyRepository.getById(currencyId));
@@ -165,7 +165,7 @@ public class ProfileController extends AbstractWebController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/changedefcurrency")
+    @GetMapping("changedefcurrency")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void changeDefaultCurrencyGet(@RequestParam(value="currencyId") String currencyId) {
         User user = SecurityUtil.get().getUser();
@@ -175,7 +175,7 @@ public class ProfileController extends AbstractWebController {
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/changename")
+    @PostMapping("changename")
     public String changeName(@RequestParam(value="username") String name) {
         User user = SecurityUtil.get().getUser();
         user.setName(name);

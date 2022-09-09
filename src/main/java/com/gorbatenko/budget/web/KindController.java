@@ -25,7 +25,7 @@ import static org.apache.logging.log4j.ThreadContext.isEmpty;
 @RequestMapping(value = "/dictionaries/kinds/")
 public class KindController extends AbstractWebController{
 
-    @GetMapping("/create/{type}")
+    @GetMapping("create/{type}")
     public String create(@PathVariable("type") String type, Model model, HttpServletRequest request) {
         Kind kind = new Kind();
         kind.setType(Type.valueOf(type.toUpperCase()));
@@ -36,14 +36,14 @@ public class KindController extends AbstractWebController{
         return "/dictionaries/kinds/edit";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         model.addAttribute("kind", kindRepository.getById(id));
         model.addAttribute("pageName", "Изменение");
         return "/dictionaries/kinds/edit";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         String errorMessage = "Невозможно удалить статью, так как она %s";
         Kind kind = kindRepository.getById(id);
@@ -67,7 +67,7 @@ public class KindController extends AbstractWebController{
     }
 
     @Transactional
-    @PostMapping("/edit")
+    @PostMapping("edit")
     public String editKind(@Valid @ModelAttribute KindTo kindTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  RedirectAttributes rm) {

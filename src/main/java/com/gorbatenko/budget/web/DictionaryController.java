@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/")
 public class DictionaryController extends AbstractWebController {
-    @GetMapping("/")
+    @GetMapping
     public String getDictionaries(Model model) {
         model.addAttribute("pageName", "Справочники");
         return "dictionaries/dictionaries";
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("{name}")
     public String getDictionary(
             @AuthenticationPrincipal AuthorizedUser authUser, @PathVariable("name") String name, Model model) {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());

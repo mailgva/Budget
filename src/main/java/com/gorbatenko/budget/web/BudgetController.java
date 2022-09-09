@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.groupingBy;
 @RequestMapping(value = "/budget/")
 public class BudgetController extends AbstractWebController {
 
-    @PostMapping("/")
+    @PostMapping
     public String createBudget(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
@@ -73,7 +73,7 @@ public class BudgetController extends AbstractWebController {
                 currency);
     }
 
-    @GetMapping("/groupstatistic")
+    @GetMapping("groupstatistic")
     public String getGroupStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                     @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                     @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
@@ -247,7 +247,7 @@ public class BudgetController extends AbstractWebController {
         return "budget/groupstatistic";
     }
 
-    @GetMapping("/statistic")
+    @GetMapping("statistic")
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(value = "userId", defaultValue = "-1") String userId,
@@ -309,7 +309,7 @@ public class BudgetController extends AbstractWebController {
         return "budget/statistic";
     }
 
-    @GetMapping("/dynamicstatistic")
+    @GetMapping("dynamicstatistic")
     public String getDynamicStatistic(
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
@@ -378,7 +378,7 @@ public class BudgetController extends AbstractWebController {
         return "budget/dynamicstatistic";
     }
 
-    @GetMapping("/create/{type}")
+    @GetMapping("create/{type}")
     public String create(@PathVariable("type") String typeStr, Model model,
                          HttpServletRequest request) {
         int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
@@ -432,7 +432,7 @@ public class BudgetController extends AbstractWebController {
         return "/budget/edit";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         Budget budget = budgetRepository.getById(id);
         Type type = budget.getKind().getType();
@@ -460,7 +460,7 @@ public class BudgetController extends AbstractWebController {
         return "/budget/edit";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         budgetRepository.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
