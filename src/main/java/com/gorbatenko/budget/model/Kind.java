@@ -17,6 +17,8 @@ public class Kind extends BaseEntity implements Comparable {
 
     private String userGroup;
 
+    private boolean hidden = false;
+
     public Kind(Type type, String name) {
         this.type = type;
         this.name = name;

@@ -36,6 +36,10 @@
             <input type="text" name="name" id="name" class="form-control" th:value="${kind.getName()}"
                    placeholder="Наименование" required minlength="3">
           </div>
+          <label for="hidden">Скрыто</label>
+          <div class="input-group mb-3">
+            <input type="checkbox" name="hidden" id="hidden" class="form-control" th:checked="${kind.isHidden()}">
+          </div>
         </div>
 
         <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>

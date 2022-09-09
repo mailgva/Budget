@@ -76,7 +76,6 @@ public class CurrencyRepository extends AbstractRepository {
             criteria.and("hidden").is(hidden);
         } else {
             criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
-
         }
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         return findAll(criteria, sort, Currency.class);

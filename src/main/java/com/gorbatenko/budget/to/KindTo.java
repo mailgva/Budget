@@ -16,8 +16,11 @@ public class KindTo extends BaseEntity {
     @NotNull
     private Type type;
 
-    public KindTo(Type type, String name) {
+    private boolean hidden = false;
+
+    public KindTo(Type type, String name, boolean hidden) {
         this.type = type;
         this.name = name;
+        this.hidden = hidden;
     }
 }

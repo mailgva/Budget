@@ -13,6 +13,7 @@
             <th:block th:each="element : ${mapKind}">
                 <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                     <td ><h4 th:text="${element.key.getValue()}"></h4></td>
+                    <th >Видимость</th>
                     <td colspan="2"></td>
                 </tr>
                 <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
@@ -25,6 +26,7 @@
                                 <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
                             </a>
                         </td>
+                        <td><span class="summation"  th:text="${kind.isHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
                         <td style="padding-left: 10px; font-weight: bolder; text-align: center;">
                             <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                         </td>

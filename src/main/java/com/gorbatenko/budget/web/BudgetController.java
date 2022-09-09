@@ -385,7 +385,7 @@ public class BudgetController extends AbstractWebController {
 
         Budget budget = new Budget();
         Type type = Type.valueOf(typeStr.toUpperCase());
-        List<Kind> kinds = kindRepository.getFilteredData(null,null, type);
+        List<Kind> kinds = kindRepository.getFilteredData(null,null, type, false);
 
         if (kinds.size() == 0) {
             return "redirect:/dictionaries/kinds/create/"+typeStr;
@@ -437,7 +437,7 @@ public class BudgetController extends AbstractWebController {
         Budget budget = budgetRepository.getById(id);
         Type type = budget.getKind().getType();
 
-        List<Kind> kinds = kindRepository.getFilteredData(null, null, type);
+        List<Kind> kinds = kindRepository.getFilteredData(null, null, type, false);
         kinds.sort(Comparator.comparing(Kind::getName));
 
         List<Currency> currencies = currencyRepository.getFilteredData(null, null, false);

@@ -33,7 +33,7 @@ public class KindRepository extends AbstractRepository {
         return findAll(null, sort, Kind.class);
     }
 
-    public List<Kind> getFilteredData(String id, String name, Type type) {
+    public List<Kind> getFilteredData(String id, String name, Type type, Boolean hidden) {
         Criteria criteria = new Criteria();
 
         if (!isBlank(id)) {
@@ -45,7 +45,13 @@ public class KindRepository extends AbstractRepository {
         if (!isBlank(name)) {
             criteria.and("name").is(name);
         }
-
+        if (hidden != null) {
+            if (hidden) {
+                criteria.and("hidden").is(hidden);
+            } else {
+                criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
+            }
+        }
         Sort sort = Sort.by("type").ascending().and(Sort.by("name")).ascending();
         return findAll(criteria, sort, Kind.class);
     }

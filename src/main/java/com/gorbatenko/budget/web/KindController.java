@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/kinds/")
@@ -73,13 +75,17 @@ public class KindController extends AbstractWebController{
             kindTo.setId(null);
         }
 
-        if(!kindRepository.getFilteredData(null, kindTo.getName(), kindTo.getType()).isEmpty()) {
-            rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
-                    " уже используется в '" + kindTo.getType().getValue() + "'!");
-            if (referer.isEmpty()) {
-                return String.format("redirect:/dictionaries/kinds/edit/%s", kindTo.getId());
-            } else {
-                return referer;
+        List<Kind> filteredData = kindRepository.getFilteredData(null, kindTo.getName(), kindTo.getType(), null);
+        if(!filteredData.isEmpty()) {
+            Kind kind = filteredData.get(0);
+            if (kindTo.getId() != null && !kindTo.getId().equals(kind.getId())) {
+                rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
+                        " уже используется в '" + kindTo.getType().getValue() + "'!");
+                if (referer.isEmpty()) {
+                    return String.format("redirect:/dictionaries/kinds/edit/%s", kindTo.getId());
+                } else {
+                    return referer;
+                }
             }
         }
 
@@ -92,6 +98,7 @@ public class KindController extends AbstractWebController{
 
         Kind kind = createKindFromKindTo(kindTo);
         kind.setId(kindTo.getId());
+        kind.setHidden(kindTo.isHidden());
         kind = kindRepository.save(kind);
 
         List<Budget> budgets = budgetRepository.getByKindId(kind.getId());
