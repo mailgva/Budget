@@ -17,7 +17,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
+import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static org.apache.logging.log4j.ThreadContext.isEmpty;
 
 @Controller
@@ -74,11 +76,17 @@ public class KindController extends AbstractWebController{
         if(kindTo.getId().isEmpty()) {
             kindTo.setId(null);
         }
+        Kind kind = createKindFromKindTo(kindTo);
+        kind.setUserGroup(getUserGroup());
+        rm.addFlashAttribute("kindId", kind.getId());
 
         List<Kind> filteredData = kindRepository.getFilteredData(null, kindTo.getName(), kindTo.getType(), null);
         if(!filteredData.isEmpty()) {
-            Kind kind = filteredData.get(0);
-            if (kindTo.getId() != null && !kindTo.getId().equals(kind.getId())) {
+            Kind firstKind = filteredData.get(0);
+            if (Objects.deepEquals(kind, firstKind)) {
+                return (referer.isEmpty() ? "redirect:/dictionaries/kinds" : "redirect:" + referer);
+            }
+            if (kindTo.getId() != null && !kindTo.getId().equals(firstKind.getId())) {
                 rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                         " уже используется в '" + kindTo.getType().getValue() + "'!");
                 if (referer.isEmpty()) {
@@ -96,9 +104,6 @@ public class KindController extends AbstractWebController{
             }
         }
 
-        Kind kind = createKindFromKindTo(kindTo);
-        kind.setId(kindTo.getId());
-        kind.setHidden(kindTo.isHidden());
         kind = kindRepository.save(kind);
 
         List<Budget> budgets = budgetRepository.getByKindId(kind.getId());
@@ -113,11 +118,10 @@ public class KindController extends AbstractWebController{
             regularOperationRepository.save(operation);
         }
 
-        rm.addFlashAttribute("kindId", kind.getId());
         return (referer.isEmpty() ? "redirect:/dictionaries/kinds" : "redirect:" + referer);
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {
-        return new Kind(kindTo.getType(), kindTo.getName());
+        return new Kind(kindTo.getId(), kindTo.getType(), kindTo.getName(), kindTo.isHidden());
     }
 }

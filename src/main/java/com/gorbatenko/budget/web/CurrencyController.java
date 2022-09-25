@@ -15,8 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
+import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
@@ -73,7 +75,16 @@ public class CurrencyController extends AbstractWebController {
         if (currencyTo.getId().isEmpty()) {
             currencyTo.setId(null);
         }
+
+        Currency currency = new Currency(currencyTo.getName(), currencyTo.isHidden());
+        currency.setId(currencyTo.getId());
+        currency.setUserGroup(getUserGroup());
+
         Currency currencyByName = currencyRepository.getByName(currencyTo.getName());
+
+        if (Objects.deepEquals(currency, currencyByName)) {
+            return "redirect:/dictionaries/currencies";
+        }
 
         if (currencyByName != null &&
                 (currencyTo.getId() != null && !currencyTo.getId().equals(currencyByName.getId()))) {
@@ -89,8 +100,6 @@ public class CurrencyController extends AbstractWebController {
             }
         }
 
-        Currency currency = new Currency(currencyTo.getName(), currencyTo.isHidden());
-        currency.setId(currencyTo.getId());
         currency = currencyRepository.save(currency);
 
         List<Budget> budgets = budgetRepository.getByCurrencyId(currency.getId());
