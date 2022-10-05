@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "kind")
+@Document(collection = "kinds")
 public class Kind extends BaseEntity implements Comparable {
     @Indexed
     private String name;

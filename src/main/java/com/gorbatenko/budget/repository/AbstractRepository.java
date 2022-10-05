@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.repository;
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.util.KindTotals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -95,7 +95,7 @@ public class AbstractRepository {
                         .max("createDateTime").as("maxCreateDateTime"),
                 projection
         );
-        return mongoTemplate.aggregate(aggregation, Budget.class, KindTotals.class).getMappedResults();
+        return mongoTemplate.aggregate(aggregation, BudgetItem.class, KindTotals.class).getMappedResults();
     }
 
     protected boolean isBlank(String str) {

@@ -1,10 +1,10 @@
 package com.gorbatenko.budget.config.regularoperations;
 
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.doc.User;
-import com.gorbatenko.budget.repository.BudgetRepository;
+import com.gorbatenko.budget.repository.BudgetItemRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class RegularOperationConfig {
     private RegularOperationRepository regularOperationRepository;
 
     @Autowired
-    private BudgetRepository budgetRepository;
+    private BudgetItemRepository budgetItemRepository;
 
     @Value("${app.regularoperation.enabled}")
     private boolean enabled;
@@ -53,21 +53,21 @@ public class RegularOperationConfig {
             }
 
             if (execute) {
-                budgetRepository.adminSave(createFromOperation(operation));
+                budgetItemRepository.adminSave(createFromOperation(operation));
             }
         });
     }
 
-    private Budget createFromOperation(RegularOperation operation) {
-        Budget budget = new Budget(new User(operation.getUser().getId(), operation.getUser().getName()),
+    private BudgetItem createFromOperation(RegularOperation operation) {
+        BudgetItem budgetItem = new BudgetItem(new User(operation.getUser().getId(), operation.getUser().getName()),
                 operation.getKind(),
                 LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 operation.getDescription(),
                 operation.getPrice(),
                 operation.getCurrency());
 
-        budget.setCreateDateTime(LocalDateTime.now().plusMinutes(operation.getCountUserTimezomeOffsetMinutes()));
-        budget.setUserGroup(operation.getUserGroup());
-        return budget;
+        budgetItem.setCreateDateTime(LocalDateTime.now().plusMinutes(operation.getCountUserTimezomeOffsetMinutes()));
+        budgetItem.setUserGroup(operation.getUserGroup());
+        return budgetItem;
     }
 }

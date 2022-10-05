@@ -1,12 +1,12 @@
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
-<!--/*--><!--@thymesVar id="listBudget" type="java.util.TreeMap"--><!--*/-->
+<!--/*--><!--@thymesVar id="listBudgetItems" type="java.util.TreeMap"--><!--*/-->
 <table class="table">
     <tbody>
-    <tr th:if="${listBudget.isEmpty()}">
+    <tr th:if="${listBudgetItems.isEmpty()}">
         <td colspan="7"> Бюджет не доступен</td>
     </tr>
 
-    <th:block th:each="element : ${listBudget}">
+    <th:block th:each="element : ${listBudgetItems}">
         <tr th:id="${'d_' + #temporals.format(element.key, 'yyyy-MM-dd')}"
               th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'day bg-warning' : 'day bg-warning-light')}" onclick="hideDetail(this);" style="cursor: pointer;">
             <td colspan="7">
@@ -49,19 +49,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
-                    <th:block th:each="budget,row : ${element.value}">
+                    <!--/*--><!--@thymesVar id="budgetItem" type="com.gorbatenko.budget.model.BudgetItem"--><!--*/-->
+                    <th:block th:each="budgetItem,row : ${element.value}">
 
-                        <tr th:class="${budget.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                        <tr th:class="${budgetItem.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                             <td><span th:text="${row.index+1}"> # </span></td>
-                            <td><span th:text="${budget.user.name}"> User </span> <br>
-                                <span class="subdate" th:text="${#temporals.format(budget.createDateTime, 'yyyy-MM-dd HH:mm')}"> </span></td>
-                            <td><span th:text="${budget.kind.name}"> Item </span></td>
-                            <td><span th:text="${budget.description}"> Description </span>
+                            <td><span th:text="${budgetItem.user.name}"> User </span> <br>
+                                <span class="subdate" th:text="${#temporals.format(budgetItem.createDateTime, 'yyyy-MM-dd HH:mm')}"> </span></td>
+                            <td><span th:text="${budgetItem.kind.name}"> Item </span></td>
+                            <td><span th:text="${budgetItem.description}"> Description </span>
                             </td>
-                            <td style="text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budget.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
+                            <td style="text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budgetItem.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
                             <td>
-                                <a th:href="@{'/budget/edit/'+${budget.id}}" class="btn btn-warning" role="button"
+                                <a th:href="@{'/budget/edit/'+${budgetItem.id}}" class="btn btn-warning" role="button"
                                    aria-pressed="true"><i
                                         class="fa fa-pencil"></i></a>
                             </td>

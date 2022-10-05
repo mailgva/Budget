@@ -32,11 +32,11 @@ public class DictionaryController extends AbstractWebController {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());
         switch(dictionary) {
             case KINDS:
-                List<Budget> budgets = budgetRepository.getAll();
+                List<BudgetItem> budgetItems = budgetItemRepository.getAll();
                 TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(getKinds().stream()
                         .collect(Collectors.groupingBy(Kind::getType)));
 
-                Map<String, Long> mapCountKind = budgets.stream()
+                Map<String, Long> mapCountKind = budgetItems.stream()
                         .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));
 
                 model.addAttribute("mapKind", mapKind);

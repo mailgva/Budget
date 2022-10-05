@@ -7,7 +7,7 @@
 <main role="main">
   <div class="jumbotron" style="background: #c2ff8e">
     <div>
-      <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
+      <!--/*--><!--@thymesVar id="budgetItems" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
       <h2 th:text="${(kind.id == null ? 'Добавление' : 'Изменение') + ' вида Прихода/Расхода'}"> </h2>
       <div class="error" style="display: none;" id="error-message" role="alert" th:text="${error}">
       </div>

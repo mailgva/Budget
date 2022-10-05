@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
-import static com.gorbatenko.budget.web.BudgetController.getSumTimezoneOffsetMinutes;
+import static com.gorbatenko.budget.web.BudgetItemController.getSumTimezoneOffsetMinutes;
 
 @Controller
 @PreAuthorize("isAuthenticated()")

@@ -1,7 +1,7 @@
 package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
@@ -27,7 +27,7 @@ public class AbstractWebController {
     protected static final LocalDateTime MAX_DATE_TIME = LocalDateTime.of(3000, 1, 1, 0,0,1);
 
     @Autowired
-    protected BudgetRepository budgetRepository;
+    protected BudgetItemRepository budgetItemRepository;
 
     @Autowired
     protected KindRepository kindRepository;
@@ -74,11 +74,11 @@ public class AbstractWebController {
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate) {
-        List<Budget> listBudget = budgetRepository.getFilteredData(startDate, endDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
+        List<BudgetItem> listBudgetItems = budgetItemRepository.getFilteredData(startDate, endDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
 
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
-        listBudget.stream()
-                .collect(Collectors.groupingBy(Budget::getKind, Collectors.counting()))
+        listBudgetItems.stream()
+                .collect(Collectors.groupingBy(BudgetItem::getKind, Collectors.counting()))
                 .entrySet()
                 .stream()
                 .filter(x -> x.getValue() >= POPULARKIND_COUNT)
@@ -96,15 +96,15 @@ public class AbstractWebController {
         return result;
     }
 
-    protected void getBalanceParts(Model model, List<Budget> budgets, LocalDateTime startDate, LocalDateTime endDate) {
-        Double profit = budgets.stream()
+    protected void getBalanceParts(Model model, List<BudgetItem> budgetItems, LocalDateTime startDate, LocalDateTime endDate) {
+        Double profit = budgetItems.stream()
                 .filter(b -> b.getKind().getType().equals(Type.PROFIT))
-                .mapToDouble(Budget::getPrice)
+                .mapToDouble(BudgetItem::getPrice)
                 .sum();
 
-        Double spending = budgets.stream()
+        Double spending = budgetItems.stream()
                 .filter(b -> b.getKind().getType().equals(Type.SPENDING))
-                .mapToDouble(Budget::getPrice)
+                .mapToDouble(BudgetItem::getPrice)
                 .sum();
 
         Double remain = profit - spending;
@@ -117,9 +117,9 @@ public class AbstractWebController {
     }
 
     protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
-        List<Budget> budgets =
-                budgetRepository.getFilteredData(null, startDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
-        return budgets.stream()
+        List<BudgetItem> budgetItems =
+                budgetItemRepository.getFilteredData(null, startDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
+        return budgetItems.stream()
                 .map(budget ->
                         (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
     }

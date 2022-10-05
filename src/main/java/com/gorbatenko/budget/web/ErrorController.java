@@ -20,7 +20,7 @@ public class ErrorController extends AbstractWebController {
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String exception(final Throwable throwable, final Model model, HttpServletRequest request) {
-        log.error("Exception during execution Budget application", throwable);
+        log.error("Exception during execution BudgetItem application", throwable);
 
         String errorMessage = (throwable != null ? throwable.getLocalizedMessage() : "Unknown error");
 

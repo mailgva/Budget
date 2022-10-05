@@ -1,7 +1,7 @@
 # Budget  
 <img src="http://s1.iconbird.com/ico/1012/EcommerceBusinessIcons/w256h2561350823474wallet256x256.png" height="200" width="200">
 
-The application for management and planning family budget.
+The application for management and planning family budgetItem.
 Features:
  - group of users (in section Profile has link to join to group)
  - contains 2 types operation - Spanding and Profit
@@ -54,7 +54,7 @@ For run app you need:
  1. Install and run **MongoDB server**. 
  2. Create environment variable **MONGODB_URI**.  
     Example for localhost:  
-    ``MONGODB_URI=mongodb://localhost:27017/budget``   
+    ``MONGODB_URI=mongodb://localhost:27017/budgetItem``   
  3. Run app (4 ways):  
     - execute ``hr.bat``
     - in Idea through Tomcat

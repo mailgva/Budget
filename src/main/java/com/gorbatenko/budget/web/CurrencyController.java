@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.to.CurrencyTo;
@@ -50,7 +50,7 @@ public class CurrencyController extends AbstractWebController {
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!budgetRepository.getByCurrencyId(id).isEmpty()) {
+        if (!budgetItemRepository.getByCurrencyId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в бюджете");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
@@ -102,10 +102,10 @@ public class CurrencyController extends AbstractWebController {
 
         currency = currencyRepository.save(currency);
 
-        List<Budget> budgets = budgetRepository.getByCurrencyId(currency.getId());
-        for (Budget budget : budgets) {
-            budget.setCurrency(currency);
-            budgetRepository.save(budget);
+        List<BudgetItem> budgetItems = budgetItemRepository.getByCurrencyId(currency.getId());
+        for (BudgetItem budgetItem : budgetItems) {
+            budgetItem.setCurrency(currency);
+            budgetItemRepository.save(budgetItem);
         }
 
         List<RegularOperation> operations = regularOperationRepository.getByCurrencyId(currency.getId());

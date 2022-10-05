@@ -19,7 +19,6 @@ import javax.validation.Valid;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
@@ -30,7 +29,7 @@ import static java.util.stream.Collectors.groupingBy;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/budget/")
-public class BudgetController extends AbstractWebController {
+public class BudgetItemController extends AbstractWebController {
 
     @PostMapping
     public String createBudget(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
@@ -41,12 +40,12 @@ public class BudgetController extends AbstractWebController {
 
         int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
 
-        Budget budget = createBudgetFromBudgetTo(budgetTo);
-        budget.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
-        budget.setId(budgetTo.getId());
-        budgetRepository.save(budget);
+        BudgetItem budgetItem = createBudgetFromBudgetTo(budgetTo);
+        budgetItem.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
+        budgetItem.setId(budgetTo.getId());
+        budgetItemRepository.save(budgetItem);
 
-        LocalDate date = budget.getDate().toLocalDate();
+        LocalDate date = budgetItem.getDate().toLocalDate();
 
         LocalDate now = LocalDate.now();
         LocalDate startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
@@ -62,10 +61,10 @@ public class BudgetController extends AbstractWebController {
         }
     }
 
-    private Budget createBudgetFromBudgetTo(BudgetTo b) {
+    private BudgetItem createBudgetFromBudgetTo(BudgetTo b) {
         Kind kind = kindRepository.getById(b.getKindId());
         Currency currency = currencyRepository.getById(b.getCurrencyId());
-        return new Budget(toDocUser(SecurityUtil.get().getUser()),
+        return new BudgetItem(toDocUser(SecurityUtil.get().getUser()),
                 kind,
                 LocalDateTime.of(b.getDate(), LocalTime.MIN),
                 b.getDescription(),
@@ -106,7 +105,7 @@ public class BudgetController extends AbstractWebController {
         offSetStartDate = setTimeZoneOffset(startDate);
         offSetEndDate = setTimeZoneOffset(endDate);
 
-        List<KindTotals> totals = budgetRepository.getTotalsByKinds(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
+        List<KindTotals> totals = budgetItemRepository.getTotalsByKinds(offSetStartDate, offSetEndDate, null, null, null, null, null, period);
 
         if (period.equals(TypePeriod.ALL_TIME) && totals.size() > 0) {
             offSetStartDate = totals.stream()
@@ -167,10 +166,10 @@ public class BudgetController extends AbstractWebController {
         GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
 
         Map<String, Double> mapDateProfit =
-                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, groupPeriod);
 
         Map<String, Double> mapDateSpending =
-                budgetRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, groupPeriod);
 
         TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
 
@@ -262,7 +261,7 @@ public class BudgetController extends AbstractWebController {
             period = TypePeriod.SELECTED_PERIOD;
         }
 
-        List<com.gorbatenko.budget.model.doc.User> users = new HashSet<>(budgetRepository.getUsersForAllPeriod())
+        List<com.gorbatenko.budget.model.doc.User> users = new HashSet<>(budgetItemRepository.getUsersForAllPeriod())
                 .stream()
                 .sorted(Comparator.comparing(com.gorbatenko.budget.model.doc.User::getName))
                 .collect(Collectors.toList());
@@ -284,17 +283,17 @@ public class BudgetController extends AbstractWebController {
         }
         offSetEndDate = setTimeZoneOffset(endDate);
 
-        List<Budget> listBudget = budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, userId, typeStr, kindId, priceStr, description, period);
+        List<BudgetItem> listBudgetItems = budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, userId, typeStr, kindId, priceStr, description, period);
 
         if ((typeStr != null) && (!("allTypes".equals(typeStr)))) {
             model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
         }
 
-        getBalanceParts(model, listBudget, offSetStartDate.minusDays(1), offSetEndDate);
-        TreeMap<LocalDate, List<Budget>> map = listBudgetToTreeMap(listBudget);
+        getBalanceParts(model, listBudgetItems, offSetStartDate.minusDays(1), offSetEndDate);
+        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems);
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
-        model.addAttribute("listBudget", map);
+        model.addAttribute("listBudgetItems", map);
         model.addAttribute("users", users);
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
@@ -335,7 +334,7 @@ public class BudgetController extends AbstractWebController {
         String positionName;
         double positionSum;
 
-        List<Budget> listBudget;
+        List<BudgetItem> listBudgetItems;
 
         if (groupPeriod == GroupPeriod.BY_DEFAULT) {
             groupPeriod = getGroupPeriod(startDate, endDate);
@@ -344,27 +343,27 @@ public class BudgetController extends AbstractWebController {
         if (!kindId.isEmpty()) {
             Kind kind = kindRepository.getById(kindId);
 
-            listBudget =
-                    budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, TypePeriod.SELECTED_PERIOD);
+            listBudgetItems =
+                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, TypePeriod.SELECTED_PERIOD);
 
             positionName = kind.getName();
         } else {
-            listBudget =
-                    budgetRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
+            listBudgetItems =
+                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
 
             positionName = type.getValue();
         }
 
-        Map<String, Double> mapKind = listBudget.stream()
+        Map<String, Double> mapKind = listBudgetItems.stream()
                 .collect(groupingBy(
-                        (groupPeriod.equals(GroupPeriod.BY_DAYS) ? Budget::getStrDate :
-                                groupPeriod.equals(GroupPeriod.BY_MONTHS) ? Budget::getStrYearMonth : Budget::getStrYear),
-                        Collectors.summingDouble(Budget::getPrice)));
+                        (groupPeriod.equals(GroupPeriod.BY_DAYS) ? BudgetItem::getStrDate :
+                                groupPeriod.equals(GroupPeriod.BY_MONTHS) ? BudgetItem::getStrYearMonth : BudgetItem::getStrYear),
+                        Collectors.summingDouble(BudgetItem::getPrice)));
 
         TreeMap<String, Double> mapKindSort = new TreeMap<>(mapKind);
 
-        positionSum = listBudget.stream()
-                .mapToDouble(Budget::getPrice).sum();
+        positionSum = listBudgetItems.stream()
+                .mapToDouble(BudgetItem::getPrice).sum();
 
         model.addAttribute("startDate", dateToStr(startDate));
         model.addAttribute("endDate", dateToStr(endDate));
@@ -383,7 +382,7 @@ public class BudgetController extends AbstractWebController {
                          HttpServletRequest request) {
         int sumTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
 
-        Budget budget = new Budget();
+        BudgetItem budgetItem = new BudgetItem();
         Type type = Type.valueOf(typeStr.toUpperCase());
         List<Kind> kinds = kindRepository.getFilteredData(null,null, type, false);
 
@@ -405,23 +404,23 @@ public class BudgetController extends AbstractWebController {
 
         kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate);
 
-        budget.setKind(kinds.get(0));
+        budgetItem.setKind(kinds.get(0));
 
         String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
 
         if(!kindId.isEmpty()) {
-            budget.setKind(kinds.stream()
+            budgetItem.setKind(kinds.stream()
                     .filter(k -> k.getId().equals(kindId)).findFirst().get());
         }
 
-        budget.setDate(LocalDateTime.of(
+        budgetItem.setDate(LocalDateTime.of(
                 LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
                 LocalTime.of(0,0)));
-        budget.setCurrency(getCurrencyDefault());
+        budgetItem.setCurrency(getCurrencyDefault());
 
         List<Currency> currencies = currencyRepository.getFilteredData(null, null, false);
 
-        model.addAttribute("budget", budget);
+        model.addAttribute("budgetItem", budgetItem);
         model.addAttribute("type", type);
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
@@ -434,8 +433,8 @@ public class BudgetController extends AbstractWebController {
 
     @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
-        Budget budget = budgetRepository.getById(id);
-        Type type = budget.getKind().getType();
+        BudgetItem budgetItem = budgetItemRepository.getById(id);
+        Type type = budgetItem.getKind().getType();
 
         List<Kind> kinds = kindRepository.getFilteredData(null, null, type, false);
         kinds.sort(Comparator.comparing(Kind::getName));
@@ -445,11 +444,11 @@ public class BudgetController extends AbstractWebController {
         String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
 
         if(!kindId.isEmpty()) {
-            budget.setKind(kinds.stream()
+            budgetItem.setKind(kinds.stream()
                     .filter(k -> k.getId().equals(kindId)).findFirst().get());
         }
 
-        model.addAttribute("budget", budget);
+        model.addAttribute("budgetItem", budgetItem);
         model.addAttribute("kinds", kinds);
         model.addAttribute("type", type);
         model.addAttribute("currencies", currencies);
@@ -462,7 +461,7 @@ public class BudgetController extends AbstractWebController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
-        budgetRepository.deleteById(id);
+        budgetItemRepository.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
     }
 

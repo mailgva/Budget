@@ -7,10 +7,10 @@
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
         <div>
-            <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Budget"--><!--*/-->
-            <h2 th:text="${(budget.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
+            <!--/*--><!--@thymesVar id="budgetItem" type="com.gorbatenko.budget.model.BudgetItem"--><!--*/-->
+            <h2 th:text="${(budgetItem.id == null ? 'Добавление' : 'Изменение') + ' статьи ' + type.getValue()}"> </h2>
             <form id="form" name="form" th:action="@{/budget/}" method="post" onsubmit="return compare();">
-                <input type="hidden" name="id" th:value="${budget.id}">
+                <input type="hidden" name="id" th:value="${budgetItem.id}">
                 <fieldset disabled style="display: none">
                     <div class="form-group">
                         <label for="type">Тип</label>
@@ -18,7 +18,7 @@
                             <option th:each="val : ${T(com.gorbatenko.budget.model.Type).values()}"
                                     th:value="${val}"
                                     th:text="${val.value}"
-                                    th:selected="${budget.kind.getType().name().equalsIgnoreCase(val)}">
+                                    th:selected="${budgetItem.kind.getType().name().equalsIgnoreCase(val)}">
                             </option>
                         </select>
                     </div>
@@ -27,7 +27,7 @@
                     <label for="kindId">Вид</label>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <button class="btn btn-outline-secondary" type="button" th:data-path="'dictionaries/kinds/create/'+ ${budget.kind.getType().name()}"
+                            <button class="btn btn-outline-secondary" type="button" th:data-path="'dictionaries/kinds/create/'+ ${budgetItem.kind.getType().name()}"
                                     onclick="location.href = (this.getAttribute('data-path'));"
                             >
                                 <i class="fa fa-plus"></i>
@@ -37,7 +37,7 @@
                             <option th:each="kind : ${kinds}"
                                     th:value="${kind.id}"
                                     th:text="${kind.name}"
-                                    th:selected="${budget.kind.getName().equalsIgnoreCase(kind.getName()) }"> <!--|| kind.id.equalsIgnoreCase(kindId)-->
+                                    th:selected="${budgetItem.kind.getName().equalsIgnoreCase(kind.getName()) }"> <!--|| kind.id.equalsIgnoreCase(kindId)-->
                             </option>
                         </select>
                     </div>
@@ -48,7 +48,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                         </div>
-                        <input type="date" name="date" id="date" class="form-control" th:value="${budget.getStrDate()}">
+                        <input type="date" name="date" id="date" class="form-control" th:value="${budgetItem.getStrDate()}">
                     </div>
                 </div>
                 <div class="form-group">
@@ -58,12 +58,12 @@
                             <span class="input-group-text"><i class="fa fa-pencil"></i></span>
                         </div>
                         <textarea name="description" id="description" class="form-control" rows="4"
-                                  th:placeholder="${budget.description}" onkeyup="calculate()"
-                                  th:text="${budget.description}"></textarea>
+                                  th:placeholder="${budgetItem.description}" onkeyup="calculate()"
+                                  th:text="${budgetItem.description}"></textarea>
                     </div>
                 </div>
                 <div class="form-check mobchkbox">
-                    <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="${budget.id == null}"
+                    <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="${budgetItem.id == null}"
                            onclick="calculate()">
                     <label class="form-check-label mob" for="autocalc">Автоматический подсчет</label>
                 </div>
@@ -74,22 +74,22 @@
                             <span class="input-group-text"><i class="fa fa-money"></i></span>
                         </div>
                         <input type="number" min="1" step="1" name="price" id="price"
-                               class="form-control" th:placeholder="${#numbers.formatDecimal(budget.price,1,'NONE',0,'NONE')}" required
-                               th:value="${#numbers.formatDecimal(budget.price,1,'NONE',0,'NONE')}">
+                               class="form-control" th:placeholder="${#numbers.formatDecimal(budgetItem.price,1,'NONE',0,'NONE')}" required
+                               th:value="${#numbers.formatDecimal(budgetItem.price,1,'NONE',0,'NONE')}">
                         <div class="input-group-append">
                             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
                             <select id="currencyId" name="currencyId" class="custom-select" style="width: 120px;">
                                 <option th:each="currency : ${currencies}"
                                         th:value="${currency.id}"
                                         th:text="${currency.name}"
-                                        th:selected="${currency.id.equals(budget.getCurrency().getId())}"
+                                        th:selected="${currency.id.equals(budgetItem.getCurrency().getId())}"
                                 ></option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <button class="btn btn-primary mob"  name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
-                <button th:if="${budget.id != null}" class="btn btn-danger mob" type="button"
+                <button th:if="${budgetItem.id != null}" class="btn btn-danger mob" type="button"
                         th:onclick="remove()"><i class="fa fa-trash"></i> Удалить</button>
 
             </form>

@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.Type;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
@@ -54,7 +53,7 @@ public class KindController extends AbstractWebController{
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!budgetRepository.getByKindId(id).isEmpty()) {
+        if (!budgetItemRepository.getByKindId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в бюджете");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
@@ -106,10 +105,10 @@ public class KindController extends AbstractWebController{
 
         kind = kindRepository.save(kind);
 
-        List<Budget> budgets = budgetRepository.getByKindId(kind.getId());
-        for(Budget budget : budgets) {
-            budget.setKind(kind);
-            budgetRepository.save(budget);
+        List<BudgetItem> budgetItems = budgetItemRepository.getByKindId(kind.getId());
+        for(BudgetItem budgetItem : budgetItems) {
+            budgetItem.setKind(kind);
+            budgetItemRepository.save(budgetItem);
         }
 
         List<RegularOperation> operations = regularOperationRepository.getByKindId(kind.getId());

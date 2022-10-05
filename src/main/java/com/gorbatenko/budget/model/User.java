@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "user")
+@Document(collection = "users")
 public class User extends BaseEntity {
 
     // By default contains self id. If user is a member group, then field will be contains id group owner.

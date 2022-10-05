@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.util;
 
-import com.gorbatenko.budget.model.Budget;
+import com.gorbatenko.budget.model.BudgetItem;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,14 +27,14 @@ public class BaseUtil {
         return LocalDateTime.of(ld, LocalTime.MIN).plusHours(hours);
     }
 
-    public static TreeMap<LocalDate, List<Budget>> listBudgetToTreeMap(List<Budget> listBudget) {
-        TreeMap<LocalDate, List<Budget>> map = new TreeMap<>(Collections.reverseOrder());
-        for (Budget budget : listBudget) {
-            LocalDate key = budget.getDate().toLocalDate();
+    public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems) {
+        TreeMap<LocalDate, List<BudgetItem>> map = new TreeMap<>(Collections.reverseOrder());
+        for (BudgetItem budgetItem : listBudgetItems) {
+            LocalDate key = budgetItem.getDate().toLocalDate();
             if (map.containsKey(key)) {
-                map.get(key).add(budget);
+                map.get(key).add(budgetItem);
             } else {
-                map.put(key, new ArrayList<>(Arrays.asList(budget)));
+                map.put(key, new ArrayList<>(Arrays.asList(budgetItem)));
             }
         }
         return map;

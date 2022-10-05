@@ -180,10 +180,10 @@ public class ProfileController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         user.setName(name);
         userService.save(user);
-        List<Budget> budgets = budgetRepository.getFilteredData(null,null, user.getId(), null, null, null, null, TypePeriod.ALL_TIME);
-        for(Budget budget : budgets) {
-            budget.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
-            budgetRepository.save(budget);
+        List<BudgetItem> budgetItems = budgetItemRepository.getFilteredData(null,null, user.getId(), null, null, null, null, TypePeriod.ALL_TIME);
+        for(BudgetItem budgetItem : budgetItems) {
+            budgetItem.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
+            budgetItemRepository.save(budgetItem);
         }
         return "redirect:/profile/";
     }
@@ -191,8 +191,8 @@ public class ProfileController extends AbstractWebController {
     private Map<String, RemainderTo> getCurrencyRemainders() {
         Map<String, RemainderTo> result = new HashMap<>();
         for (Currency currency : currencyRepository.getVisibled()) {
-            Double profit = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
-            Double spending = budgetRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
+            Double profit = budgetItemRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
+            Double spending = budgetItemRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
             result.put(currency.getName(), new RemainderTo(profit, spending));
         }
         return result;

@@ -13,8 +13,8 @@ import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "budget")
-public class Budget extends BaseEntity {
+@Document(collection = "budget_items")
+public class BudgetItem extends BaseEntity {
     @NotNull
     private User user;
 
@@ -37,7 +37,7 @@ public class Budget extends BaseEntity {
     @NotNull
     private Double price;
 
-    public Budget(User user, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
+    public BudgetItem(User user, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
         this.user = user;
         this.kind = kind;
         this.date = date;
@@ -47,7 +47,7 @@ public class Budget extends BaseEntity {
         this.currency = currency;
     }
 
-    public Budget(User user, String userGroup, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
+    public BudgetItem(User user, String userGroup, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
         this.user = user;
         this.userGroup = userGroup;
         this.kind = kind;
@@ -60,7 +60,7 @@ public class Budget extends BaseEntity {
 
     @Override
     public String toString() {
-        return "Budget{" +
+        return "BudgetItem{" +
                 "id=" + getId() +
                 ", user=" + user +
                 ", userGroup=" + userGroup +
