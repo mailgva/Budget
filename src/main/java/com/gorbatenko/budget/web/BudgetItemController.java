@@ -328,7 +328,7 @@ public class BudgetItemController extends AbstractWebController {
         LocalDateTime offSetStartDate;
         LocalDateTime offSetEndDate;
 
-        offSetStartDate = setTimeZoneOffset(startDate).minusDays(1);
+        offSetStartDate = setTimeZoneOffset(startDate);
         offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         String positionName;
