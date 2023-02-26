@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gorbatenko.budget.BaseEntity;
 import com.gorbatenko.budget.model.Every;
 import lombok.Data;
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegularOperationTo extends BaseEntity {
     private Every every;
 

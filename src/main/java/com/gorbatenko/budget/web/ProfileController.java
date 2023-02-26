@@ -66,7 +66,7 @@ public class ProfileController extends AbstractWebController {
     }
 
     @PostMapping("register")
-    public String newUser(@ModelAttribute User user, Model model) {
+    public String newUser(@RequestBody User user, Model model) {
         try {
             if (userService.findByEmail(user.getEmail()) != null) {
                 model.addAttribute("error", "Пользователь с email '" + user.getEmail() + "' уже существует.");

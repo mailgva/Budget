@@ -1,5 +1,6 @@
 package com.gorbatenko.budget.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gorbatenko.budget.BaseEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrencyTo extends BaseEntity {
   @NotNull
   private String name;

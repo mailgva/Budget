@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RegularOperationTo;
 import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -62,8 +63,8 @@ public class RegularOperationController extends AbstractWebController{
         return ResponseEntity.ok(new Response(200, null));
     }
 
-    @PostMapping
-    public String editCreateRegularOperation(@Valid @ModelAttribute RegularOperationTo regularOperationTo,
+    @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String editCreateRegularOperation(@Valid @RequestBody RegularOperationTo regularOperationTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  HttpServletRequest request,
                                  RedirectAttributes rm) {

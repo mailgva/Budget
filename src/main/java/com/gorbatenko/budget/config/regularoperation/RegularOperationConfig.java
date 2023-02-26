@@ -1,4 +1,4 @@
-package com.gorbatenko.budget.config.regularoperations;
+package com.gorbatenko.budget.config.regularoperation;
 
 
 import com.gorbatenko.budget.model.BudgetItem;

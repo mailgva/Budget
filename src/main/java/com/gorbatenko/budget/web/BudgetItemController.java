@@ -1,12 +1,15 @@
 package com.gorbatenko.budget.web;
 
 
-import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -31,8 +34,8 @@ import static java.util.stream.Collectors.groupingBy;
 @RequestMapping(value = "/budget/")
 public class BudgetItemController extends AbstractWebController {
 
-    @PostMapping
-    public String createBudget(@Valid @ModelAttribute BudgetTo budgetTo, HttpServletRequest request) {
+    @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);

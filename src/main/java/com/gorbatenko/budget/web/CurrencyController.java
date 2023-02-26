@@ -5,6 +5,7 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.to.CurrencyTo;
 import com.gorbatenko.budget.util.Response;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -70,8 +71,8 @@ public class CurrencyController extends AbstractWebController {
     }
 
     @Transactional
-    @PostMapping("edit")
-    public String editCurrency(@Valid @ModelAttribute CurrencyTo currencyTo, RedirectAttributes rm) {
+    @PostMapping(value = "edit", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String editCurrency(@Valid @RequestBody CurrencyTo currencyTo, RedirectAttributes rm) {
         if (currencyTo.getId().isEmpty()) {
             currencyTo.setId(null);
         }

@@ -6,6 +6,7 @@ import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.Response;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -68,8 +69,8 @@ public class KindController extends AbstractWebController{
     }
 
     @Transactional
-    @PostMapping("edit")
-    public String editKind(@Valid @ModelAttribute KindTo kindTo,
+    @PostMapping(value = "edit", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String editKind(@Valid @RequestBody KindTo kindTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  RedirectAttributes rm) {
         if(kindTo.getId().isEmpty()) {
