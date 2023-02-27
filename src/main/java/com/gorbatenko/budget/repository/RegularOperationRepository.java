@@ -16,12 +16,18 @@ import static java.util.Objects.requireNonNull;
 
 @Repository
 public class RegularOperationRepository extends AbstractRepository {
-
-    @Autowired
     private MongoTemplate mongoRepository;
 
-    @Autowired
     private IRegularOperationRepository repository;
+
+    @Autowired
+    public void setMongoRepository(MongoTemplate mongoRepository) {
+        this.mongoRepository = mongoRepository;
+    }
+    @Autowired
+    public void setRepository(IRegularOperationRepository repository) {
+        this.repository = repository;
+    }
 
     public RegularOperation save(RegularOperation regularOperation) {
         if (regularOperation.getUserGroup() == null) {

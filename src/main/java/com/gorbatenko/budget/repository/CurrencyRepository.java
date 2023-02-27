@@ -15,11 +15,18 @@ import static java.util.Objects.requireNonNull;
 
 @Repository
 public class CurrencyRepository extends AbstractRepository {
-    @Autowired
     private MongoTemplate mongoRepository;
 
-    @Autowired
     private ICurrencyRepository repository;
+
+    @Autowired
+    public void setMongoRepository(MongoTemplate mongoRepository) {
+        this.mongoRepository = mongoRepository;
+    }
+    @Autowired
+    public void setRepository(ICurrencyRepository repository) {
+        this.repository = repository;
+    }
 
     public Currency save(Currency currency) {
         if (currency.getUserGroup() == null) {

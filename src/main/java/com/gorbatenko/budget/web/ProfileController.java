@@ -3,11 +3,14 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.to.RemainderTo;
+import com.gorbatenko.budget.to.UserTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
+import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,8 +31,11 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/profile/")
 public class ProfileController extends AbstractWebController {
 
-    @Autowired
     AuthenticationManager authenticationManager;
+
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -65,15 +71,15 @@ public class ProfileController extends AbstractWebController {
         return "/profile/register";
     }
 
-    @PostMapping("register")
-    public String newUser(@RequestBody User user, Model model) {
+    @PostMapping(value = "register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String newUser(@Valid @RequestBody UserTo user, Model model) {
         try {
             if (userService.findByEmail(user.getEmail()) != null) {
                 model.addAttribute("error", "Пользователь с email '" + user.getEmail() + "' уже существует.");
                 return "/profile/register";
             }
-            user.setRoles(Collections.singleton(Role.ROLE_USER));
-            reloadUserContext(userService.create(user));
+            User newUser = new User(user.getName(), user.getEmail(), user.getPassword(), Collections.singleton(Role.ROLE_USER));
+            reloadUserContext(userService.create(newUser));
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             return "/profile/register";

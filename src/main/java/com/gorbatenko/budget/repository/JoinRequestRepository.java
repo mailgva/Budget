@@ -15,11 +15,19 @@ import java.util.List;
 @Repository
 public class JoinRequestRepository extends AbstractRepository {
 
-    @Autowired
     private MongoTemplate mongoRepository;
 
-    @Autowired
     private IJoinRequestRepository repository;
+
+    @Autowired
+    public void setMongoRepository(MongoTemplate mongoRepository) {
+        this.mongoRepository = mongoRepository;
+    }
+
+    @Autowired
+    public void setRepository(IJoinRequestRepository repository) {
+        this.repository = repository;
+    }
 
     public JoinRequest save(JoinRequest joinRequest) {
         if (joinRequest.getUser() == null) {

@@ -3,11 +3,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="_csrf" content="" th:attr="content=${_csrf.token}" />
     <meta name="_csrf_header" content="" th:attr="content=${_csrf.headerName}"/>
-    <base href="" th:href="${#httpServletRequest.getContextPath()}+'/'" />
+    <base th:href="@{/}" />
 
     <title th:text="${'Бюджет' + (pageName == null ?  '' :  ': ' + pageName)}">Бюджет</title>
-    <base href="" th:href="${#httpServletRequest.getContextPath()}+'/'" />
-
     <link rel="shortcut icon" th:href="@{/images/icon.png}">
     <link th:href="@{/images/wallet_192.png}" rel="icon" sizes="192x192" />
     <link th:href="@{/images/wallet_128.png}" rel="icon" sizes="128x128" />

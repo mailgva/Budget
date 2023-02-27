@@ -14,8 +14,11 @@ import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 @Repository
 public class KindRepository extends AbstractRepository {
 
-    @Autowired
     private IKindRepository repository;
+    @Autowired
+    public void setRepository(IKindRepository repository) {
+        this.repository = repository;
+    }
 
     public Kind save(Kind kind) {
         if (kind.getUserGroup() == null) {
