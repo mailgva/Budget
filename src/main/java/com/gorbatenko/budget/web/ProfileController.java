@@ -1,14 +1,12 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RemainderTo;
 import com.gorbatenko.budget.to.UserTo;
 import com.gorbatenko.budget.util.SecurityUtil;
 import com.gorbatenko.budget.util.TypePeriod;
 import jakarta.validation.Valid;
-import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -87,10 +85,9 @@ public class ProfileController extends AbstractWebController {
         return "redirect:/menu";
     }
 
-    @SneakyThrows
     @PreAuthorize("isAuthenticated()")
     @GetMapping("jointogroup/{groupId}")
-    public String joinToGroup(@PathVariable("groupId") String groupId, RedirectAttributes rm) {
+    public String joinToGroup(@PathVariable("groupId") String groupId, RedirectAttributes rm) throws Exception {
         User user = SecurityUtil.get().getUser();
         List<User> groupUser = userService.getByGroup(groupId);
         if (groupUser.size() == 0 && !user.getId().equals(groupId)) {
@@ -112,7 +109,6 @@ public class ProfileController extends AbstractWebController {
         return "redirect:/profile/";
     }
 
-    @SneakyThrows
     @PreAuthorize("isAuthenticated()")
     @GetMapping("removefromgroup/{userId}")
     public ResponseEntity removeFromGroup(@PathVariable("userId") String userId) {
