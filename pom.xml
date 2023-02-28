@@ -16,9 +16,9 @@
     <description>Accounting profits and spending</description>
 
     <properties>
-        <java.version>19</java.version>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
 
