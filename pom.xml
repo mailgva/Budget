@@ -117,43 +117,7 @@
             <artifactId>bootstrap4-toggle</artifactId>
             <version>${webjars-bootstrap-toggle.version}</version>
         </dependency>
-
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>heroku</id>
-            <!--https://devcenter.heroku.com/articles/java-webapp-runner            -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.1.2</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <!--https://github.com/jsimone/webapp-runner#using-without-memcached-or-redis-->
-                                        <artifactItem>
-                                            <groupId>com.github.jsimone</groupId>
-                                            <artifactId>webapp-runner-main</artifactId>
-                                            <version>9.0.27.1</version>
-                                            <destFileName>webapp-runner.jar</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
