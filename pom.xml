@@ -11,7 +11,7 @@
     <groupId>com.gorbatenko</groupId>
     <artifactId>budget</artifactId>
     <version>1.0.5</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>Budget</name>
     <description>Accounting profits and spending</description>
 
