@@ -40,21 +40,31 @@ public class UserServiceImpl implements UserService {
         listStartCurrencies.add("eur");
     }
 
-    private final UserRepository repository;
+    private UserRepository repository;
 
-    private final KindRepository kindRepository;
+    private KindRepository kindRepository;
 
-    private final CurrencyRepository currencyRepository;
+    private CurrencyRepository currencyRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder,
-                           KindRepository kindRepository, CurrencyRepository currencyRepository) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+    public void setKindRepository(KindRepository kindRepository) {
         this.kindRepository = kindRepository;
+    }
+
+    @Autowired
+    public void setCurrencyRepository(CurrencyRepository currencyRepository) {
         this.currencyRepository = currencyRepository;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -111,7 +121,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(String id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id);
     }
 }
 

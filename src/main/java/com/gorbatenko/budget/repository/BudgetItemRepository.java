@@ -25,8 +25,12 @@ import static java.util.Objects.requireNonNull;
 
 @Repository
 public class BudgetItemRepository extends AbstractRepository {
-    @Autowired
+
     private IBudgetItemRepository repository;
+    @Autowired
+    public void setRepository(IBudgetItemRepository repository) {
+        this.repository = repository;
+    }
 
     public BudgetItem save(BudgetItem budgetItem) {
         if (budgetItem.getUserGroup() == null) {

@@ -22,12 +22,18 @@ import java.util.List;
 @Configuration
 @EnableScheduling
 public class RegularOperationConfig {
-
-    @Autowired
     private RegularOperationRepository regularOperationRepository;
 
-    @Autowired
     private BudgetItemRepository budgetItemRepository;
+
+
+    public void setRegularOperationRepository(RegularOperationRepository regularOperationRepository) {
+        this.regularOperationRepository = regularOperationRepository;
+    }
+
+    public void setBudgetItemRepository(BudgetItemRepository budgetItemRepository) {
+        this.budgetItemRepository = budgetItemRepository;
+    }
 
     @Value("${app.regularoperation.enabled}")
     private boolean enabled;

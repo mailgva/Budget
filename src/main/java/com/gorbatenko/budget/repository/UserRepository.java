@@ -1,27 +1,43 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.User;
-import java.util.List;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface UserRepository extends MongoRepository<User, String> {
+public class UserRepository {
 
-    default User saveUser(User s) throws Exception {
-        if(getByEmail(s.getEmail()) != null) {
-            throw new Exception("Пользователь с таким email (" + s.getEmail() + ") уже существует!");
-        }
+    private IUserRepository repository;
 
-        User user = save(s);
-        if(user.getGroup() == null) {
-            user.setGroup(user.getId());
-            user = save(user);
-        }
-        return save(user);
+    @Autowired
+    public void setRepository(IUserRepository repository) {
+        this.repository = repository;
     }
 
-    User getByEmail(String email);
+    public User getByEmail(String email) {
+        return repository.getByEmail(email);
+    }
 
-    List<User> getByGroupIgnoreCase(String name);
+
+    public User saveUser(User user) throws Exception {
+        return repository.saveUser(user);
+    }
+
+    public User save(User user) {
+        return repository.save(user);
+    }
+
+    public List<User> findAll() {
+        return repository.findAll();
+    }
+
+    public List<User> getByGroupIgnoreCase(String name) {
+        return repository.getByGroupIgnoreCase(name);
+    }
+
+    public User findById(String id) {
+        return repository.findById(id).orElse(null);
+    }
 }

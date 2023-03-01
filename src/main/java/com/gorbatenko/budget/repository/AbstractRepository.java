@@ -21,8 +21,13 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Repository
 public class AbstractRepository {
-    @Autowired
+
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    public void setMongoTemplate(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     private Criteria addCriteriaUserGroup(Criteria criteria) {
         String userGroup = getUserGroup();
@@ -69,6 +74,10 @@ public class AbstractRepository {
             R result = mongoTemplate.aggregate(aggregation, entityClass, resultClass).getUniqueMappedResult();
             return (result == null ? (R) defaultValue : result);
         } catch (Exception e) {
+            Object rowResult = mongoTemplate.aggregate(aggregation, entityClass, Map.class).getUniqueMappedResult().get(field);
+            if (resultClass == Double.class && rowResult instanceof Integer) {
+                return (R) Double.valueOf(rowResult.toString());
+            }
             return (R) mongoTemplate.aggregate(aggregation, entityClass, Map.class).getUniqueMappedResult().getOrDefault(field, defaultValue);
         }
     }

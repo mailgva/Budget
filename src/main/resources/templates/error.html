@@ -1,8 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
-<head th:replace="fragments/header :: head">
+<head th:replace="~{fragments/header :: head}">
 </head>
-<body th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
-<div th:replace="fragments/bodyHeader :: div">
+<body>
+<div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
