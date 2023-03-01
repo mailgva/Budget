@@ -431,7 +431,7 @@ public class BudgetItemController extends AbstractWebController {
 
         model.addAttribute("pageName", "Создание");
 
-        return "/budget/edit";
+        return "budget/edit";
     }
 
     @GetMapping("edit/{id}")
@@ -459,7 +459,7 @@ public class BudgetItemController extends AbstractWebController {
 
         model.addAttribute("pageName", "Изменение");
 
-        return "/budget/edit";
+        return "budget/edit";
     }
 
     @DeleteMapping("{id}")
