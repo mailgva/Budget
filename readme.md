@@ -22,12 +22,12 @@ Features:
  - backuping database by sheduler 
 
  Technology stack:
-   * Java 15     
+   * Java 17     
      <img src="https://upload.wikimedia.org/wikipedia/uk/2/2e/Java_Logo.svg" height="200" width="200">
    * Maven
-   * MongoDB 4.4 (Atlas)    
+   * MongoDB 6.0 (Atlas)    
      <img src="https://webassets.mongodb.com/_com_assets/cms/MongoDB-Atlas-Logo-Black-hvfxuesorm.svg" height="200" width="400">
-   * Spring Boot 2.4.3      
+   * Spring Boot 3.0.2      
      <img src="https://commons.bmstu.wiki/images/5/59/Spring-boot-logo.png" height="200" width="400">
      * Spring Data-Mongodb
      * Spring Security
@@ -52,14 +52,8 @@ Features:
   
 For run app you need:
  1. Install and run **MongoDB server**. 
- 2. Create environment variable **MONGODB_URI**.  
-    Example for localhost:  
-    ``MONGODB_URI=mongodb://localhost:27017/budgetItem``   
- 3. Run app (4 ways):  
-    - execute ``hr.bat``
-    - in Idea through Tomcat
-    - in Idea through main
-    - mvn clean package spring-boot:run
+ 2. Create environment variables (see examples in src/main/resources/application.properties).
+ 3. Run app.
  
  
     
