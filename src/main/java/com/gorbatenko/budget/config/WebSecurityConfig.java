@@ -1,8 +1,6 @@
 package com.gorbatenko.budget.config;
 
 import com.gorbatenko.budget.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -10,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -46,21 +43,6 @@ public class WebSecurityConfig {
         return new ProviderManager(providers);
     }
 
-//    protected void configure(AuthenticationManagerBuilder auth) {
-//        auth.authenticationProvider(authenticationProvider());
-//    }
-//
-//
-//    private DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider
-//                = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userService);
-//        authProvider.setPasswordEncoder(passwordEncoder());
-//        return authProvider;
-//    }
-
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests(
@@ -88,37 +70,5 @@ public class WebSecurityConfig {
                 .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(60*60*24*365*10);
         return http.build();
     }
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests().antMatchers("/webjars/**").permitAll();
-//        http.authorizeRequests().antMatchers("/js/**").permitAll();
-//        http.authorizeRequests().antMatchers("/css/**").permitAll();
-//        http.authorizeRequests().antMatchers("/images/**").permitAll();
-//
-//        http
-//                .authorizeRequests()
-//                .antMatchers("/", "/profile/register").permitAll()
-//                .antMatchers("/**/*.js", "/**/*.css").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-//                .loginPage("/login")
-//                .failureUrl("/login-error")
-//                .defaultSuccessUrl("/menu")
-//                .permitAll()
-//                .and()
-//                .logout().deleteCookies("JSESSIONID")
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                .logoutSuccessUrl("/login")
-//                .permitAll()
-//                .and()
-//                .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(60*60*24*365*10); // 10 years
-//    }
-
-//    @Bean
-//    @Override
-//    public AuthenticationManager authenticationManagerBean() throws Exception {
-//        return super.authenticationManagerBean();
-//    }
 
 }
