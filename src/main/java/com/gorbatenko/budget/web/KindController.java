@@ -35,14 +35,14 @@ public class KindController extends AbstractWebController{
         model.addAttribute("kind", kind);
         model.addAttribute("referer", referer);
         model.addAttribute("pageName", "Создание");
-        return "/dictionaries/kinds/edit";
+        return "dictionaries/kinds/edit";
     }
 
     @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) {
         model.addAttribute("kind", kindRepository.getById(id));
         model.addAttribute("pageName", "Изменение");
-        return "/dictionaries/kinds/edit";
+        return "dictionaries/kinds/edit";
     }
 
     @DeleteMapping("{id}")
