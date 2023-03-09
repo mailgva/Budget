@@ -31,7 +31,7 @@ public class RegularOperationController extends AbstractWebController{
     String getRegularOperations(Model model) {
         model.addAttribute("operations", regularOperationRepository.getAll());
         model.addAttribute("pageName", "Регулярные операции");
-        return "/regularoperations/operations";
+        return "regularoperations/operations";
     }
 
     @GetMapping("create")
@@ -49,7 +49,7 @@ public class RegularOperationController extends AbstractWebController{
         model.addAttribute("currencies", currencies);
         model.addAttribute("pageName", "Создание");
 
-        return "/regularoperations/edit";
+        return "regularoperations/edit";
     }
 
     @DeleteMapping("{id}")
@@ -98,7 +98,7 @@ public class RegularOperationController extends AbstractWebController{
         model.addAttribute("currencies", currencies);
         model.addAttribute("pageName", "Изменение");
 
-        return "/regularoperations/edit";
+        return "regularoperations/edit";
     }
 
     private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, HttpServletRequest request) {
