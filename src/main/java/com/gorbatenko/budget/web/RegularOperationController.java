@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RegularOperationTo;
 import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,15 +13,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
-import static com.gorbatenko.budget.web.BudgetItemController.getSumTimezoneOffsetMinutes;
+import static com.gorbatenko.budget.web.BudgetItemController.getSumTimeZoneOffsetMinutes;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
@@ -65,8 +65,7 @@ public class RegularOperationController extends AbstractWebController{
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String editCreateRegularOperation(@Valid @RequestBody RegularOperationTo regularOperationTo,
-                                 @RequestParam(name="referer", defaultValue = "") String referer,
-                                 HttpServletRequest request,
+                                 @RequestParam(name="referer", defaultValue = "") String referer, TimeZone tz,
                                  RedirectAttributes rm) {
 
         if(regularOperationTo.getId().isEmpty()) {
@@ -78,7 +77,7 @@ public class RegularOperationController extends AbstractWebController{
             }
         }
 
-        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, request);
+        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, tz);
         regularOperation.setId(regularOperationTo.getId());
         regularOperationRepository.save(regularOperation);
 
@@ -105,15 +104,15 @@ public class RegularOperationController extends AbstractWebController{
         return "regularoperations/edit";
     }
 
-    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, HttpServletRequest request) {
+    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, TimeZone tz) {
         User user = SecurityUtil.get().getUser();
-        int countTimezoneOffsetMinutes = getSumTimezoneOffsetMinutes(request);
+        int countTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
         Kind kind = kindRepository.getById(regularOperationTo.getKindId());
         Currency currency = currencyRepository.getById(regularOperationTo.getCurrencyId());
         return new RegularOperation(
                 user,
                 user.getGroup(),
-                countTimezoneOffsetMinutes,
+                countTimeZoneOffsetMinutes,
                 regularOperationTo.getEvery(),
                 regularOperationTo.getDayOfMonth(),
                 kind,

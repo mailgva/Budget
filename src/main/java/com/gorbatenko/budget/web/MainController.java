@@ -4,6 +4,8 @@ import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.util.TypePeriod;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.WebAttributes;
@@ -11,12 +13,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,7 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/menu")
-    public String getMenu(Model model, HttpServletRequest request) {
+    public String getMenu(Model model, TimeZone tz) {
         LocalDate lastActivity = budgetItemRepository.getMaxDate().toLocalDate();
 
         String lastGroupActivityDate = dateToStr(lastActivity);
@@ -82,9 +83,9 @@ public class MainController extends AbstractWebController {
         model.addAttribute("spending", spending);
         model.addAttribute("remain", profit-spending);
 
-        int sumTimezoneOffsetMinutes = BudgetItemController.getSumTimezoneOffsetMinutes(request);
+        int sumTimeZoneOffsetMinutes = BudgetItemController.getSumTimeZoneOffsetMinutes(tz);
 
-        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes);
+        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimeZoneOffsetMinutes);
 
         LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
         LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
