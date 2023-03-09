@@ -42,13 +42,13 @@ public class DictionaryController extends AbstractWebController {
                 model.addAttribute("mapKind", mapKind);
                 model.addAttribute("mapCountKind", mapCountKind);
                 model.addAttribute("pageName", "Виды приходов//расходов");
-                return "/dictionaries/kinds/kinds";
+                return "dictionaries/kinds/kinds";
             case CURRENCIES:
                 List<Currency> currencies = currencyRepository.getAll();
                 currencies.sort(Comparator.comparing(Currency::getName));
                 model.addAttribute("currencies", currencies);
                 model.addAttribute("pageName", "Валюты");
-                return "/dictionaries/currencies/currencies";
+                return "dictionaries/currencies/currencies";
             default:
                 return getDictionaries(model);
         }
