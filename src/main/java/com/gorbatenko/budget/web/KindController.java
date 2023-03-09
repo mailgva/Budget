@@ -39,8 +39,12 @@ public class KindController extends AbstractWebController{
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) {
-        model.addAttribute("kind", kindRepository.getById(id));
+    public String edit(@PathVariable("id") String id, Model model) throws Exception {
+        Kind kind = kindRepository.getById(id);
+        if (kind == null) {
+            throw new Exception("Запись не найдена!");
+        }
+        model.addAttribute("kind", kind);
         model.addAttribute("pageName", "Изменение");
         return "dictionaries/kinds/edit";
     }

@@ -35,8 +35,12 @@ public class CurrencyController extends AbstractWebController {
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) {
-        model.addAttribute("currency", currencyRepository.getById(id));
+    public String edit(@PathVariable("id") String id, Model model) throws Exception {
+        Currency currency = currencyRepository.getById(id);
+        if (currency == null) {
+            throw new Exception("Запись не найдена!");
+        }
+        model.addAttribute("currency", currency);
         model.addAttribute("pageName", "Изменение");
         return "dictionaries/currencies/edit";
     }

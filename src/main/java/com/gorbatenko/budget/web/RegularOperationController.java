@@ -87,12 +87,16 @@ public class RegularOperationController extends AbstractWebController{
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) {
+    public String edit(@PathVariable("id") String id, Model model) throws Exception {
+        RegularOperation regularOperation = regularOperationRepository.getById(id);
+        if (regularOperation == null) {
+            throw new Exception("Запись не найдена!");
+        }
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindRepository.getAll();
         List<Currency> currencies = currencyRepository.getVisibled();
 
-        model.addAttribute("operation", regularOperationRepository.getById(id));
+        model.addAttribute("operation", regularOperation);
         model.addAttribute("everies", everies);
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);

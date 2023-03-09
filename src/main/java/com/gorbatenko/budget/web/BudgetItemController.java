@@ -435,8 +435,11 @@ public class BudgetItemController extends AbstractWebController {
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) {
+    public String edit(@PathVariable("id") String id, Model model) throws Exception {
         BudgetItem budgetItem = budgetItemRepository.getById(id);
+        if (budgetItem == null) {
+            throw new Exception("Запись не найдена!");
+        }
         Type type = budgetItem.getKind().getType();
 
         List<Kind> kinds = kindRepository.getFilteredData(null, null, type, false);
