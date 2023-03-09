@@ -78,7 +78,6 @@ public class KindController extends AbstractWebController{
         }
         Kind kind = createKindFromKindTo(kindTo);
         kind.setUserGroup(getUserGroup());
-        rm.addFlashAttribute("kindId", kind.getId());
 
         List<Kind> filteredData = kindRepository.getFilteredData(null, kindTo.getName(), kindTo.getType(), null);
         if(!filteredData.isEmpty()) {
@@ -105,6 +104,7 @@ public class KindController extends AbstractWebController{
         }
 
         kind = kindRepository.save(kind);
+        rm.addFlashAttribute("kindId", kind.getId());
 
         List<BudgetItem> budgetItems = budgetItemRepository.getByKindId(kind.getId());
         for(BudgetItem budgetItem : budgetItems) {
