@@ -7,7 +7,6 @@ import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.repository.BudgetItemRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -26,12 +25,8 @@ public class RegularOperationConfig {
 
     private BudgetItemRepository budgetItemRepository;
 
-
-    public void setRegularOperationRepository(RegularOperationRepository regularOperationRepository) {
+    public RegularOperationConfig(RegularOperationRepository regularOperationRepository, BudgetItemRepository budgetItemRepository) {
         this.regularOperationRepository = regularOperationRepository;
-    }
-
-    public void setBudgetItemRepository(BudgetItemRepository budgetItemRepository) {
         this.budgetItemRepository = budgetItemRepository;
     }
 
