@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Objects;
+
 @Data
 @NoArgsConstructor
 @Document(collection = "currencies")
@@ -45,5 +47,19 @@ public class Currency extends BaseEntity implements Comparable {
             ", userGroup='" + userGroup + '\'' +
             ", hidden='" + hidden + '\'' +
             '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    Currency currency = (Currency) o;
+    return super.getId().equals(currency.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
   }
 }

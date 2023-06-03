@@ -14,16 +14,16 @@ import java.util.stream.Collectors;
 @RequestMapping("rest")
 public class TestRestController {
 
-    @Autowired
-    private RequestMappingHandlerMapping requestHandlerMapping;
-
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping(value = "/endpoints")
-    public List<String> endpoints() {
-        return requestHandlerMapping.getHandlerMethods()
-                .entrySet()
-                .stream()
-                .map(entry -> entry.getKey().toString() + ": " + entry.getValue().getBeanType().getName() + "#" + entry.getValue().getMethod().getName())
-                .collect(Collectors.toList());
-    }
+//    @Autowired
+//    private RequestMappingHandlerMapping requestHandlerMapping;
+//
+////    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @GetMapping(value = "/endpoints")
+//    public List<String> endpoints() {
+//        return requestHandlerMapping.getHandlerMethods()
+//                .entrySet()
+//                .stream()
+//                .map(entry -> entry.getKey().toString() + ": " + entry.getValue().getBeanType().getName() + "#" + entry.getValue().getMethod().getName())
+//                .collect(Collectors.toList());
+//    }
 }

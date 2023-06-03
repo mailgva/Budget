@@ -19,11 +19,19 @@
             </thead>
             <tbody>
             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
-            <tr th:class="${'bg-success'}"  th:each="currency : ${currencies}">
-                <td><span class="summation"  th:text="${currency.getName()}"> Name </span></td>
-                <td><span class="summation"  th:text="${currency.isHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
+
+            <tr th:class="${'bg-success'}" th:each="element : ${currencies}">
                 <td>
-                    <a th:href="@{'/dictionaries/currencies/edit/'+${currency.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                    <a class="text-dark"
+                       th:href="@{/budget/statistic(period='ALL_TIME',
+                                                    currencyId=${element.getKey().getId()})}">
+                        <span class="summation"  th:text="${element.getKey().getName() + ' (' + element.getValue() + ')' }"> Name </span>
+                    </a>
+
+                </td>
+                <td><span class="summation"  th:text="${element.getKey().isHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
+                <td>
+                    <a th:href="@{'/dictionaries/currencies/edit/'+${element.getKey().getId()}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>
             </tr>
         </table>

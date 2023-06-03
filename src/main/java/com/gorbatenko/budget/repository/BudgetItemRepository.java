@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.doc.User;
+import com.gorbatenko.budget.util.CurrencyCount;
 import com.gorbatenko.budget.util.GroupPeriod;
 import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.TypePeriod;
@@ -12,11 +13,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
@@ -55,7 +58,7 @@ public class BudgetItemRepository extends AbstractRepository {
     }
 
     public List<BudgetItem> getFilteredData(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period) {
-        Criteria criteria = createBaseFilterCriteria(startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
+        Criteria criteria = createBaseFilterCriteria(true, startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
         Sort sort = Sort.by(Sort.Direction.ASC, "date");
         return findAll(criteria, sort, BudgetItem.class);
     }
@@ -94,6 +97,17 @@ public class BudgetItemRepository extends AbstractRepository {
         return aggregationOnlyResultField(null, GroupOps.MAX, "date", BudgetItem.class, LocalDateTime.class, LocalDateTime.MIN);
     }
 
+    public String getLastCurrencyIdByDate(LocalDate date) {
+        Criteria criteria = new Criteria();
+        criteria.and("date").is(date);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createDateTime");
+        List<BudgetItem> all = findAll(criteria, sort, BudgetItem.class);
+        if (all.isEmpty()) {
+            return "";
+        }
+        return all.get(0).getCurrency().getId();
+    }
+
     public Double getSumPriceByDefaultCurrencyAndType(Type type) {
         return getSumPriceByCurrencyAndType(getCurrencyDefault(), type);
     }
@@ -107,7 +121,7 @@ public class BudgetItemRepository extends AbstractRepository {
 
     public Map<String, Double> getSumPriceForPeriodByDateAndDefaultCurrency(LocalDateTime startDate, LocalDateTime endDate,
                                                                      Type type, TypePeriod period, GroupPeriod groupPeriod) {
-        Criteria criteria = createBaseFilterCriteria(startDate, endDate, null, type.name(), null, null, null, period);
+        Criteria criteria = createBaseFilterCriteria(true, startDate, endDate, null, type.name(), null, null, null, period);
 
         List<DateSumPrice> dateSumPrices = aggregationByField(criteria, GroupOps.SUM, "date", "price", "sumPrice", BudgetItem.class, DateSumPrice.class);
 
@@ -126,14 +140,28 @@ public class BudgetItemRepository extends AbstractRepository {
         return findDistinctSubclassInCollection(criteria, "user", BudgetItem.class, User.class);
     }
 
+    public List<CurrencyCount> getCurrencyCounts() {
+        Map<Currency, Long> map = new HashMap<>();
+        for (CurrencyCount currencyCount : getCurrencyCounts(null)) {
+            Currency currency = currencyCount.getCurrency();
+            map.put(currency, map.getOrDefault(currency, 0L) + currencyCount.getCount());
+        }
+
+        return map.entrySet().stream()
+                .map(entry -> new CurrencyCount(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
     public List<KindTotals> getTotalsByKinds(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period){
-        Criteria criteria = createBaseFilterCriteria(startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
+        Criteria criteria = createBaseFilterCriteria(true, startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
         return getTotalsByKinds(criteria);
     }
 
-    private Criteria createBaseFilterCriteria(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period) {
+    private Criteria createBaseFilterCriteria(boolean setCurrency, LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period) {
         Criteria criteria = new Criteria();
-        criteria.and("currency._id").is(getCurrencyDefault().getId());
+        if (setCurrency) {
+            criteria.and("currency._id").is(getCurrencyDefault().getId());
+        }
 
         if (!TypePeriod.ALL_TIME.equals(period)) {
             if (startDate != null && endDate != null) {

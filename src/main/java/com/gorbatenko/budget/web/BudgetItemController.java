@@ -256,9 +256,14 @@ public class BudgetItemController extends AbstractWebController {
                                @RequestParam(value = "price", defaultValue = "") String priceStr,
                                @RequestParam(value = "description", defaultValue = "") String description,
                                @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
+                               @RequestParam(value = "currencyId", required = false) String currencyId,
                                Model model) {
+        if (currencyId != null) {
+            userService.changeDefaultCurrency(currencyId);
+            model.addAttribute("defaultCurrencyName", SecurityUtil.getCurrencyDefault().getName());
+        }
 
-        if(period == null) {
+        if (period == null) {
             period = TypePeriod.SELECTED_PERIOD;
         }
 

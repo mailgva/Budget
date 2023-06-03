@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.BudgetItem;
+import com.gorbatenko.budget.util.CurrencyCount;
 import com.gorbatenko.budget.util.KindTotals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -90,6 +91,18 @@ public class AbstractRepository {
                 projection
         );
         return mongoTemplate.aggregate(aggregation, entityClass, resultClass).getMappedResults();
+    }
+
+    public List<CurrencyCount> getCurrencyCounts(Criteria criteria) {
+        ProjectionOperation projection = project("count")
+                .and("currency").previousOperation();
+        Aggregation aggregation = Aggregation.newAggregation(
+                match(addCriteriaUserGroup(criteria)),
+                group("currency")
+                        .count().as("count"),
+                projection
+        );
+        return mongoTemplate.aggregate(aggregation, BudgetItem.class, CurrencyCount.class).getMappedResults();
     }
 
     public List<KindTotals> getTotalsByKinds(Criteria criteria) {

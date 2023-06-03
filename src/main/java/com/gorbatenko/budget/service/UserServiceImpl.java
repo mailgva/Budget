@@ -1,26 +1,29 @@
 package com.gorbatenko.budget.service;
 
-import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
-
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.model.User;
-import com.gorbatenko.budget.repository.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.gorbatenko.budget.repository.CurrencyRepository;
+import com.gorbatenko.budget.repository.KindRepository;
+import com.gorbatenko.budget.repository.UserRepository;
+import com.gorbatenko.budget.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -122,6 +125,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(String id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public User changeDefaultCurrency(String currencyId) {
+        Currency currency = currencyRepository.getById(currencyId);
+        if (currency == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        User user = SecurityUtil.get().getUser();
+        user.setCurrencyDefault(currency);
+        return this.save(user);
     }
 }
 

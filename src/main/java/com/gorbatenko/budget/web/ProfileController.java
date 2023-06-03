@@ -127,7 +127,7 @@ public class ProfileController extends AbstractWebController {
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/joinrequest/{id}/accept")
+    @GetMapping("joinrequest/{id}/accept")
     public ResponseEntity joinToGroupAccept(@PathVariable("id") String id, Model model) {
         User userAdmin = SecurityUtil.get().getUser();
         JoinRequest joinRequest = joinRequestRepository.findById(id);
@@ -160,9 +160,7 @@ public class ProfileController extends AbstractWebController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("changedefcurrency")
     public String changeDefaultCurrency(@RequestParam(value="currencyId") String currencyId) {
-        User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.getById(currencyId));
-        userService.save(user);
+        userService.changeDefaultCurrency(currencyId);
         return "redirect:/profile/";
     }
 
@@ -170,9 +168,7 @@ public class ProfileController extends AbstractWebController {
     @GetMapping("changedefcurrency")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void changeDefaultCurrencyGet(@RequestParam(value="currencyId") String currencyId) {
-        User user = SecurityUtil.get().getUser();
-        user.setCurrencyDefault(currencyRepository.getById(currencyId));
-        userService.save(user);
+        userService.changeDefaultCurrency(currencyId);
     }
 
     @Transactional

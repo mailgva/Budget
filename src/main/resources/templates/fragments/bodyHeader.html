@@ -68,7 +68,7 @@
     function changeCurrency(currencyId) {
         $.ajax({
             type: "GET",
-            url: "/profile/changedefcurrency/?currencyId=" + currencyId,
+            url: "profile/changedefcurrency?currencyId=" + currencyId,
             success: function (status) {
                 location.reload();
             }

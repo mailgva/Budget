@@ -17,4 +17,6 @@ public interface UserService extends UserDetailsService {
     List<User> getByGroup(String name);
 
     User findByEmail(String email);
+
+    User changeDefaultCurrency(String currencyId);
 }

@@ -72,7 +72,9 @@ public class MainController extends AbstractWebController {
 
     @GetMapping("/menu")
     public String getMenu(Model model, TimeZone tz) {
-        LocalDate lastActivity = budgetItemRepository.getMaxDate().toLocalDate();
+        LocalDateTime maxDate = budgetItemRepository.getMaxDate();
+        LocalDate lastActivity = maxDate.toLocalDate();
+        String lastCurrencyId = budgetItemRepository.getLastCurrencyIdByDate(lastActivity);
 
         String lastGroupActivityDate = dateToStr(lastActivity);
         String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
@@ -98,6 +100,7 @@ public class MainController extends AbstractWebController {
 
         TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems);
 
+        model.addAttribute("lastCurrencyId", lastCurrencyId);
         model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));
         model.addAttribute("lastGroupActivityDateCustom", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDateCustom));
         model.addAttribute("listBudgetItems", map);

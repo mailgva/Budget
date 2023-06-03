@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.util.CurrencyCount;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,8 +44,19 @@ public class DictionaryController extends AbstractWebController {
                 model.addAttribute("pageName", "Виды приходов//расходов");
                 return "dictionaries/kinds/kinds";
             case CURRENCIES:
-                List<Currency> currencies = currencyRepository.getAll();
-                currencies.sort(Comparator.comparing(Currency::getName));
+                TreeMap<Currency, Long> currencies = new TreeMap<>();
+                List<Currency> allCurrencies = currencyRepository.getAll();
+                List<CurrencyCount> currencyCounts = budgetItemRepository.getCurrencyCounts();
+                for (Currency currency : allCurrencies) {
+                    for (CurrencyCount currencyCount : currencyCounts) {
+                        if(currency.equals(currencyCount.getCurrency())) {
+                            currencies.put(currency, currencyCount.getCount());
+                            break;
+                        }
+                    }
+                    currencies.putIfAbsent(currency, 0L);
+                }
+
                 model.addAttribute("currencies", currencies);
                 model.addAttribute("pageName", "Валюты");
                 return "dictionaries/currencies/currencies";
