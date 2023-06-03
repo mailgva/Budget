@@ -34,7 +34,7 @@ public class BudgetItemController extends AbstractWebController {
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String createBudget(@Valid @RequestBody BudgetTo budgetTo, TimeZone tz) {
-        String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
+        String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s&currencyId=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
         }
@@ -53,13 +53,12 @@ public class BudgetItemController extends AbstractWebController {
         LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
 
         // if day is in current month
-        if (startDate.minusDays(1).isBefore(date) && (endDate.plusDays(1).isAfter(date))) {
-            return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
-        } else {
+        if (!(startDate.minusDays(1).isBefore(date) && (endDate.plusDays(1).isAfter(date)))) {
             startDate = LocalDate.of(date.getYear(), date.getMonth(), 1);
             endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
-            return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
         }
+        return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), budgetTo.getCurrencyId(), dateToStr(date));
+
     }
 
     private BudgetItem createBudgetFromBudgetTo(BudgetTo b) {
@@ -260,7 +259,7 @@ public class BudgetItemController extends AbstractWebController {
                                Model model) {
         if (currencyId != null) {
             userService.changeDefaultCurrency(currencyId);
-            model.addAttribute("defaultCurrencyName", SecurityUtil.getCurrencyDefault().getName());
+            return createRedirectStatisticLink(startDate, endDate, userId, kindId, typeStr, priceStr, description, period);
         }
 
         if (period == null) {
@@ -312,6 +311,35 @@ public class BudgetItemController extends AbstractWebController {
         model.addAttribute("filteredPage", true);
 
         return "budget/statistic";
+    }
+
+    private String createRedirectStatisticLink(LocalDate startDate, LocalDate endDate, String userId, String kindId, String typeStr, String priceStr, String description, TypePeriod period) {
+        StringBuilder link = new StringBuilder("redirect:/budget/statistic?");
+        if (startDate != null) {
+            link.append("startDate="+dateToStr(startDate));
+        }
+        if (endDate != null) {
+            link.append("&endDate="+dateToStr(endDate));
+        }
+        if (!userId.equals("-1")) {
+            link.append("&userId="+userId);
+        }
+        if (!kindId.equals("-1")) {
+            link.append("&kindId="+kindId);
+        }
+        if (!typeStr.equals("&allTypes")) {
+            link.append("&type="+typeStr);
+        }
+        if (!priceStr.equals("")) {
+            link.append("&price="+priceStr);
+        }
+        if (!description.equals("")) {
+            link.append("&description="+description);
+        }
+        if (period != null) {
+            link.append("&period="+period);
+        }
+        return link.toString();
     }
 
     @GetMapping("dynamicstatistic")
