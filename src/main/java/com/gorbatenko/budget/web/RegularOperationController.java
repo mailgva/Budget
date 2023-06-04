@@ -29,7 +29,7 @@ public class RegularOperationController extends AbstractWebController{
 
     @GetMapping
     String getRegularOperations(Model model) {
-        model.addAttribute("operations", regularOperationRepository.getAll());
+        model.addAttribute("operations", regularOperationService.getAll());
         model.addAttribute("pageName", "Регулярные операции");
         return "regularoperations/operations";
     }
@@ -38,8 +38,8 @@ public class RegularOperationController extends AbstractWebController{
     public String create(Model model) {
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindRepository.getAll();
-        List<Currency> currencies = currencyRepository.getVisibled();
+        List<Kind> kinds = kindService.getAll();
+        List<Currency> currencies = currencyService.getVisibled();
 
         operation.setCurrency(getCurrencyDefault());
 
@@ -54,12 +54,12 @@ public class RegularOperationController extends AbstractWebController{
 
     @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
-        RegularOperation operation = regularOperationRepository.getById(id);
+        RegularOperation operation = regularOperationService.getById(id);
         if (operation == null) {
             String message = "Невозможно удалить операцию, так как она не найдена";
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
-        regularOperationRepository.deleteById(id);
+        regularOperationService.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
     }
 
@@ -71,7 +71,7 @@ public class RegularOperationController extends AbstractWebController{
         if(regularOperationTo.getId().isEmpty()) {
             regularOperationTo.setId(null);
         } else {
-            if(regularOperationRepository.getById(regularOperationTo.getId()) == null) {
+            if(regularOperationService.getById(regularOperationTo.getId()) == null) {
                 rm.addFlashAttribute("error", "Невозможно изменить операцию, так как она не найдена");
                 return String.format("redirect:/regularoperations/edit/%s", regularOperationTo.getId());
             }
@@ -79,7 +79,7 @@ public class RegularOperationController extends AbstractWebController{
 
         RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, tz);
         regularOperation.setId(regularOperationTo.getId());
-        regularOperationRepository.save(regularOperation);
+        regularOperationService.save(regularOperation);
 
         rm.addFlashAttribute("regularOperationId", regularOperation.getId());
         return (referer.isEmpty() ? "redirect:/regularoperations/" : "redirect:" + referer);
@@ -87,13 +87,13 @@ public class RegularOperationController extends AbstractWebController{
 
     @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) throws Exception {
-        RegularOperation regularOperation = regularOperationRepository.getById(id);
+        RegularOperation regularOperation = regularOperationService.getById(id);
         if (regularOperation == null) {
             throw new Exception("Запись не найдена!");
         }
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindRepository.getAll();
-        List<Currency> currencies = currencyRepository.getVisibled();
+        List<Kind> kinds = kindService.getAll();
+        List<Currency> currencies = currencyService.getVisibled();
 
         model.addAttribute("operation", regularOperation);
         model.addAttribute("everies", everies);
@@ -107,8 +107,8 @@ public class RegularOperationController extends AbstractWebController{
     private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, TimeZone tz) {
         User user = SecurityUtil.get().getUser();
         int countTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
-        Kind kind = kindRepository.getById(regularOperationTo.getKindId());
-        Currency currency = currencyRepository.getById(regularOperationTo.getCurrencyId());
+        Kind kind = kindService.getById(regularOperationTo.getKindId());
+        Currency currency = currencyService.getById(regularOperationTo.getCurrencyId());
         return new RegularOperation(
                 user,
                 user.getGroup(),

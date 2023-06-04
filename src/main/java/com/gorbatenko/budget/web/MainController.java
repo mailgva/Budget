@@ -3,7 +3,6 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.util.TypePeriod;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.AuthenticationException;
@@ -72,15 +71,15 @@ public class MainController extends AbstractWebController {
 
     @GetMapping("/menu")
     public String getMenu(Model model, TimeZone tz) {
-        LocalDateTime maxDate = budgetItemRepository.getMaxDate();
+        LocalDateTime maxDate = budgetItemService.getMaxDate();
         LocalDate lastActivity = maxDate.toLocalDate();
-        String lastCurrencyId = budgetItemRepository.getLastCurrencyIdByDate(lastActivity);
+        String lastCurrencyId = budgetItemService.getLastCurrencyIdByDate(lastActivity);
 
         String lastGroupActivityDate = dateToStr(lastActivity);
         String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
 
-        Double profit = budgetItemRepository.getSumPriceByDefaultCurrencyAndType(Type.PROFIT);
-        Double spending = budgetItemRepository.getSumPriceByDefaultCurrencyAndType(Type.SPENDING);
+        Double profit = budgetItemService.getSumPriceByDefaultCurrencyAndType(Type.PROFIT);
+        Double spending = budgetItemService.getSumPriceByDefaultCurrencyAndType(Type.SPENDING);
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
         model.addAttribute("remain", profit-spending);
@@ -93,7 +92,7 @@ public class MainController extends AbstractWebController {
         LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
 
         List<BudgetItem> listBudgetItems =
-                budgetItemRepository.getFilteredData(startLocalDate, endLocalDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD)
+                budgetItemService.getForSelectedPeriod(startLocalDate, endLocalDate)
                 .stream()
                 .sorted(Comparator.comparing(BudgetItem::getCreateDateTime))
                 .collect(Collectors.toList());
@@ -104,7 +103,7 @@ public class MainController extends AbstractWebController {
         model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));
         model.addAttribute("lastGroupActivityDateCustom", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDateCustom));
         model.addAttribute("listBudgetItems", map);
-        model.addAttribute("joinRequests", joinRequestRepository.getNewJoinRequests());
+        model.addAttribute("joinRequests", joinRequestService.getNewJoinRequests());
         return "menu";
     }
 

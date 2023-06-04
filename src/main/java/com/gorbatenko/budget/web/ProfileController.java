@@ -5,7 +5,6 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RemainderTo;
 import com.gorbatenko.budget.to.UserTo;
 import com.gorbatenko.budget.util.SecurityUtil;
-import com.gorbatenko.budget.util.TypePeriod;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -51,8 +50,10 @@ public class ProfileController extends AbstractWebController {
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
 
-        currencyRepository.getVisibled()
-                .forEach(currency -> mapCurrencies.put(currency, currency.getId().equals(user.getCurrencyDefault().getId())));
+        currencyService.getVisibled()
+                .forEach(currency ->
+                        mapCurrencies.put(currency,
+                                currency.getId().equals(user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
@@ -95,10 +96,10 @@ public class ProfileController extends AbstractWebController {
         }
 
         if (!user.getId().equals(groupId)) {
-            if (!joinRequestRepository.isExistsNoAnsweredRequest(groupId)) {
+            if (!joinRequestService.isExistsNoAnsweredRequest(groupId)) {
                 JoinRequest joinRequest = new JoinRequest();
                 joinRequest.setUserGroup(groupId);
-                joinRequestRepository.save(joinRequest);
+                joinRequestService.save(joinRequest);
             }
             rm.addFlashAttribute("info", "Отправлен запрос на присоединение к группе. Ожидайте решения администратора группы.");
         } else {
@@ -128,14 +129,14 @@ public class ProfileController extends AbstractWebController {
     @Transactional
     @PreAuthorize("isAuthenticated()")
     @GetMapping("joinrequest/{id}/accept")
-    public ResponseEntity joinToGroupAccept(@PathVariable("id") String id, Model model) {
+    public ResponseEntity joinToGroupAccept(@PathVariable("id") String id) {
         User userAdmin = SecurityUtil.get().getUser();
-        JoinRequest joinRequest = joinRequestRepository.findById(id);
+        JoinRequest joinRequest = joinRequestService.getById(id);
         if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
             return ResponseEntity.badRequest().build();
         }
         joinRequest.setAccepted(LocalDateTime.now());
-        joinRequestRepository.save(joinRequest);
+        joinRequestService.save(joinRequest);
 
         User user = joinRequest.getUser();
         user.setGroup(joinRequest.getUserGroup());
@@ -148,12 +149,12 @@ public class ProfileController extends AbstractWebController {
     @GetMapping("joinrequest/{id}/decline")
     public ResponseEntity joinToGroupDecline(@PathVariable("id") String id, Model model) {
         User userAdmin = SecurityUtil.get().getUser();
-        JoinRequest joinRequest = joinRequestRepository.findById(id);
+        JoinRequest joinRequest = joinRequestService.getById(id);
         if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
             return ResponseEntity.badRequest().build();
         }
         joinRequest.setDeclined(LocalDateTime.now());
-        joinRequestRepository.save(joinRequest);
+        joinRequestService.save(joinRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -178,19 +179,19 @@ public class ProfileController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         user.setName(name);
         userService.save(user);
-        List<BudgetItem> budgetItems = budgetItemRepository.getFilteredData(null,null, user.getId(), null, null, null, null, TypePeriod.ALL_TIME);
+        List<BudgetItem> budgetItems = budgetItemService.getByUserId(user.getId());
         for(BudgetItem budgetItem : budgetItems) {
             budgetItem.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
-            budgetItemRepository.save(budgetItem);
+            budgetItemService.save(budgetItem);
         }
         return "redirect:/profile/";
     }
 
     private Map<String, RemainderTo> getCurrencyRemainders() {
         Map<String, RemainderTo> result = new HashMap<>();
-        for (Currency currency : currencyRepository.getVisibled()) {
-            Double profit = budgetItemRepository.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
-            Double spending = budgetItemRepository.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
+        for (Currency currency : currencyService.getVisibled()) {
+            Double profit = budgetItemService.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
+            Double spending = budgetItemService.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
             result.put(currency.getName(), new RemainderTo(profit, spending));
         }
         return result;

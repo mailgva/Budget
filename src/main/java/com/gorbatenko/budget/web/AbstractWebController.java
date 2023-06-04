@@ -5,10 +5,8 @@ import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.repository.*;
-import com.gorbatenko.budget.service.UserService;
+import com.gorbatenko.budget.service.*;
 import com.gorbatenko.budget.util.SecurityUtil;
-import com.gorbatenko.budget.util.TypePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,28 +19,25 @@ import java.util.stream.Collectors;
 
 
 public class AbstractWebController {
-    private static final int POPULARKIND_COUNT = 5;
-
-    protected static final LocalDateTime MIN_DATE_TIME = LocalDateTime.of(0, 1, 1, 0,0,1);
-    protected static final LocalDateTime MAX_DATE_TIME = LocalDateTime.of(3000, 1, 1, 0,0,1);
+    private static final int POPULAR_KIND_COUNT = 5;
 
     @Autowired
-    protected BudgetItemRepository budgetItemRepository;
+    protected CurrencyService currencyService;
 
     @Autowired
-    protected KindRepository kindRepository;
+    protected KindService kindService;
 
     @Autowired
-    protected CurrencyRepository currencyRepository;
+    protected BudgetItemService budgetItemService;
+
+    @Autowired
+    protected RegularOperationService regularOperationService;
 
     @Autowired
     protected UserService userService;
 
     @Autowired
-    protected RegularOperationRepository regularOperationRepository;
-
-    @Autowired
-    protected JoinRequestRepository joinRequestRepository;
+    protected JoinRequestService joinRequestService;
 
     @ModelAttribute("userName")
     protected String getUserName(@AuthenticationPrincipal AuthorizedUser authUser){
@@ -62,7 +57,7 @@ public class AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     protected List<Kind> getKinds() {
-        return kindRepository.getAll();
+        return kindService.getAll();
     }
 
     @ModelAttribute("listOfCurrencies")
@@ -70,18 +65,18 @@ public class AbstractWebController {
         if (authUser == null) {
             return null;
         }
-        return currencyRepository.getVisibled();
+        return currencyService.getVisibled();
     }
 
     protected List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDateTime startDate, LocalDateTime endDate) {
-        List<BudgetItem> listBudgetItems = budgetItemRepository.getFilteredData(startDate, endDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
+        List<BudgetItem> listBudgetItems = budgetItemService.getPopularByTypeForPeriod(startDate, endDate, type.name());
 
         LinkedHashMap<Kind, Long> mapKindCount = new LinkedHashMap<>();
         listBudgetItems.stream()
                 .collect(Collectors.groupingBy(BudgetItem::getKind, Collectors.counting()))
                 .entrySet()
                 .stream()
-                .filter(x -> x.getValue() >= POPULARKIND_COUNT)
+                .filter(x -> x.getValue() >= POPULAR_KIND_COUNT)
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .forEachOrdered(x -> mapKindCount.put(x.getKey(), x.getValue()));
 
@@ -117,8 +112,7 @@ public class AbstractWebController {
     }
 
     protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
-        List<BudgetItem> budgetItems =
-                budgetItemRepository.getFilteredData(null, startDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
+        List<BudgetItem> budgetItems = budgetItemService.getBeforeDate(startDate);
         return budgetItems.stream()
                 .map(budget ->
                         (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();

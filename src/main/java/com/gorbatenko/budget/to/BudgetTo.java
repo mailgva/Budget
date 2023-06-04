@@ -19,9 +19,6 @@ import java.time.format.DateTimeFormatter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BudgetTo extends BaseEntity {
 
-    //@NotNull
-    private String kind;
-
     private String kindId;
 
     private String currencyId;
@@ -36,23 +33,16 @@ public class BudgetTo extends BaseEntity {
     @NotNull
     private Double price;
 
-    public BudgetTo(String kind, LocalDate date, String description, Double price) {
-        this.kind = kind;
-        this.date = date;
-        this.description = description;
-        this.price = price;
-    }
-
     @Override
     public String toString() {
-        return "BudgetItem{" +
-                "kind=" + kind +
+        return "BudgetTo{" +
+                "kindId='" + kindId + '\'' +
+                ", currencyId='" + currencyId + '\'' +
                 ", date=" + date +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 '}';
     }
-
 
     public String getStrDate() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

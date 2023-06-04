@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("rest")
 public class TestRestController {
-
+//
 //    @Autowired
 //    private RequestMappingHandlerMapping requestHandlerMapping;
 //
@@ -23,7 +23,9 @@ public class TestRestController {
 //        return requestHandlerMapping.getHandlerMethods()
 //                .entrySet()
 //                .stream()
-//                .map(entry -> entry.getKey().toString() + ": " + entry.getValue().getBeanType().getName() + "#" + entry.getValue().getMethod().getName())
+//                .map(entry -> entry.getKey().getPathPatternsCondition() + " " + entry.getKey().getMethodsCondition())
+//                //.map(entry -> entry.getKey().toString() + ": " + entry.getValue().getBeanType().getName() + "#" + entry.getValue().getMethod().getName())
+//                .sorted()
 //                .collect(Collectors.toList());
 //    }
 }

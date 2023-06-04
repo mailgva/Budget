@@ -6,7 +6,7 @@
 </div>
 <main role="main">
     <div class="jumbotron" style="background: #c2ff8e">
-        <h4 th:text="${positionName + ' - ' + #numbers.formatDecimal(positionSum,1,'DEFAULT',0,'DEFAULT')}"></h4>
+        <h4 th:text="${positionName + ': ' + #numbers.formatDecimal(positionSum,1,'DEFAULT',0,'DEFAULT')}"></h4>
         <!--/*--><!--@thymesVar id="groupPeriod" type="com.gorbatenko.budget.util.GroupPeriod"-->
         <!--*/-->
         <div class="form-group row">

@@ -5,6 +5,7 @@ import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.to.CurrencyTo;
 import com.gorbatenko.budget.util.Response;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,15 +28,14 @@ public class CurrencyController extends AbstractWebController {
 
     @GetMapping("create")
     public String create(Model model) {
-        Currency currency = new Currency();
-        model.addAttribute("currency", currency);
+        model.addAttribute("currency", new Currency());
         model.addAttribute("pageName", "Создание");
         return "dictionaries/currencies/edit";
     }
 
     @GetMapping("edit/{id}")
     public String edit(@PathVariable("id") String id, Model model) throws Exception {
-        Currency currency = currencyRepository.getById(id);
+        Currency currency = currencyService.getById(id);
         if (currency == null) {
             throw new Exception("Запись не найдена!");
         }
@@ -48,19 +47,19 @@ public class CurrencyController extends AbstractWebController {
     @DeleteMapping("{id}")
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         String errorMessage = "Невозможно удалить валюту, так как она %s";
-        Currency currency = currencyRepository.getById(id);
+        Currency currency = currencyService.getById(id);
 
         if (currency == null) {
             String message = String.format(errorMessage, "не найдена");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!budgetItemRepository.getByCurrencyId(id).isEmpty()) {
+        if (!budgetItemService.getByCurrencyId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в бюджете");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!regularOperationRepository.getByCurrencyId(id).isEmpty()) {
+        if (!regularOperationService.getByCurrencyId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в регулярных операциях");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
@@ -70,7 +69,7 @@ public class CurrencyController extends AbstractWebController {
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        currencyRepository.deleteById(id);
+        currencyService.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
     }
 
@@ -85,7 +84,7 @@ public class CurrencyController extends AbstractWebController {
         currency.setId(currencyTo.getId());
         currency.setUserGroup(getUserGroup());
 
-        Currency currencyByName = currencyRepository.getByName(currencyTo.getName());
+        Currency currencyByName = currencyService.getByName(currencyTo.getName());
 
         if (Objects.deepEquals(currency, currencyByName)) {
             return "redirect:/dictionaries/currencies";
@@ -99,24 +98,24 @@ public class CurrencyController extends AbstractWebController {
         }
 
         if (currencyTo.getId() != null) {
-            if (currencyRepository.getById(currencyTo.getId()) == null) {
+            if (currencyService.getById(currencyTo.getId()) == null) {
                 rm.addFlashAttribute("error", "Невозможно изменить, валюта не найдена!");
                 return "redirect:/dictionaries/kinds/currencies/";
             }
         }
 
-        currency = currencyRepository.save(currency);
+        currency = currencyService.save(currency);
 
-        List<BudgetItem> budgetItems = budgetItemRepository.getByCurrencyId(currency.getId());
+        List<BudgetItem> budgetItems = budgetItemService.getByCurrencyId(currency.getId());
         for (BudgetItem budgetItem : budgetItems) {
             budgetItem.setCurrency(currency);
-            budgetItemRepository.save(budgetItem);
+            budgetItemService.save(budgetItem);
         }
 
-        List<RegularOperation> operations = regularOperationRepository.getByCurrencyId(currency.getId());
+        List<RegularOperation> operations = regularOperationService.getByCurrencyId(currency.getId());
         for (RegularOperation operation : operations) {
             operation.setCurrency(currency);
-            regularOperationRepository.save(operation);
+            regularOperationService.save(operation);
         }
 
         return "redirect:/dictionaries/currencies";

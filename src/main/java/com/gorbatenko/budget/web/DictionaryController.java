@@ -1,10 +1,8 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.util.CurrencyCount;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +25,11 @@ public class DictionaryController extends AbstractWebController {
     }
 
     @GetMapping("{name}")
-    public String getDictionary(
-            @AuthenticationPrincipal AuthorizedUser authUser, @PathVariable("name") String name, Model model) {
+    public String getDictionary(@PathVariable("name") String name, Model model) {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());
         switch(dictionary) {
             case KINDS:
-                List<BudgetItem> budgetItems = budgetItemRepository.getAll();
+                List<BudgetItem> budgetItems = budgetItemService.getAll();
                 TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(getKinds().stream()
                         .collect(Collectors.groupingBy(Kind::getType)));
 
@@ -45,8 +42,8 @@ public class DictionaryController extends AbstractWebController {
                 return "dictionaries/kinds/kinds";
             case CURRENCIES:
                 TreeMap<Currency, Long> currencies = new TreeMap<>();
-                List<Currency> allCurrencies = currencyRepository.getAll();
-                List<CurrencyCount> currencyCounts = budgetItemRepository.getCurrencyCounts();
+                List<Currency> allCurrencies = currencyService.getAll();
+                List<CurrencyCount> currencyCounts = budgetItemService.getCurrencyCounts();
                 for (Currency currency : allCurrencies) {
                     for (CurrencyCount currencyCount : currencyCounts) {
                         if(currency.equals(currencyCount.getCurrency())) {

@@ -152,8 +152,8 @@ public class BudgetItemRepository extends AbstractRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<KindTotals> getTotalsByKinds(LocalDateTime startDate, LocalDateTime endDate, String userId, String typeStr, String kindId, String priceStr, String description, TypePeriod period){
-        Criteria criteria = createBaseFilterCriteria(true, startDate, endDate, userId, typeStr, kindId, priceStr, description, period);
+    public List<KindTotals> getTotalsByKindsForPeriod(LocalDateTime startDate, LocalDateTime endDate, TypePeriod period){
+        Criteria criteria = createBaseFilterCriteria(true, startDate, endDate, null, null, null, null, null, period);
         return getTotalsByKinds(criteria);
     }
 
