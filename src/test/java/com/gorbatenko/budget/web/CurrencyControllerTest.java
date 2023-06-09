@@ -36,7 +36,7 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
     @Test
     void edit() throws Exception {
         String path = CONTROLLER_PATH+"edit/"+ID;
-        when(currencyService.getById(ID)).thenReturn(BUDGET_ITEM.getCurrency());
+        when(currencyService.getById(ID)).thenReturn(CURRENCY);
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("currency", BUDGET_ITEM.getCurrency()))
@@ -79,7 +79,7 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
         Currency defCurrency = new Currency("TEST", false);
         defCurrency.setId(UUID.randomUUID().toString());
 
-        when(currencyService.getById(ID)).thenReturn(BUDGET_ITEM.getCurrency());
+        when(currencyService.getById(ID)).thenReturn(CURRENCY);
         when(budgetItemService.getByCurrencyId(ID)).thenReturn(List.of());
         when(regularOperationService.getByCurrencyId(ID)).thenReturn(List.of());
 

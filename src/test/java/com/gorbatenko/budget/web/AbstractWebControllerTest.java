@@ -76,14 +76,14 @@ public class AbstractWebControllerTest {
 
     public static final AuthorizedUser AUTHORIZED_USER = new AuthorizedUser(TEST_USER);
 
-
+    public static final Kind KIND = new Kind(UUID.randomUUID().toString(), Type.PROFIT, "Test", false);
 
     public static final BudgetItem BUDGET_ITEM = new BudgetItem();
     static {
         LocalDateTime dateTime = LocalDateTime.of(2023, 6, 4, 0, 0);
         BUDGET_ITEM.setId(UUID.randomUUID().toString());
         BUDGET_ITEM.setUser(DOC_USER);
-        BUDGET_ITEM.setKind(new Kind(UUID.randomUUID().toString(), Type.PROFIT, "Test", false));
+        BUDGET_ITEM.setKind(KIND);
         BUDGET_ITEM.setCurrency(CURRENCY);
         BUDGET_ITEM.setDate(dateTime);
         BUDGET_ITEM.setCreateDateTime(dateTime);
