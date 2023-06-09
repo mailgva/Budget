@@ -1,8 +1,10 @@
 package com.gorbatenko.budget.config;
 
 import com.gorbatenko.budget.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,11 +28,9 @@ public class WebSecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    @Autowired
+    @Lazy
     private UserService userService;
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(UserService userService) {

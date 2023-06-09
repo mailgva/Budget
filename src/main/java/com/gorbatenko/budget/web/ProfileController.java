@@ -28,12 +28,6 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/profile/")
 public class ProfileController extends AbstractWebController {
 
-    AuthenticationManager authenticationManager;
-
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public String profile(Model model) {
