@@ -130,7 +130,7 @@ public class BudgetItemController extends AbstractWebController {
                                @RequestParam(value = "description", defaultValue = "") String description,
                                @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
                                @RequestParam(value = "currencyId", required = false) String currencyId,
-                               Model model) {
+                               Model model, TimeZone tz) {
         if (currencyId != null) {
             userService.changeDefaultCurrency(currencyId);
             return createRedirectStatisticLink(startDate, endDate, userId, kindId, typeStr, priceStr, description, period);
@@ -152,7 +152,7 @@ public class BudgetItemController extends AbstractWebController {
 
         model.addAttribute("startDate", dateToStr(result.getStartDate()));
         model.addAttribute("endDate", dateToStr(result.getEndDate()));
-        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems()));
+        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems(), tz));
         model.addAttribute("users", result.getUsers());
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
@@ -318,7 +318,7 @@ public class BudgetItemController extends AbstractWebController {
         return ResponseEntity.ok(new Response(200, null));
     }
 
-    protected static int getSumTimeZoneOffsetMinutes(TimeZone tz) {
+    public static int getSumTimeZoneOffsetMinutes(TimeZone tz) {
         int userTimeZoneOffsetMinutes = tz.getRawOffset() / 1000 / 60;
         int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
         return (userTimeZoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;

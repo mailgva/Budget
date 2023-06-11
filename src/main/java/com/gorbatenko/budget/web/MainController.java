@@ -97,7 +97,7 @@ public class MainController extends AbstractWebController {
                 .sorted(Comparator.comparing(BudgetItem::getCreateDateTime))
                 .collect(Collectors.toList());
 
-        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems);
+        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems, tz);
 
         model.addAttribute("lastCurrencyId", lastCurrencyId);
         model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));

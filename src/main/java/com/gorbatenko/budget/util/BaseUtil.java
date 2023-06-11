@@ -9,6 +9,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.gorbatenko.budget.web.BudgetItemController.getSumTimeZoneOffsetMinutes;
+
 public class BaseUtil {
     public static String dateToStr(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -27,9 +29,12 @@ public class BaseUtil {
         return LocalDateTime.of(ld, LocalTime.MIN).plusHours(hours);
     }
 
-    public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems) {
+    public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems, TimeZone tz) {
+        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
+
         TreeMap<LocalDate, List<BudgetItem>> map = new TreeMap<>(Collections.reverseOrder());
         for (BudgetItem budgetItem : listBudgetItems) {
+            budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimezoneOffsetMinutes));
             LocalDate key = budgetItem.getDate().toLocalDate();
             if (map.containsKey(key)) {
                 map.get(key).add(budgetItem);
