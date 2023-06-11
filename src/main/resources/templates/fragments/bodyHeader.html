@@ -65,6 +65,7 @@
         <h2 style="display: inline-block;"> Бюджет</h2></a>
 </nav>
 <script>
+    document.cookie = "userTimezoneOffset="+(new Date().getTimezoneOffset());
     function changeCurrency(currencyId) {
         $.ajax({
             type: "GET",

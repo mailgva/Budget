@@ -70,7 +70,7 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/menu")
-    public String getMenu(Model model, TimeZone tz) {
+    public String getMenu(Model model, HttpServletRequest request) {
         LocalDateTime maxDate = budgetItemService.getMaxDate();
         LocalDate lastActivity = maxDate.toLocalDate();
         String lastCurrencyId = budgetItemService.getLastCurrencyIdByDate(lastActivity);
@@ -84,7 +84,7 @@ public class MainController extends AbstractWebController {
         model.addAttribute("spending", spending);
         model.addAttribute("remain", profit-spending);
 
-        int sumTimeZoneOffsetMinutes = BudgetItemController.getSumTimeZoneOffsetMinutes(tz);
+        int sumTimeZoneOffsetMinutes = BudgetItemController.getSumTimeZoneOffsetMinutes(request);
 
         LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimeZoneOffsetMinutes);
 
@@ -97,7 +97,7 @@ public class MainController extends AbstractWebController {
                 .sorted(Comparator.comparing(BudgetItem::getCreateDateTime))
                 .collect(Collectors.toList());
 
-        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems, tz);
+        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems, request);
 
         model.addAttribute("lastCurrencyId", lastCurrencyId);
         model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));

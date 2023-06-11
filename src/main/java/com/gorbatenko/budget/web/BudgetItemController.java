@@ -8,6 +8,8 @@ import com.gorbatenko.budget.model.Type;
 import com.gorbatenko.budget.to.BudgetTo;
 import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -36,13 +38,13 @@ import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 public class BudgetItemController extends AbstractWebController {
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, TimeZone tz) {
+    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, /*TimeZone tz,*/ HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
         }
 
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
+        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
 
         BudgetItem budgetItem = createBudgetFromBudgetTo(budgetTo);
         budgetItem.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
@@ -130,7 +132,7 @@ public class BudgetItemController extends AbstractWebController {
                                @RequestParam(value = "description", defaultValue = "") String description,
                                @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
                                @RequestParam(value = "currencyId", required = false) String currencyId,
-                               Model model, TimeZone tz) {
+                               Model model, HttpServletRequest request) {
         if (currencyId != null) {
             userService.changeDefaultCurrency(currencyId);
             return createRedirectStatisticLink(startDate, endDate, userId, kindId, typeStr, priceStr, description, period);
@@ -152,7 +154,7 @@ public class BudgetItemController extends AbstractWebController {
 
         model.addAttribute("startDate", dateToStr(result.getStartDate()));
         model.addAttribute("endDate", dateToStr(result.getEndDate()));
-        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems(), tz));
+        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems(), request));
         model.addAttribute("users", result.getUsers());
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
@@ -229,8 +231,8 @@ public class BudgetItemController extends AbstractWebController {
     }
 
     @GetMapping("create/{type}")
-    public String createBudgetItemByType(@PathVariable("type") String typeStr, Model model, TimeZone tz) {
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
+    public String createBudgetItemByType(@PathVariable("type") String typeStr, Model model, HttpServletRequest request) {
+        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
 
         BudgetItem budgetItem = new BudgetItem();
         Type type = Type.valueOf(typeStr.toUpperCase());
@@ -320,9 +322,7 @@ public class BudgetItemController extends AbstractWebController {
 
     public static int getSumTimeZoneOffsetMinutes(TimeZone tz) {
         int userTimeZoneOffsetMinutes = tz.getRawOffset() / 1000 / 60;
-        System.out.println("userTimeZoneOffsetMinutes="+userTimeZoneOffsetMinutes);
         int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
-        System.out.println("currentTimeZoneOffsetMinutes="+currentTimeZoneOffsetMinutes);
         return (userTimeZoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;
     }
 
@@ -330,4 +330,23 @@ public class BudgetItemController extends AbstractWebController {
         return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
     }
 
+    public static int getSumTimeZoneOffsetMinutes(HttpServletRequest request) {
+        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
+        int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
+        return (userTimezoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;
+    }
+
+    private static int getUserTimezoneOffsetMinutes(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+
+        String cookieName = "userTimezoneOffset";
+
+        int defaultValue = 1;
+
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName()))
+                return (Integer.parseInt(cookie.getValue()));
+        }
+        return(defaultValue);
+    }
 }

@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.util;
 
 import com.gorbatenko.budget.model.BudgetItem;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.gorbatenko.budget.web.BudgetItemController.getSumTimeZoneOffsetMinutes;
+
 
 public class BaseUtil {
     public static String dateToStr(LocalDate date) {
@@ -29,15 +31,11 @@ public class BaseUtil {
         return LocalDateTime.of(ld, LocalTime.MIN).plusHours(hours);
     }
 
-    public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems, TimeZone tz) {
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
-        System.out.println("SumTimezoneOffsetMinutes: " + sumTimezoneOffsetMinutes);
-
+    public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems, HttpServletRequest request) {
+        int sumTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
         TreeMap<LocalDate, List<BudgetItem>> map = new TreeMap<>(Collections.reverseOrder());
         for (BudgetItem budgetItem : listBudgetItems) {
-            System.out.println("BEFORE: " + budgetItem);
-            budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimezoneOffsetMinutes));
-            System.out.println("AFTER: " + budgetItem);
+            budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimeZoneOffsetMinutes));
             LocalDate key = budgetItem.getDate().toLocalDate();
             if (map.containsKey(key)) {
                 map.get(key).add(budgetItem);
