@@ -320,7 +320,9 @@ public class BudgetItemController extends AbstractWebController {
 
     public static int getSumTimeZoneOffsetMinutes(TimeZone tz) {
         int userTimeZoneOffsetMinutes = tz.getRawOffset() / 1000 / 60;
+        System.out.println("userTimeZoneOffsetMinutes="+userTimeZoneOffsetMinutes);
         int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
+        System.out.println("currentTimeZoneOffsetMinutes="+currentTimeZoneOffsetMinutes);
         return (userTimeZoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;
     }
 
