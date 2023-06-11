@@ -31,10 +31,13 @@ public class BaseUtil {
 
     public static TreeMap<LocalDate, List<BudgetItem>> listBudgetToTreeMap(List<BudgetItem> listBudgetItems, TimeZone tz) {
         int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
+        System.out.println("SumTimezoneOffsetMinutes: " + sumTimezoneOffsetMinutes);
 
         TreeMap<LocalDate, List<BudgetItem>> map = new TreeMap<>(Collections.reverseOrder());
         for (BudgetItem budgetItem : listBudgetItems) {
+            System.out.println("BEFORE: " + budgetItem);
             budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimezoneOffsetMinutes));
+            System.out.println("AFTER: " + budgetItem);
             LocalDate key = budgetItem.getDate().toLocalDate();
             if (map.containsKey(key)) {
                 map.get(key).add(budgetItem);
