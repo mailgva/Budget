@@ -320,12 +320,6 @@ public class BudgetItemController extends AbstractWebController {
         return ResponseEntity.ok(new Response(200, null));
     }
 
-    public static int getSumTimeZoneOffsetMinutes(TimeZone tz) {
-        int userTimeZoneOffsetMinutes = tz.getRawOffset() / 1000 / 60;
-        int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
-        return (userTimeZoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;
-    }
-
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
         return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
     }

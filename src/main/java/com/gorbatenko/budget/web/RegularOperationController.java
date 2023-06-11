@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.to.RegularOperationTo;
 import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,7 +66,7 @@ public class RegularOperationController extends AbstractWebController{
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String editCreateRegularOperation(@Valid @RequestBody RegularOperationTo regularOperationTo,
-                                 @RequestParam(name="referer", defaultValue = "") String referer, TimeZone tz,
+                                 @RequestParam(name="referer", defaultValue = "") String referer, HttpServletRequest request,
                                  RedirectAttributes rm) {
 
         if(regularOperationTo.getId().isEmpty()) {
@@ -77,7 +78,7 @@ public class RegularOperationController extends AbstractWebController{
             }
         }
 
-        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, tz);
+        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, request);
         regularOperation.setId(regularOperationTo.getId());
         regularOperationService.save(regularOperation);
 
@@ -104,9 +105,9 @@ public class RegularOperationController extends AbstractWebController{
         return "regularoperations/edit";
     }
 
-    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, TimeZone tz) {
+    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, HttpServletRequest request) {
         User user = SecurityUtil.get().getUser();
-        int countTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(tz);
+        int countTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
         Kind kind = kindService.getById(regularOperationTo.getKindId());
         Currency currency = currencyService.getById(regularOperationTo.getCurrencyId());
         return new RegularOperation(
