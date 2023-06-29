@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Objects;
 
+import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 
 @Controller
@@ -53,8 +54,14 @@ public class KindController extends AbstractWebController{
     public ResponseEntity<Response> delete(@PathVariable("id") String id) {
         String errorMessage = "Невозможно удалить статью, так как она %s";
         Kind kind = kindService.getById(id);
+
         if (kind == null) {
             String message = String.format(errorMessage, "не найдена");
+            return ResponseEntity.badRequest().body(new Response(400, message));
+        }
+
+        if (kind.getName().equals(EXCHANGE_NAME)) {
+            String message = String.format(errorMessage, "является системной");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
@@ -101,8 +108,16 @@ public class KindController extends AbstractWebController{
         }
 
         if (kindTo.getId() != null) {
-            if (kindService.getById(kindTo.getId()) == null) {
-                rm.addFlashAttribute("error", "Невозможно изменить, статья не найдена!");
+            Kind kindById = kindService.getById(kindTo.getId());
+            String message = "";
+            if (kindById == null) {
+                message = "Невозможно изменить, статья не найдена!";
+            }
+            if (EXCHANGE_NAME.equals(kindById.getName()) && !EXCHANGE_NAME.equals(kindTo.getName())) {
+                message = "Невозможно изменить, статья является системной!";
+            }
+            if (!message.isEmpty()) {
+                rm.addFlashAttribute("error", message);
                 return "redirect:/dictionaries/kinds/";
             }
         }

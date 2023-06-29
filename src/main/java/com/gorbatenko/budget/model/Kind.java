@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "kinds")
 public class Kind extends BaseEntity implements Comparable {
+    public static final String EXCHANGE_NAME = "Обмен валюты";
+
     @Indexed
     private String name;
 

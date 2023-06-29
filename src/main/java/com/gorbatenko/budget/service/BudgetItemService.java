@@ -36,6 +36,10 @@ public class BudgetItemService {
         return budgetItemRepository.save(budgetItem);
     }
 
+    public void saveAll(List<BudgetItem> budgetItems) {
+        budgetItemRepository.saveAll(budgetItems);
+    }
+
     public List<KindTotals> getTotalsByKindsForPeriod(LocalDateTime startDate, LocalDateTime endDate, TypePeriod period) {
         return budgetItemRepository.getTotalsByKindsForPeriod(startDate, endDate, period);
     }

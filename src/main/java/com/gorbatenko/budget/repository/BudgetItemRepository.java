@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +41,16 @@ public class BudgetItemRepository extends AbstractRepository {
             budgetItem.setUserGroup(getUserGroup());
         }
         return repository.save(budgetItem);
+    }
+
+    @Transactional
+    public void saveAll(List<BudgetItem> budgetItems) {
+        for(BudgetItem budgetItem : budgetItems) {
+            if (budgetItem.getUserGroup() == null) {
+                budgetItem.setUserGroup(getUserGroup());
+            }
+            repository.save(budgetItem);
+        } 
     }
 
     public BudgetItem adminSave(BudgetItem budgetItem) {

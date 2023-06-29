@@ -5,7 +5,9 @@ import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.to.BudgetTo;
+import com.gorbatenko.budget.to.ExchangeTo;
 import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
 import jakarta.servlet.http.Cookie;
@@ -23,11 +25,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TimeZone;
 
+import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.BaseUtil.*;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 
@@ -38,7 +43,7 @@ import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 public class BudgetItemController extends AbstractWebController {
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, /*TimeZone tz,*/ HttpServletRequest request) {
+    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
         if (budgetTo.getId().isEmpty()) {
             budgetTo.setId(null);
@@ -68,7 +73,6 @@ public class BudgetItemController extends AbstractWebController {
         }
 
         return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
-
     }
 
     private BudgetItem createBudgetFromBudgetTo(BudgetTo b) {
@@ -318,6 +322,73 @@ public class BudgetItemController extends AbstractWebController {
     public ResponseEntity<Response> deleteBudgetItem(@PathVariable("id") String id) {
         budgetItemService.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
+    }
+
+    @GetMapping("exchange")
+    public String exchange(Model model, HttpServletRequest request) {
+        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
+        LocalDateTime currentDate = LocalDateTime.of(
+                LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
+                LocalTime.of(0, 0));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        model.addAttribute("currentDate", currentDate.format(formatter));
+        model.addAttribute("currencies", currencyService.getByHidden(false));
+        model.addAttribute("defaultCurrency", getCurrencyDefault());
+        model.addAttribute("pageName", "Обмен валюты");
+        return "budget/exchange";
+    }
+
+    @PostMapping("exchange")
+    public String doExchange(@Valid @RequestBody ExchangeTo exchange, HttpServletRequest request) {
+        String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
+
+        LocalDateTime commonDate = LocalDateTime.of(exchange.getDate(), LocalTime.MIN);
+        User commonUser = toDocUser(SecurityUtil.get().getUser());
+
+        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
+
+        BudgetItem from = new BudgetItem();
+        from.setDate(commonDate);
+        from.setUser(commonUser);
+        from.setKind(kindService.getKindsByNameAndType(EXCHANGE_NAME, Type.SPENDING).get(0));
+        from.setCurrency(currencyService.getById(exchange.getFromCurrencyId()));
+        from.setDescription(exchange.getDescription());
+        from.setPrice(exchange.getFromAmount());
+        from.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
+
+        BudgetItem to = new BudgetItem();
+        to.setDate(commonDate);
+        to.setUser(commonUser);
+        to.setKind(kindService.getKindsByNameAndType(EXCHANGE_NAME, Type.PROFIT).get(0));
+        to.setCurrency(currencyService.getById(exchange.getToCurrencyId()));
+        to.setDescription(exchange.getDescription());
+        to.setPrice(exchange.getToAmount());
+        to.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
+
+        List<BudgetItem> list = new ArrayList<>();
+        list.add(from);
+        list.add(to);
+
+        budgetItemService.saveAll(list);
+
+        LocalDate date = exchange.getDate();
+
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
+        LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
+
+        // if day is in current month
+        if (!(startDate.minusDays(1).isBefore(date) && (endDate.plusDays(1).isAfter(date)))) {
+            startDate = LocalDate.of(date.getYear(), date.getMonth(), 1);
+            endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
+        }
+
+        if (!exchange.getToCurrencyId().equals(SecurityUtil.getCurrencyDefault().getId())) {
+            userService.changeDefaultCurrency(exchange.getToCurrencyId());
+        }
+
+        return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
     }
 
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {

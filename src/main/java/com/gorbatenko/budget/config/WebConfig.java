@@ -29,6 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                         CurrencyToHttpConverter.class,
                         KindToHttpConverter.class,
                         RegularOperationToHttpConverter.class,
+                        ExchangeToHttpConverter.class,
                         UserToHttpConverter.class);
         classes.stream().forEach(clazz -> converters.add(createConverterByClass(clazz)));
     }

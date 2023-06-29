@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
 
 @Service("userService")
@@ -37,6 +38,9 @@ public class UserServiceImpl implements UserService {
         mapStartKinds.put("Продукты", Type.SPENDING);
         mapStartKinds.put("Коммунальные расходы", Type.SPENDING);
         mapStartKinds.put("Прочее", Type.SPENDING);
+
+        mapStartKinds.put(EXCHANGE_NAME, Type.PROFIT);
+        mapStartKinds.put(EXCHANGE_NAME, Type.SPENDING);
 
         listStartCurrencies.add("грн");
         listStartCurrencies.add("usd");
