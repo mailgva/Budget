@@ -3,14 +3,14 @@
 
 The application for management and planning family budget.
 Features:
- - group of users (in section Profile has link to join to group)
+ - groups of users (there is the link to join to the group in section Profile)
  - contains 3 types operation: Spending, Profit, Exchange
- - regular operation (every day, special day of month, special day of week). Automatic create by scheduler, check tasks every day at 12:00.    
+ - regular operation (every day, special day of month, special day of week). Automatic create by scheduler, check the tasks every day at 12:00.    
  - section Dictionaries contains: kinds of operations and kinds of currencies
- - after user registered, he has:
-    - some kinds of operation
+ - after the user registered, he has:
+    - some kinds of operations
     - some currencies (grn, usd, eur)
- - section Statistic - shows operations by days, with filters
+ - section Statistic - allows to show the operations by days with different filters
  - section Group Statistics:
     - shows summary by operation for period and able to show:
         * count operations by kind
@@ -19,7 +19,7 @@ Features:
         * details for kind
         * charts: doughnut, horizontal bar
         * vertical chart for show dynamic by kind
- - backuping database by sheduler 
+ - backup database by scheduler 
 
  Technology stack:
    * Java 17     
@@ -37,7 +37,7 @@ Features:
      <img src="https://www.thymeleaf.org/images/thymeleaf.png" width="200" height="200">     
      * Thymeleaf Security
      * Thymeleaf Java8time
-   * Google Drive (backuping data by scheduler)   
+   * Google Drive (backup data by scheduler)   
      <img src="https://ssl.gstatic.com/images/branding/product/2x/hh_drive_96dp.png" width="200" height="200">
    * Jackson     
      <img src="https://play-lh.googleusercontent.com/7j-Q-OEatmJ0-8Cw8S0wHHm34v_KSVLbNziEMvUu4P6F3Vza2nx5e1DiSGjnGfvqYKI" height="200" width="400">
