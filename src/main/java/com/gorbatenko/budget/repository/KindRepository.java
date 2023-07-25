@@ -51,9 +51,9 @@ public class KindRepository extends AbstractRepository {
         if (hidden != null) {
             if (hidden) {
                 criteria.and("hidden").is(hidden);
-            } else {
-                criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
             }
+        } else {
+            criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
         }
         Sort sort = Sort.by("type").ascending().and(Sort.by("name")).ascending();
         return findAll(criteria, sort, Kind.class);
