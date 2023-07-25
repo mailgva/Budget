@@ -49,9 +49,7 @@ public class KindRepository extends AbstractRepository {
             criteria.and("name").is(name);
         }
         if (hidden != null) {
-            if (hidden) {
-                criteria.and("hidden").is(hidden);
-            }
+            criteria.and("hidden").is(hidden);
         } else {
             criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
         }
