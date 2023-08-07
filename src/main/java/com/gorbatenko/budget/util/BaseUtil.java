@@ -35,7 +35,7 @@ public class BaseUtil {
         int sumTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
         TreeMap<LocalDate, List<BudgetItem>> map = new TreeMap<>(Collections.reverseOrder());
         for (BudgetItem budgetItem : listBudgetItems) {
-            budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimeZoneOffsetMinutes));
+            //budgetItem.setCreateDateTime(budgetItem.getCreateDateTime().plusMinutes(sumTimeZoneOffsetMinutes));
             LocalDate key = budgetItem.getDate().toLocalDate();
             if (map.containsKey(key)) {
                 map.get(key).add(budgetItem);
