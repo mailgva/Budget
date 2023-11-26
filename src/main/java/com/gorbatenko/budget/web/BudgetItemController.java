@@ -27,10 +27,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.BaseUtil.*;
@@ -101,8 +98,9 @@ public class BudgetItemController extends AbstractWebController {
         model.addAttribute("profit", result.getProfit());
         model.addAttribute("spending", result.getSpending());
         model.addAttribute("remain", result.getProfit() - result.getSpending());
-        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(result.getOffSetStartDate().minusDays(1)));
-        model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(result.getOffSetEndDate()));
+
+        model.addAttribute("remainOnStartPeriod", result.getRemainOnStartPeriod());
+        model.addAttribute("remainOnEndPeriod", result.getRemainOnEndPeriod());
 
         model.addAttribute("startDate", dateToStr(result.getStartDate()));
         model.addAttribute("endDate", dateToStr(result.getEndDate()));
@@ -115,10 +113,13 @@ public class BudgetItemController extends AbstractWebController {
         model.addAttribute("horizontChartProfit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.PROFIT, result.getMapKind()));
         model.addAttribute("horizontChartSpendit", ChartUtil.createMdbChart(ChartType.HORIZONTALBAR, Type.SPENDING, result.getMapKind()));
 
-        model.addAttribute("totalBarChart", ChartUtil.createDynamicMultiMdbChart(ChartType.BARCHART, result.getTotalMap()));
+        model.addAttribute("totalBarChart", ChartUtil.createDynamicMultiMdbChart(ChartType.BAR, result.getTotalMap()));
+        model.addAttribute("dynamicBarChart", ChartUtil.createMdbChart(ChartType.LINE, "Динамика остатков", result.getDynamicRemain()));
 
         model.addAttribute("period", period);
         model.addAttribute("sortType", sortType);
+        model.addAttribute("groupPeriod", result.getGroupPeriod());
+
 
         model.addAttribute("pageName", "Групповая статистика");
         model.addAttribute("filteredPage", true);
@@ -228,8 +229,8 @@ public class BudgetItemController extends AbstractWebController {
         model.addAttribute("kindId", kindId);
         model.addAttribute("positionName", result.getPositionName());
         model.addAttribute("positionSum", result.getPositionSum());
-        model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BARCHART, result.getPositionName(), result.getMapKindSort()));
-        model.addAttribute("groupPeriod", groupPeriod);
+        model.addAttribute("barChart", ChartUtil.createDynamicMdbChart(ChartType.BAR, result.getPositionName(), result.getMapKindSort()));
+        model.addAttribute("groupPeriod", result.getGroupPeriod());
         model.addAttribute("pageName", "Динамика");
         return "budget/dynamicstatistic";
     }
@@ -389,6 +390,17 @@ public class BudgetItemController extends AbstractWebController {
         }
 
         return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
+    }
+
+    @GetMapping("dynamicRemainStatistic")
+    @ResponseBody
+    public String dynamicRemainStatistic(
+            @RequestParam(value = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(value = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(value = "groupPeriod", defaultValue = "BY_DEFAULT") GroupPeriod groupPeriod) {
+        TreeMap<String, Double> data = budgetItemService.createDynamicRemainStatistic(startDate, endDate, groupPeriod);
+        String json = ChartUtil.createMdbChart(ChartType.LINE, "Динамика остатков", data);
+        return json;
     }
 
     private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {

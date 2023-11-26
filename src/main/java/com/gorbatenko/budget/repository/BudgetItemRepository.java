@@ -224,6 +224,26 @@ public class BudgetItemRepository extends AbstractRepository {
         }
     }
 
+    public Double getRemainByDefaultCurrencyForDate(LocalDate date) {
+        Criteria baseCriteria = new Criteria();
+        baseCriteria.and("currency._id").is(getCurrencyDefault().getId());
+        baseCriteria.and("date").lt(date);
+
+        Criteria profitCriteria = new Criteria();
+        profitCriteria.andOperator(baseCriteria);
+        profitCriteria.and("kind.type").is(Type.PROFIT);
+        Double profit = aggregationOnlyResultField(profitCriteria, GroupOps.SUM, "price",
+                BudgetItem.class, Double.class, 0.0D);
+
+        Criteria spendingCriteria = new Criteria();
+        spendingCriteria.andOperator(baseCriteria);
+        spendingCriteria.and("kind.type").is(Type.SPENDING);
+        Double spending = aggregationOnlyResultField(spendingCriteria, GroupOps.SUM, "price",
+                BudgetItem.class, Double.class, 0.0D);
+
+        return profit - spending;
+    }
+
     class DateSumPrice {
         private LocalDateTime date;
         private Double sumPrice;

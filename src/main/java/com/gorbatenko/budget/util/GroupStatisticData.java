@@ -15,4 +15,8 @@ public class GroupStatisticData extends StatisticData {
     TreeMap<String, TreeMap<Type, Double>> totalMap;
     Double profit;
     Double spending;
+    TreeMap<String, Double> dynamicRemain;
+    Double remainOnStartPeriod;
+    Double remainOnEndPeriod;
+    GroupPeriod groupPeriod;
 }

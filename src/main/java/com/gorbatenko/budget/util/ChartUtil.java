@@ -13,6 +13,13 @@ import java.util.TreeMap;
 public class ChartUtil {
     final static private float TRANSPARENT_VALUE = 1.0f;
 
+    public static String createMdbChart(ChartType chartType, String label, TreeMap<String, Double> data){
+        ChartData chartData = createChartData(chartType, label, data);
+        Map<String, Object> options = createOptions(chartType);
+        MdbChart mdbChart = new MdbChart(chartType.getValue(), chartData, options);
+        return mdbChartToJSON(mdbChart);
+    }
+
     public static String createMdbChart(ChartType chartType, Type type, TreeMap<Type, Map<Kind, Double>> data){
         if(data.get(type) == null) {
             return "";
@@ -50,8 +57,8 @@ public class ChartUtil {
     private static Map<String, Object> createOptions(ChartType chartType) {
         Map<String, Object> result = new HashMap<>();
         switch (chartType) {
-            case BARCHART:
-            case HORIZONTALBAR: {
+            case BAR:
+            case HORIZONTALBAR, LINE: {
                 Map<String, Boolean> beginAtZero = new HashMap<>();
                 beginAtZero.put("beginAtZero", true);
 
@@ -62,7 +69,7 @@ public class ChartUtil {
                 arrayTicks[0] = ticks;
 
                 Map<String, Object[]> axes = new HashMap<>();
-                axes.put((chartType.equals(ChartType.BARCHART) ? "yAxes" : "xAxes"), arrayTicks);
+                axes.put((chartType.equals(ChartType.BAR) ? "yAxes" : "xAxes"), arrayTicks);
 
                 result.put("scales", axes);
                 break;
@@ -110,6 +117,11 @@ public class ChartUtil {
         return new ChartData(labels, createChartDataset(chartType, type.getValue(), labels, map));
     }
 
+    private static ChartData createChartData(ChartType chartType, String type, TreeMap<String, Double> data) {
+        String[] labels = data.entrySet().stream().map(Map.Entry::getKey).toArray(String[]::new);
+        return new ChartData(labels, createChartDataset(chartType, type, labels, data));
+    }
+
     private static ChartDatasets[] createChartDataset(ChartType chartType, String label, String[] labels, Map<String, Double> map) {
         String[] data = createData(labels, map);
         String[] backgroundColor;
@@ -118,12 +130,12 @@ public class ChartUtil {
         ChartDatasets[] result = new ChartDatasets[1];
 
         switch (chartType) {
-            case BARCHART:
+            case BAR:
                 backgroundColor = createRGB(map.size(), true, true);
                 borderColor = createRGB(map.size(), false, true);
                 result[0] = new ChartDatasetsHorizont(label, data, false, backgroundColor, borderColor);
                 break;
-            case HORIZONTALBAR:
+            case HORIZONTALBAR, LINE:
                 backgroundColor = createRGB(map.size(), true, false);
                 borderColor = createRGB(map.size(), false, false);
                 result[0] = new ChartDatasetsHorizont(label, data, false, backgroundColor, borderColor);

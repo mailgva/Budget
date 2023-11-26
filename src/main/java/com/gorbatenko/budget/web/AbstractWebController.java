@@ -107,14 +107,7 @@ public class AbstractWebController {
         model.addAttribute("profit", profit);
         model.addAttribute("spending", spending);
         model.addAttribute("remain", remain);
-        model.addAttribute("remainOnStartPeriod", getRemainOnStartPeriod(startDate));
-        model.addAttribute("remainOnEndPeriod", getRemainOnStartPeriod(endDate));
-    }
-
-    protected Double getRemainOnStartPeriod(LocalDateTime startDate) {
-        List<BudgetItem> budgetItems = budgetItemService.getBeforeDate(startDate);
-        return budgetItems.stream()
-                .map(budget ->
-                        (budget.getKind().getType().equals(Type.PROFIT) ? budget.getPrice() : budget.getPrice() * -1.D)).mapToDouble(Double::doubleValue).sum();
+        model.addAttribute("remainOnStartPeriod", budgetItemService.getRemainByDefaultCurrencyForDate(startDate.toLocalDate().plusDays(1))); ;
+        model.addAttribute("remainOnEndPeriod", budgetItemService.getRemainByDefaultCurrencyForDate(endDate.toLocalDate()));
     }
 }

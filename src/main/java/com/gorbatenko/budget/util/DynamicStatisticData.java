@@ -9,4 +9,5 @@ public class DynamicStatisticData extends StatisticData {
     String positionName;
     double positionSum;
     TreeMap<String, Double> mapKindSort;
+    GroupPeriod groupPeriod;
 }

@@ -17,7 +17,10 @@ import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.gorbatenko.budget.model.Type.PROFIT;
+import static com.gorbatenko.budget.model.Type.SPENDING;
 import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
+import static com.gorbatenko.budget.util.TypePeriod.*;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
@@ -53,11 +56,11 @@ public class BudgetItemService {
     }
 
     public List<BudgetItem> getPopularByTypeForPeriod(LocalDateTime startDate, LocalDateTime endDate, String typeName) {
-        return budgetItemRepository.getFilteredData(startDate, endDate, null, typeName, null, null, null, TypePeriod.SELECTED_PERIOD);
+        return budgetItemRepository.getFilteredData(startDate, endDate, null, typeName, null, null, null, SELECTED_PERIOD);
     }
 
     public List<BudgetItem> getBeforeDate(LocalDateTime endDate) {
-        return budgetItemRepository.getFilteredData(null, endDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
+        return budgetItemRepository.getFilteredData(null, endDate, null, null, null, null, null, SELECTED_PERIOD);
     }
 
     public List<BudgetItem> getAll() {
@@ -77,7 +80,7 @@ public class BudgetItemService {
     }
 
     public List<BudgetItem> getForSelectedPeriod(LocalDateTime startLocalDate, LocalDateTime endLocalDate) {
-        return budgetItemRepository.getFilteredData(startLocalDate, endLocalDate, null, null, null, null, null, TypePeriod.SELECTED_PERIOD);
+        return budgetItemRepository.getFilteredData(startLocalDate, endLocalDate, null, null, null, null, null, SELECTED_PERIOD);
     }
 
     public Double getSumPriceByCurrencyAndType(Currency currency, Type type) {
@@ -86,6 +89,10 @@ public class BudgetItemService {
 
     public Double getSumPriceByDefaultCurrencyAndType(Type type) {
         return budgetItemRepository.getSumPriceByDefaultCurrencyAndType(type);
+    }
+
+    public Double getRemainByDefaultCurrencyForDate(LocalDate date) {
+        return budgetItemRepository.getRemainByDefaultCurrencyForDate(date);
     }
 
     public LocalDateTime getMaxDate() {
@@ -107,14 +114,14 @@ public class BudgetItemService {
         LocalDateTime offSetEndDate;
         TreeMap<Type, Map<Kind, Double>> mapKind;
 
-        if ((startDate == null) || (period.equals(TypePeriod.CURRENT_MONTH))) {
+        if ((startDate == null) || (period.equals(CURRENT_MONTH))) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
             endDate = offSetEndDate.toLocalDate();
         }
 
-        if (period.equals(TypePeriod.CURRENT_YEAR)) {
+        if (period.equals(CURRENT_YEAR)) {
             offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), 1, 1), LocalTime.MIN);
             startDate = offSetStartDate.toLocalDate();
             offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), 12, 31), LocalTime.MAX);
@@ -126,7 +133,7 @@ public class BudgetItemService {
 
         List<KindTotals> totals = getTotalsByKindsForPeriod(offSetStartDate, offSetEndDate, period);
 
-        if (period.equals(TypePeriod.ALL_TIME) && totals.size() > 0) {
+        if (period.equals(ALL_TIME) && totals.size() > 0) {
             offSetStartDate = totals.stream()
                     .map(total -> total.getMinCreateDateTime())
                     .min(LocalDateTime::compareTo)
@@ -183,24 +190,24 @@ public class BudgetItemService {
         GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
 
         Map<String, Double> mapDateProfit =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.PROFIT, period, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, PROFIT, period, groupPeriod);
 
         Map<String, Double> mapDateSpending =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, Type.SPENDING, period, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, SPENDING, period, groupPeriod);
 
         TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
 
         for(Map.Entry<String, Double> entry : mapDateProfit.entrySet()) {
             TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
-            double value = map.getOrDefault(Type.PROFIT, 0.00D) + entry.getValue();
-            map.put(Type.PROFIT, value);
+            double value = map.getOrDefault(PROFIT, 0.00D) + entry.getValue();
+            map.put(PROFIT, value);
             totalMap.put(entry.getKey(), map);
         }
 
         for(Map.Entry<String, Double> entry : mapDateSpending.entrySet()) {
             TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
-            double value = map.getOrDefault(Type.SPENDING, 0.00D) + entry.getValue();
-            map.put(Type.SPENDING, value);
+            double value = map.getOrDefault(SPENDING, 0.00D) + entry.getValue();
+            map.put(SPENDING, value);
             totalMap.put(entry.getKey(), map);
         }
 
@@ -208,30 +215,45 @@ public class BudgetItemService {
                 .collect(Collectors.toMap(KindTotals::getKind, KindTotals::getCount));
 
         Double maxPriceProfit = totals.stream()
-                .filter(total -> total.getKind().getType().equals(Type.PROFIT))
+                .filter(total -> total.getKind().getType().equals(PROFIT))
                 .map(total -> total.getSumPrice())
                 .max(Double::compareTo)
                 .orElse(0.0);
 
         Double maxPriceSpending = totals.stream()
-                .filter(total -> total.getKind().getType().equals(Type.SPENDING))
+                .filter(total -> total.getKind().getType().equals(SPENDING))
                 .map(total -> total.getSumPrice())
                 .max(Double::compareTo)
                 .orElse(0.0);
 
         Map<Type, Double> mapMaxPrice = new HashMap<>();
-        mapMaxPrice.put(Type.PROFIT, maxPriceProfit);
-        mapMaxPrice.put(Type.SPENDING, maxPriceSpending);
+        mapMaxPrice.put(PROFIT, maxPriceProfit);
+        mapMaxPrice.put(SPENDING, maxPriceSpending);
 
         Double profit = totals.stream()
-                .filter(total -> total.getKind().getType().equals(Type.PROFIT))
+                .filter(total -> total.getKind().getType().equals(PROFIT))
                 .mapToDouble(KindTotals::getSumPrice)
                 .sum();
 
         Double spending = totals.stream()
-                .filter(total -> total.getKind().getType().equals(Type.SPENDING))
+                .filter(total -> total.getKind().getType().equals(SPENDING))
                 .mapToDouble(KindTotals::getSumPrice)
                 .sum();
+
+        Double remainOnStartPeriod = getRemainByDefaultCurrencyForDate(offSetStartDate.toLocalDate());
+        Double remainOnEndPeriod = getRemainByDefaultCurrencyForDate(offSetEndDate.toLocalDate());
+        Double remain = remainOnStartPeriod;
+        TreeSet<String> keys = new TreeSet<>() {{
+            addAll(mapDateProfit.keySet());
+            addAll(mapDateSpending.keySet());}};
+
+        TreeMap<String, Double> dynamicRemain = new TreeMap<>();
+        for (String key : keys) {
+            Double value = mapDateProfit.getOrDefault(key, 0.0D) -
+                    mapDateSpending.getOrDefault(key, 0.0D);
+            remain += value;
+            dynamicRemain.put(key, remain);
+        }
 
         result.setStartDate(startDate);
         result.setEndDate(endDate);
@@ -243,6 +265,10 @@ public class BudgetItemService {
         result.setTotalMap(totalMap);
         result.setProfit(profit);
         result.setSpending(spending);
+        result.setDynamicRemain(dynamicRemain);
+        result.setRemainOnStartPeriod(remainOnStartPeriod);
+        result.setRemainOnEndPeriod(remainOnEndPeriod);
+        result.setGroupPeriod(groupPeriod);
 
         return result;
     }
@@ -307,12 +333,12 @@ public class BudgetItemService {
             Kind kind = kindRepository.getById(kindId);
 
             listBudgetItems =
-                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, TypePeriod.SELECTED_PERIOD);
+                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, SELECTED_PERIOD);
 
             positionName = kind.getName();
         } else {
             listBudgetItems =
-                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, TypePeriod.SELECTED_PERIOD);
+                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, SELECTED_PERIOD);
 
             positionName = type.getValue();
         }
@@ -334,6 +360,7 @@ public class BudgetItemService {
         result.setMapKindSort(new TreeMap<>(mapKind));
         result.setPositionName(positionName);
         result.setPositionSum(positionSum);
+        result.setGroupPeriod(groupPeriod);
         return result;
     }
 
@@ -350,4 +377,29 @@ public class BudgetItemService {
         }
     }
 
+    public TreeMap<String, Double> createDynamicRemainStatistic(LocalDate startDate, LocalDate endDate, GroupPeriod groupPeriod) {
+        LocalDateTime offSetStartDate  = setTimeZoneOffset(startDate);
+        LocalDateTime offSetEndDate = setTimeZoneOffset(endDate);
+
+        Map<String, Double> mapDateProfit =
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, PROFIT, SELECTED_PERIOD, groupPeriod);
+
+        Map<String, Double> mapDateSpending =
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, SPENDING, SELECTED_PERIOD, groupPeriod);
+
+        Double remain = getRemainByDefaultCurrencyForDate(offSetStartDate.toLocalDate());
+        TreeSet<String> keys = new TreeSet<>() {{
+            addAll(mapDateProfit.keySet());
+            addAll(mapDateSpending.keySet());}};
+
+        TreeMap<String, Double> dynamicRemain = new TreeMap<>();
+        for (String key : keys) {
+            Double value = mapDateProfit.getOrDefault(key, 0.0D) -
+                    mapDateSpending.getOrDefault(key, 0.0D);
+            remain += value;
+            dynamicRemain.put(key, remain);
+        }
+
+        return dynamicRemain;
+    }
 }

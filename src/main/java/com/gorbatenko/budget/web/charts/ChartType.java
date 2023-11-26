@@ -1,7 +1,7 @@
 package com.gorbatenko.budget.web.charts;
 
 public enum ChartType {
-    HORIZONTALBAR("horizontalBar"), DOUGHNUT("doughnut"), BARCHART("bar");
+    HORIZONTALBAR("horizontalBar"), DOUGHNUT("doughnut"), BAR("bar"), LINE("line");
 
     private final String value;
 

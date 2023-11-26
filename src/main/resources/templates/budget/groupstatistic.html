@@ -123,6 +123,7 @@
                 <a class="nav-item nav-link" id="nav-circlediagram" data-toggle="tab" href="#circlediagram" role="tab" aria-controls="circlediagram" aria-selected="false" style="font-size: x-large">Круговая диаграмма</a>
                 <a class="nav-item nav-link" id="nav-horizontdiagram" data-toggle="tab" href="#horizontdiagram" role="tab" aria-controls="horizontdiagram" aria-selected="false" style="font-size: x-large">Горизонтальная диаграмма</a>
                 <a class="nav-item nav-link" id="nav-totalbardiagram" data-toggle="tab" href="#totalbardiagram" role="tab" aria-controls="totalbardiagram" aria-selected="false" style="font-size: x-large">Вертикальная итоговая диаграмма</a>
+                <a class="nav-item nav-link" id="nav-dynamicdiagram" data-toggle="tab" href="#dynamicdiagram" role="tab" aria-controls="dynamicdiagram" aria-selected="false" style="font-size: x-large">Динамика остатков</a>
             </div>
         </nav>
 
@@ -238,6 +239,39 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade" id="dynamicdiagram" role="tabpanel" aria-labelledby="nav-horizontdiagram">
+                <div class="row d-flex justify-content-center">
+                    <div class="form-group row">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_days"
+                                   th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_DAYS)}">
+                            <label class="form-check-label" for="by_days"
+                                   th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_DAYS.getValue())}"
+                                   th:onclick="getDynamicRemainData([[${startDate}]], [[${endDate}]], 'BY_DAYS');">
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_months"
+                                   th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_MONTHS)}">
+                            <label class="form-check-label" for="by_months"
+                                   th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_MONTHS.getValue())}"
+                                   th:onclick="getDynamicRemainData([[${startDate}]], [[${endDate}]], 'BY_MONTHS');">
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="by_years"
+                                   th:checked="${groupPeriod.equals(T(com.gorbatenko.budget.util.GroupPeriod).BY_YEARS)}">
+                            <label class="form-check-label" for="by_years"
+                                   th:text="${(T(com.gorbatenko.budget.util.GroupPeriod).BY_YEARS.getValue())}"
+                                   th:onclick="getDynamicRemainData([[${startDate}]], [[${endDate}]], 'BY_YEARS');">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <canvas id="dynamicBarChart" style="max-width: 80%;max-height: 500px;"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -252,6 +286,7 @@
             new Chart(document.getElementById("horizontChartProfit"), [(${horizontChartProfit})]);
             new Chart(document.getElementById("horizontChartSpendit"), [(${horizontChartSpendit})]);
             new Chart(document.getElementById("totalBarChart").getContext('2d'), [(${totalBarChart})]);
+            new Chart(document.getElementById("dynamicBarChart"), [(${dynamicBarChart})]);
         } );
     </script>
     <script>
@@ -275,6 +310,18 @@
             });
             $('span[data-sum-seleted="' + type + '"]').text(sum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '));
             $('span[data-sum-seleted="' + type + '"]').parent().parent().css('display', sum == 0 ? 'none' : '');
+        }
+
+        function getDynamicRemainData(startDate, endDate, groupPeriod) {
+            const url = "/budget/dynamicRemainStatistic?startDate="+startDate+"&endDate="+endDate+"&groupPeriod="+groupPeriod;
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (jqXHR) {
+                    const data = JSON.parse(jqXHR);
+                    new Chart(document.getElementById("dynamicBarChart"), data);
+                }
+            });
         }
     </script>
 </main>
