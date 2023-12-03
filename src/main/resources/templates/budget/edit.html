@@ -65,7 +65,7 @@
                 <div class="form-check mobchkbox">
                     <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="${budgetItem.id == null}"
                            onclick="calculate()">
-                    <label class="form-check-label mob" for="autocalc">Автоматический подсчет</label>
+                    <label class="form-check-label mob" for="autocalc">Автоматический подсчет (до разделителя "//")</label>
                 </div>
                 <div class="form-group">
                     <label for="price">Сумма</label>
@@ -107,11 +107,14 @@
 
     function getSum(){
         var str = $('#description').val();
-        str = str.replace(/[^0-9]/g, " ");
-        var arr = str.split(" ");
+        var rows = str.split(/\n/);
+        rows = rows.map((elm) =>  elm.indexOf('//') === -1 ? elm : elm.substring(0, elm.indexOf('//')));
+        str = rows.join(' ');
+        str = str.replace(/[^0-9]/g, ' ');
+        var arr = str.split(' ');
         var result = 0;
         arr.forEach(function(item) {
-            result+= ((item.replace(" ","") === "") ? 0.0 : parseInt(item));
+            result+= ((item.replace(' ','') === '') ? 0.0 : parseInt(item));
         });
         return result;
     }
