@@ -9,6 +9,7 @@
         <div>
             <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
             <!--/*--><!--@thymesVar id="every" type="com.gorbatenko.budget.model.Every"--><!--*/-->
+            <!--/*--><!--@thymesVar id="type" type="com.gorbatenko.budget.model.Type"--><!--*/-->
             <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
             <!--/*--><!--@thymesVar id="error" type="java.lang.String"--><!--*/-->
             <h2 th:text="${(operation.id == null ? 'Добавление' : 'Изменение') + ' регулярной операции'}"> </h2>
@@ -30,11 +31,6 @@
                 <div class="form-group">
                     <label for="dayOfMonth">День (число) месяца</label>
                     <div class="input-group mb-3">
-                        <!--<div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-pencil"></i></span>
-                        </div>
-                        <input type="number" name="dayOfMonth" id="dayOfMonth" class="form-control" th:value="${operation.getDayOfMonth()}"
-                               placeholder="1" th:min="1" th:max="31">-->
                         <select id="dayOfMonth" name="dayOfMonth" readonly class="form-control">
                             <option th:each="day : ${#numbers.sequence(1, 31)}"
                                     th:value="${day}"
@@ -47,14 +43,22 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="typeId">Тип</label>
+                    <div class="input-group mb-3">
+                        <select id="typeId" name="typeId" class="form-control" onchange="changeType()">
+                            <option th:each="type : ${types}"
+                                    th:value="${type.name()}"
+                                    th:text="${type.getValue()}"
+                                    th:selected="${operation.getKind() != null && type.equals(operation.getKind().getType())}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="kindId">Вид</label>
                     <div class="input-group mb-3">
                         <select id="kindId" name="kindId" class="form-control">
-                            <option th:each="kind : ${kinds}"
-                                    th:value="${kind.getId()}"
-                                    th:text="${(kind.getType().equals(T(com.gorbatenko.budget.model.Type).PROFIT) ? ' + ' : ' - ') +  kind.name}"
-                                    th:selected="${operation.getKind() != null && operation.getKind().getName().equalsIgnoreCase(kind.getName()) }">
-                            </option>
                         </select>
                     </div>
                 </div>
@@ -66,9 +70,16 @@
                             <span class="input-group-text"><i class="fa fa-pencil"></i></span>
                         </div>
                         <textarea name="description" id="description" class="form-control" rows="4"
+                                  onkeyup="calculate()"
                                   th:placeholder="${operation.getDescription()}"
                                   th:text="${operation.getDescription()}"></textarea>
                     </div>
+                </div>
+
+                <div class="form-check mobchkbox">
+                    <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="true"
+                           onclick="calculate()">
+                    <label class="form-check-label mob" for="autocalc">Автоматический подсчет (до разделителя "//")</label>
                 </div>
 
                 <div class="form-group">
@@ -102,6 +113,7 @@
 <script>
     $( document ).ready(function() {
         setVisibleDayOfMonth();
+        changeType()
     });
 
     function setVisibleDayOfMonth() {
@@ -129,6 +141,39 @@
                 error.css("display", "block");
             }
         });
+    }
+
+    function changeType() {
+        const mapKind = [(${mapKind})];
+        const editKindId = [(${editKindId})];
+        var type = $('#typeId').val();
+        var kind = $('#kindId');
+        kind.empty();
+        mapKind[type].forEach(function(item) {
+            kind.append($("<option />").val(item.id).text(item.name).prop("selected", item.id === editKindId));
+        });
+    }
+
+    function calculate(){
+        if (!$('#autocalc').is(":checked")) return;
+        var result = getSum();
+        if(result > 0) {
+            $('#price').val(result);
+        }
+    }
+
+    function getSum(){
+        var str = $('#description').val();
+        var rows = str.split(/\n/);
+        rows = rows.map((elm) =>  elm.indexOf('//') === -1 ? elm : elm.substring(0, elm.indexOf('//')));
+        str = rows.join(' ');
+        str = str.replace(/[^0-9]/g, ' ');
+        var arr = str.split(' ');
+        var result = 0;
+        arr.forEach(function(item) {
+            result+= ((item.replace(' ','') === '') ? 0.0 : parseInt(item));
+        });
+        return result;
     }
 </script>
 </body>

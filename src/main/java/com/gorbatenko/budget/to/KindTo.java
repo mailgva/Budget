@@ -26,6 +26,13 @@ public class KindTo extends BaseEntity {
     @JsonDeserialize(using = OnOffDeserializer.class)
     private boolean hidden = false;
 
+    public KindTo(String id, Type type, String name, boolean hidden) {
+        super(id);
+        this.type = type;
+        this.name = name;
+        this.hidden = hidden;
+    }
+
     public KindTo(Type type, String name, boolean hidden) {
         this.type = type;
         this.name = name;

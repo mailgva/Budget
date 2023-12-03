@@ -1,9 +1,15 @@
 package com.gorbatenko.budget.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.to.RegularOperationTo;
+import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
+import com.gorbatenko.budget.web.charts.MdbChart;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -14,14 +20,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.web.BudgetItemController.getSumTimeZoneOffsetMinutes;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
@@ -40,13 +45,21 @@ public class RegularOperationController extends AbstractWebController{
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindService.getAll();
+        TreeMap<Type, List<KindTo>> mapKind = new TreeMap(
+                kinds.stream()
+                        .filter(kind -> !kind.isHidden())
+                        .map(kind -> new KindTo(kind.getId(), kind.getType(), kind.getName(), true))
+                        .toList().stream()
+                .collect(groupingBy(KindTo::getType)));
         List<Currency> currencies = currencyService.getVisibled();
 
         operation.setCurrency(getCurrencyDefault());
 
         model.addAttribute("operation", operation);
+        model.addAttribute("editKindId", "''");
         model.addAttribute("everies", everies);
-        model.addAttribute("kinds", kinds);
+        model.addAttribute("types", List.of(Type.PROFIT, Type.SPENDING));
+        model.addAttribute("mapKind", toJson(mapKind));
         model.addAttribute("currencies", currencies);
         model.addAttribute("pageName", "Создание");
 
@@ -94,10 +107,18 @@ public class RegularOperationController extends AbstractWebController{
         }
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
         List<Kind> kinds = kindService.getAll();
-        List<Currency> currencies = currencyService.getVisibled();
+        TreeMap<Type, List<KindTo>> mapKind = new TreeMap(
+                kinds.stream()
+                        .filter(kind -> !kind.isHidden())
+                        .map(kind -> new KindTo(kind.getId(), kind.getType(), kind.getName(), true))
+                        .toList().stream()
+                        .collect(groupingBy(KindTo::getType)));        List<Currency> currencies = currencyService.getVisibled();
 
         model.addAttribute("operation", regularOperation);
+        model.addAttribute("editKindId", "'" + regularOperation.getKind().getId() + "'");
         model.addAttribute("everies", everies);
+        model.addAttribute("types", List.of(Type.PROFIT, Type.SPENDING));
+        model.addAttribute("mapKind", toJson(mapKind));
         model.addAttribute("kinds", kinds);
         model.addAttribute("currencies", currencies);
         model.addAttribute("pageName", "Изменение");
@@ -120,5 +141,15 @@ public class RegularOperationController extends AbstractWebController{
                 regularOperationTo.getDescription(),
                 regularOperationTo.getPrice(),
                 currency);
+    }
+
+    private static String toJson(TreeMap<Type, List<KindTo>> mapKind){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(mapKind);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }
