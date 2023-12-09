@@ -8,6 +8,8 @@ import com.gorbatenko.budget.util.CurrencyCount;
 import com.gorbatenko.budget.util.GroupPeriod;
 import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.TypePeriod;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -244,21 +246,10 @@ public class BudgetItemRepository extends AbstractRepository {
         return profit - spending;
     }
 
+    @AllArgsConstructor
+    @Getter
     class DateSumPrice {
         private LocalDateTime date;
         private Double sumPrice;
-
-        public DateSumPrice(LocalDateTime date, Double sumPrice) {
-            this.date = date;
-            this.sumPrice = sumPrice;
-        }
-
-        public LocalDateTime getDate() {
-            return date;
-        }
-
-        public Double getSumPrice() {
-            return sumPrice;
-        }
     }
 }

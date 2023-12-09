@@ -51,10 +51,7 @@ public class JoinRequestRepository extends AbstractRepository {
     }
 
     public JoinRequest findById(String id) {
-        Criteria criteria = new Criteria();
-        criteria.and("id").is(id);
-        Query query = new Query(criteria);
-        return mongoRepository.findOne(query, JoinRequest.class);
+        return mongoRepository.findById(id, JoinRequest.class);
     }
 
     public boolean isExistsNoAnsweredRequest(String userGroup) {

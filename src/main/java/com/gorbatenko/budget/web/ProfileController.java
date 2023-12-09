@@ -141,7 +141,7 @@ public class ProfileController extends AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("joinrequest/{id}/decline")
-    public ResponseEntity joinToGroupDecline(@PathVariable("id") String id, Model model) {
+    public ResponseEntity joinToGroupDecline(@PathVariable("id") String id) {
         User userAdmin = SecurityUtil.get().getUser();
         JoinRequest joinRequest = joinRequestService.getById(id);
         if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {

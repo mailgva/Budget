@@ -3,7 +3,9 @@ package com.gorbatenko.budget.repository;
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.util.CurrencyCount;
 import com.gorbatenko.budget.util.KindTotals;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -13,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +23,7 @@ import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
+@Slf4j
 @Repository
 public class AbstractRepository {
 
@@ -44,7 +48,12 @@ public class AbstractRepository {
         if (sort != null) {
             query.with(sort);
         }
-        return mongoTemplate.find(query, clazz);
+        try {
+            return mongoTemplate.find(query, clazz);
+        } catch (ConversionFailedException cfe) {
+            log.error(cfe.getMessage(), cfe);
+            return new ArrayList<>();
+        }
     }
 
     protected <T> T findOne(Criteria criteria, Class<T> clazz) {
