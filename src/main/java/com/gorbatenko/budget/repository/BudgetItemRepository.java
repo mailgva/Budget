@@ -314,12 +314,16 @@ public class BudgetItemRepository {
             String[] prices = priceStr.trim().split("\\p{P}");
 
             if (prices.length == 1) {
-                sql.append("and bi.price = :price\n");
-                params.addValue("price", Double.valueOf(prices[0]));
+                if (isNumeric(prices[0])) {
+                    sql.append("and bi.price = :price\n");
+                    params.addValue("price", Double.valueOf(prices[0]));
+                }
             } else {
-                sql.append("and bi.price >= :price1 and bi.price <= :price2\n");
-                params.addValue("price1", Double.valueOf(prices[0]));
-                params.addValue("price2", Double.valueOf(prices[1]));
+                if (isNumeric(prices[0]) && isNumeric(prices[1])) {
+                    sql.append("and bi.price >= :price1 and bi.price <= :price2\n");
+                    params.addValue("price1", Double.valueOf(prices[0]));
+                    params.addValue("price2", Double.valueOf(prices[1]));
+                }
             }
         }
 
@@ -332,6 +336,18 @@ public class BudgetItemRepository {
             budgetItem.setUser(new User(rs.getString("userName")));
             return budgetItem;
         });
+    }
+
+    private static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
 }

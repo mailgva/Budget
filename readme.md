@@ -19,14 +19,16 @@ Features:
         * details for kind
         * charts: doughnut, horizontal bar
         * vertical chart for show dynamic by kind
+        * remains dynamic chart
+ - currency exchange
  - backup database by scheduler 
 
  Technology stack:
-   * Java 17     
+   * Java 21     
    * Maven
    * PostgreSQL    
-   * Spring Boot 3.0.2      
-     * Spring Data-Mongodb
+   * Spring Boot 3.2.3      
+     * Spring Data JPA
      * Spring Security
      * Spring Validation
      * Spring Web
