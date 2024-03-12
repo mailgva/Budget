@@ -2,10 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.util.DynamicStatisticData;
-import com.gorbatenko.budget.util.GroupStatisticData;
-import com.gorbatenko.budget.util.SecurityUtil;
-import com.gorbatenko.budget.util.StatisticData;
+import com.gorbatenko.budget.util.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -34,19 +31,25 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
             utils.when(() -> SecurityUtil.get()).thenReturn(AUTHORIZED_USER);
-
+            LocalDate now = LocalDate.now();
+            LocalDate firstDay = LocalDate.of(now.getYear(), now.getMonth(), 1);
+            LocalDate lastDay = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             mockMvc.perform(post(path).with(CSRF).params(PARAMS_CSRF_TOKEN)
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .param("id", "")
                             .param("type", BUDGET_ITEM.getKind().getType().getValue())
                             .param("kindId", BUDGET_ITEM.getKind().getId().toString())
                             .param("currencyId", BUDGET_ITEM.getCurrency().getId().toString())
-                            .param("date", BUDGET_ITEM.getDateAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                            .param("dateAt", BUDGET_ITEM.getDateAt().format(formatter))
                             .param("description", BUDGET_ITEM.getDescription())
                             .param("price", BUDGET_ITEM.getPrice().toString())
                     )
                     //.andDo(print())
-                    .andExpect(redirectedUrl("/budget/statistic?startDate=2023-06-01&endDate=2023-06-30#d_2023-06-04"));
+                    .andExpect(redirectedUrl("/budget/statistic?"+
+                            "startDate=" + firstDay.format(formatter)+
+                            "&endDate=" + lastDay.format(formatter) +
+                            "#d_" + now.format(formatter)));
         }
     }
 
@@ -70,6 +73,8 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         mapKind.put(BUDGET_ITEM.getKind().getType(), Map.of(BUDGET_ITEM.getKind(), result.getProfit()));
         result.setMapKind(mapKind);
         result.setUsers(List.of(TEST_USER));
+        result.setDynamicRemain(new TreeMap<>(Map.of(BUDGET_ITEM.getStrDate(), BUDGET_ITEM.getPrice())));
+        result.setGroupPeriod(GroupPeriod.BY_DEFAULT);
 
         when(budgetItemService.groupStatisticCollectData(any(), any(), any(), any())).thenReturn(result);
 
@@ -110,6 +115,7 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         TreeMap<String, Double> mapKindSort = new TreeMap<>();
         mapKindSort.put(BUDGET_ITEM.getKind().getName(), BUDGET_ITEM.getPrice());
         result.setMapKindSort(mapKindSort);
+        result.setGroupPeriod(GroupPeriod.BY_DEFAULT);
 
         when(budgetItemService.dynamicStatisticCollectData(any(), any(), any(), any(),any())).thenReturn(result);
 
@@ -124,7 +130,7 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         List<Kind> kinds = Arrays.asList(BUDGET_ITEM.getKind());
 
         when(kindService.findByType(any())).thenReturn(kinds);
-        when(budgetItemService.getPopularKindByTypeForPeriod(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+        when(budgetItemService.getPopularKindByTypeForPeriod(Type.SPENDING, LocalDate.now(), LocalDate.now(), 1)).thenReturn(kinds);
         when(currencyService.findAllVisible()).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
