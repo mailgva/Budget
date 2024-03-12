@@ -16,9 +16,9 @@
     <description>Accounting profits and spending</description>
 
     <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
         <jackson.version>2.14.2</jackson.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
@@ -29,13 +29,6 @@
         <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
         <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>projectlombok.org</id>
-            <url>https://projectlombok.org/edge-releases</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -99,7 +92,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>edge-SNAPSHOT</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
