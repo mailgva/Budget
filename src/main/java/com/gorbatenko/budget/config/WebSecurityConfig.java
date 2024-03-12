@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.List;
@@ -37,30 +39,41 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests(
-                        (requests) -> requests
-                                .requestMatchers( new AntPathRequestMatcher("/js/**")).permitAll()
-                                .requestMatchers( new AntPathRequestMatcher("/css/**")).permitAll()
-                                .requestMatchers( new AntPathRequestMatcher("/images/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/webjars/**")).permitAll()
-                                .requestMatchers( new AntPathRequestMatcher("/profile/register")).permitAll()
-                                .requestMatchers( new AntPathRequestMatcher("/")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/**/*.js", "/**/*.css")).permitAll()
-                                .anyRequest().authenticated()
+        http.authorizeRequests((requests) -> requests
+                        .requestMatchers("/js/**").permitAll()
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/profile/register").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/**/*.js", "/**/*.css").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin()
-                .loginPage("/login")
-                .failureUrl("/login-error")
-                .defaultSuccessUrl("/menu")
-                .permitAll()
-                .and()
-                .logout().deleteCookies("JSESSIONID")
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login")
-                .permitAll()
-                .and()
-                .rememberMe().key("remember-me").userDetailsService(userService).tokenValiditySeconds(60*60*24*365*10);
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .failureUrl("/login-error")
+                        .defaultSuccessUrl("/menu")
+                        .permitAll()
+                )
+                .logout((lg) -> lg
+                        .deleteCookies("JSESSIONID")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
+                )
+                .rememberMe((remember) -> remember
+                        .rememberMeServices(rememberMeServices())
+                );
         return http.build();
+    }
+
+    @Bean
+    public RememberMeServices rememberMeServices() {
+        TokenBasedRememberMeServices.RememberMeTokenAlgorithm encodingAlgorithm = TokenBasedRememberMeServices.RememberMeTokenAlgorithm.SHA256;
+        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices("remember-me", userService, encodingAlgorithm);
+        rememberMe.setMatchingAlgorithm(TokenBasedRememberMeServices.RememberMeTokenAlgorithm.SHA256);
+        rememberMe.setTokenValiditySeconds(60*60*24*365*10);
+        return rememberMe;
     }
 
 }
