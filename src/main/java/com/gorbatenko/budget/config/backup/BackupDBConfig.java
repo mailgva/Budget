@@ -1,9 +1,10 @@
-/*
-package com.gorbatenko.budget.config.backupdatabase;
+package com.gorbatenko.budget.config.backup;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -13,7 +14,11 @@ import java.time.LocalDateTime;
 @Slf4j
 @Configuration
 @EnableScheduling
+@RequiredArgsConstructor
 public class BackupDBConfig {
+
+    private final JdbcTemplate jdbcTemplate;
+
     private static final String DATABASE_BACKUP_ERROR =
             "Database backuping. Check needed variable ERROR. Not exists (or is empty) section [{}]! Check your application.properties file.";
 
@@ -25,9 +30,6 @@ public class BackupDBConfig {
     private static final String PATH_TO_BACKUP_FOLDER = PATH_TO_BACKUP + "backup/";
     private static final String PATH_TO_BACKUP_FILE = PATH_TO_BACKUP_FOLDER + "%s.json";
     private static final String PATH_TO_BACKUP_ZIP = PATH_TO_BACKUP + "backup.zip";
-
-    @Value("${spring.data.mongodb.uri}")
-    private String connectionURI;
 
     @Value("${app.backup.enabled:false}")
     private boolean backupEnable;
@@ -65,17 +67,15 @@ public class BackupDBConfig {
         folder.mkdir();
 
         try {
-            utils.createBackUp(connectionURI, PATH_TO_BACKUP_FILE);
+            utils.createBackUp(jdbcTemplate, PATH_TO_BACKUP_FILE);
         } catch (IOException e) {
-            log.error("Backup database. Error during get data from database!");
-            e.printStackTrace();
+            log.error("Backup database. Error during get data from database!", e);
             return false;
         }
         try {
             utils.zipFolder(PATH_TO_BACKUP_FOLDER, PATH_TO_BACKUP_ZIP);
         } catch (IOException e) {
-            log.error("Backup database. Error during zip data!");
-            e.printStackTrace();
+            log.error("Backup database. Error during zip data!",e);
             return false;
         }
 
@@ -85,8 +85,7 @@ public class BackupDBConfig {
             utils.uploadFileToGoogleDrive(PATH_TO_BACKUP_ZIP, APPLICATION_NAME,
                     gdriveFolderId, gdriveClientId, gdriveSecret, gdriveRefreshToken);
         } catch (Exception e) {
-            log.error("Backup database. Error during upload file to Google Drive!");
-            e.printStackTrace();
+            log.error("Backup database. Error during upload file to Google Drive!", e);
             return false;
         }
         java.io.File zipArchive = new java.io.File(PATH_TO_BACKUP_ZIP);
@@ -117,4 +116,3 @@ public class BackupDBConfig {
         return result;
     }
 }
-*/

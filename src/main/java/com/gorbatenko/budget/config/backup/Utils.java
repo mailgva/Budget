@@ -1,5 +1,4 @@
-/*
-package com.gorbatenko.budget.config.backupdatabase;
+package com.gorbatenko.budget.config.backup;
 
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -12,64 +11,105 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.ReadPreference;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
 public class Utils {
+    private static final List<String> tables = List.of(
+            "budget_items",
+            "currencies",
+            "join_requests",
+            "kinds",
+            "regular_operations",
+            "users",
+            "user_roles"
+    );
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class UserRole {
+        private UUID userId;
+        private String role;
+    }
 
     private static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
 
-    private MongoClient createMongoClient(ConnectionString uri) {
-        MongoClientSettings.Builder settings = MongoClientSettings.builder();
-        settings.applyConnectionString(uri);
-        settings.readPreference(ReadPreference.primaryPreferred());
-
-        return MongoClients.create(settings.build());
+    protected void createBackUp(JdbcTemplate jdbcTemplate, String pathToBackupFile) throws IOException {
+        final String sql = "select * from %s";
+        for(String table : tables) {
+            jdbcTemplate.query(String.format(sql, table), (rs) -> {
+                saveTableDataToFile(rs, table, pathToBackupFile);
+            });
+        }
     }
 
-    protected void createBackUp(String connectionURI, String pathToBackupFile) throws IOException {
-        ConnectionString uri = new ConnectionString(connectionURI);
-
-        MongoClient mongoClient = createMongoClient(uri);
-
-        String database = uri.getDatabase();
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(database);
-
-        for(String collectionName : mongoDatabase.listCollectionNames()) {
-            saveCollectionToFile(mongoClient, database, collectionName, pathToBackupFile);
+    private void saveTableDataToFile(ResultSet rs, String table, String pathToBackupFile) {
+        try {
+            String data = resultSetToStringJsonArray(rs);
+            writeToFile(data, String.format(pathToBackupFile, table));
+        } catch (Exception e) {
+            log.error("Error creating backup table '{}'", table, e);
         }
-        mongoClient.close();
     }
 
-    private void saveCollectionToFile(MongoClient mongoClient, String database, String name, String pathToBackupFile) throws IOException {
-        StringBuilder data = new StringBuilder();
-
-        MongoCollection<Document> collection = mongoClient.getDatabase(database).getCollection(name);
-        for(Document document : collection.find()) {
-            data.append(document.toJson()).append("\n");
-        }
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(pathToBackupFile, name)));
-        writer.write(data.toString());
+    private void writeToFile(String data, String pathToBackupFile) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(pathToBackupFile));
+        writer.write(data);
         writer.close();
     }
+
+    private String resultSetToStringJsonArray(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData md = resultSet.getMetaData();
+        int numCols = md.getColumnCount();
+        List<String> colNames = IntStream.range(0, numCols)
+                .mapToObj(i -> {
+                    try {
+                        return md.getColumnName(i + 1);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        return "?";
+                    }
+                })
+                .toList();
+
+        JSONArray result = new JSONArray();
+        while (resultSet.next()) {
+            JSONObject row = new JSONObject();
+            colNames.forEach(cn -> {
+                try {
+                    row.put(cn, resultSet.getObject(cn));
+                } catch (JSONException | SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+            result.put(row);
+        }
+        return result.toString();
+    }
+
 
     protected void zipFolder(String pathToBackupFolder, String pathToBackupZipFile) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathToBackupZipFile);
@@ -229,4 +269,3 @@ public class Utils {
     }
 
 }
-*/
