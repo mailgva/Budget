@@ -1,58 +1,77 @@
 package com.gorbatenko.budget.model;
 
 import com.gorbatenko.budget.BaseEntity;
-import com.gorbatenko.budget.model.doc.User;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "budget_items")
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "budget_items")
+@SuperBuilder
 public class BudgetItem extends BaseEntity {
+
     @NotNull
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    private String userGroup;
+    private UUID userGroup;
 
     @NotNull
+    @OneToOne
+    @JoinColumn(name = "kind_id", referencedColumnName = "id")
     private Kind kind;
 
     @NotNull
+    @OneToOne
+    @JoinColumn(name = "currency_id", referencedColumnName = "id")
     private Currency currency;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime date;
+    @Column(name = "date_at")
+    private LocalDate dateAt;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    private LocalDateTime createDateTime;
-
+    @Column(name = "description")
     private String description;
 
     @NotNull
+    @Column(name = "price")
     private Double price;
 
-    public BudgetItem(User user, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
+    public BudgetItem(User user, Kind kind, LocalDate dateAt, String description, Double price, Currency currency) {
         this.user = user;
         this.kind = kind;
-        this.date = date;
-        this.createDateTime = LocalDateTime.now();
+        this.dateAt = dateAt;
+        this.createdAt = LocalDateTime.now();
         this.description = description;
         this.price = price;
         this.currency = currency;
     }
 
-    public BudgetItem(User user, String userGroup, Kind kind, LocalDateTime date, String description, Double price, Currency currency) {
+    public BudgetItem(User user, UUID userGroup, Kind kind, LocalDate dateAt, String description, Double price, Currency currency) {
         this.user = user;
         this.userGroup = userGroup;
         this.kind = kind;
-        this.date = date;
-        this.createDateTime = LocalDateTime.now();
+        this.dateAt = dateAt;
+        this.createdAt = LocalDateTime.now();
         this.description = description;
         this.price = price;
         this.currency = currency;
@@ -65,31 +84,26 @@ public class BudgetItem extends BaseEntity {
                 ", user=" + user +
                 ", userGroup=" + userGroup +
                 ", kind=" + kind +
-                ", date=" + date +
-                ", createDateTime=" + createDateTime +
+                ", dateAt=" + dateAt +
+                ", createdAt=" + createdAt +
                 ", description='" + description + '\'' +
                 ", price=" + price + '\'' +
                 ", currency=" + currency.getName() +
                 '}';
     }
 
-    public String getStrDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        return date.format(formatter);
-    }
-
     public String getStrDate() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return date.format(formatter);
+        return dateAt.format(formatter);
     }
 
     public String getStrYearMonth() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        return date.format(formatter);
+        return dateAt.format(formatter);
     }
 
     public String getStrYear() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
-        return date.format(formatter);
+        return dateAt.format(formatter);
     }
 }

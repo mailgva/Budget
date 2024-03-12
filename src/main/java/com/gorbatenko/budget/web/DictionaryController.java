@@ -1,7 +1,10 @@
 package com.gorbatenko.budget.web;
 
-import com.gorbatenko.budget.model.*;
-import com.gorbatenko.budget.util.CurrencyCount;
+import com.gorbatenko.budget.model.BudgetItem;
+import com.gorbatenko.budget.model.Dictionary;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.service.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,12 +15,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/")
 public class DictionaryController extends AbstractWebController {
+    public DictionaryController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                                RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
+
     @GetMapping
     public String getDictionaries(Model model) {
         model.addAttribute("pageName", "Справочники");
@@ -29,11 +38,11 @@ public class DictionaryController extends AbstractWebController {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());
         switch(dictionary) {
             case KINDS:
-                List<BudgetItem> budgetItems = budgetItemService.getAll();
+                List<BudgetItem> budgetItems = budgetItemService.findAll();
                 TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(getKinds().stream()
                         .collect(Collectors.groupingBy(Kind::getType)));
 
-                Map<String, Long> mapCountKind = budgetItems.stream()
+                Map<UUID, Long> mapCountKind = budgetItems.stream()
                         .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));
 
                 model.addAttribute("mapKind", mapKind);
@@ -41,20 +50,7 @@ public class DictionaryController extends AbstractWebController {
                 model.addAttribute("pageName", "Виды приходов//расходов");
                 return "dictionaries/kinds/kinds";
             case CURRENCIES:
-                TreeMap<Currency, Long> currencies = new TreeMap<>();
-                List<Currency> allCurrencies = currencyService.getAll();
-                List<CurrencyCount> currencyCounts = budgetItemService.getCurrencyCounts();
-                for (Currency currency : allCurrencies) {
-                    for (CurrencyCount currencyCount : currencyCounts) {
-                        if(currency.equals(currencyCount.getCurrency())) {
-                            currencies.put(currency, currencyCount.getCount());
-                            break;
-                        }
-                    }
-                    currencies.putIfAbsent(currency, 0L);
-                }
-
-                model.addAttribute("currencies", currencies);
+                model.addAttribute("currencies", budgetItemService.getCurrencyCounts());
                 model.addAttribute("pageName", "Валюты");
                 return "dictionaries/currencies/currencies";
             default:

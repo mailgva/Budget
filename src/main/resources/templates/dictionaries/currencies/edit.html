@@ -25,7 +25,7 @@
           </div>
           <label for="hidden">Скрыто</label>
           <div class="input-group mb-3">
-            <input type="checkbox" name="hidden" id="hidden" class="form-control" th:checked="${currency.isHidden()}">
+            <input type="checkbox" name="hidden" id="hidden" class="form-control" th:checked="${currency.getHidden()}">
           </div>
         </div>
         <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>

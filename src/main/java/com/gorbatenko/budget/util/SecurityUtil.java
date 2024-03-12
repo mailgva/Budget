@@ -5,6 +5,8 @@ import com.gorbatenko.budget.model.Currency;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.UUID;
+
 import static java.util.Objects.requireNonNull;
 
 public class SecurityUtil {
@@ -35,8 +37,8 @@ public class SecurityUtil {
         return get().getUser().getCurrencyDefault();
     }
 
-    public static String getUserGroup() {
-        return SecurityUtil.get().getUser().getGroup();
+    public static UUID getUserGroup() {
+        return SecurityUtil.get().getUser().getUserGroup();
     }
 
 }

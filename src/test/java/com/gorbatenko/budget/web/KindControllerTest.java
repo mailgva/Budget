@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -21,7 +22,7 @@ class KindControllerTest extends AbstractWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/dictionaries/kinds/";
 
-    private static final String ID = KIND.getId();
+    private static final UUID ID = KIND.getId();
 
     @Test
     void create() throws Exception {
@@ -36,7 +37,7 @@ class KindControllerTest extends AbstractWebControllerTest {
     @Test
     void edit() throws Exception {
         String path = CONTROLLER_PATH+"edit/"+ID;
-        when(kindService.getById(ID)).thenReturn(KIND);
+        when(kindService.findById(ID)).thenReturn(KIND);
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("kind", KIND))
@@ -51,25 +52,24 @@ class KindControllerTest extends AbstractWebControllerTest {
         KindTo kindTo = new KindTo(Type.PROFIT, "NEW KIND", false);
         kindTo.setId(ID);
 
-        Kind newKind = new Kind(kindTo.getType(), kindTo.getName(), kindTo.isHidden());
+        Kind newKind = new Kind(kindTo.getType(), kindTo.getName(), kindTo.getHidden());
         newKind.setId(ID);
 
-        when(kindService.getKindsByNameAndType(kindTo.getName(), kindTo.getType())).thenReturn(new ArrayList<>());
-        when(kindService.getById(ID)).thenReturn(KIND);
+        when(kindService.findByNameAndType(kindTo.getType(), kindTo.getName())).thenReturn(null);
+        when(kindService.findById(ID)).thenReturn(KIND);
         when(kindService.save(any())).thenReturn(newKind);
-        when(budgetItemService.getByKindId(ID)).thenReturn(new ArrayList<>());
-        when(regularOperationService.getByKindId(ID)).thenReturn(new ArrayList<>());
+        when(budgetItemService.findByKindId(ID)).thenReturn(new ArrayList<>());
+        when(regularOperationService.findByKindId(ID)).thenReturn(new ArrayList<>());
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getUserGroup()).thenReturn(TEST_USER.getId());
+            utils.when(SecurityUtil::getUserGroup).thenReturn(TEST_USER.getId());
 
             mockMvc.perform(post(path).with(CSRF).params(PARAMS_CSRF_TOKEN)
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .param("id", ID)
+                            .param("id", ID.toString())
                             .param("type", kindTo.getType().name())
                             .param("name", kindTo.getName())
                             .param("hidden", "False"))
-                    //.andDo(print())
                     .andExpect(redirectedUrl("/dictionaries/kinds"));
         }
     }
@@ -78,9 +78,9 @@ class KindControllerTest extends AbstractWebControllerTest {
     void deleteKind() throws Exception{
         String path = CONTROLLER_PATH+ID;
 
-        when(kindService.getById(ID)).thenReturn(KIND);
-        when(budgetItemService.getByKindId(ID)).thenReturn(List.of());
-        when(regularOperationService.getByKindId(ID)).thenReturn(List.of());
+        when(kindService.findById(ID)).thenReturn(KIND);
+        when(budgetItemService.findByKindId(ID)).thenReturn(List.of());
+        when(regularOperationService.findByKindId(ID)).thenReturn(List.of());
 
         mockMvc.perform(delete(path)).andExpect(status().isOk());
     }

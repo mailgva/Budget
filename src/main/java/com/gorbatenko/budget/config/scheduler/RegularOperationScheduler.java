@@ -1,12 +1,10 @@
-package com.gorbatenko.budget.config.regularoperation;
+package com.gorbatenko.budget.config.scheduler;
 
 
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.RegularOperation;
-import com.gorbatenko.budget.model.doc.User;
 import com.gorbatenko.budget.repository.BudgetItemRepository;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,18 +12,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
-@Slf4j
 @Configuration
 @EnableScheduling
-public class RegularOperationConfig {
+public class RegularOperationScheduler {
     private RegularOperationRepository regularOperationRepository;
 
     private BudgetItemRepository budgetItemRepository;
 
-    public RegularOperationConfig(RegularOperationRepository regularOperationRepository, BudgetItemRepository budgetItemRepository) {
+    public RegularOperationScheduler(RegularOperationRepository regularOperationRepository, BudgetItemRepository budgetItemRepository) {
         this.regularOperationRepository = regularOperationRepository;
         this.budgetItemRepository = budgetItemRepository;
     }
@@ -35,9 +31,11 @@ public class RegularOperationConfig {
 
     @Scheduled(cron = "${app.regularoperation.cron.expression:-}")
     public void startAddOperation() {
-        if (! enabled) return;
+        if (!enabled) {
+            return;
+        }
 
-        List<RegularOperation> operations = regularOperationRepository.adminGetAll();
+        List<RegularOperation> operations = regularOperationRepository.adminFindAll();
         operations.forEach(operation -> {
             boolean execute;
 
@@ -60,15 +58,15 @@ public class RegularOperationConfig {
     }
 
     private BudgetItem createFromOperation(RegularOperation operation) {
-        BudgetItem budgetItem = new BudgetItem(new User(operation.getUser().getId(), operation.getUser().getName()),
-                operation.getKind(),
-                LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
-                operation.getDescription(),
-                operation.getPrice(),
-                operation.getCurrency());
-
-        budgetItem.setCreateDateTime(LocalDateTime.now().plusMinutes(operation.getCountUserTimezomeOffsetMinutes()));
-        budgetItem.setUserGroup(operation.getUserGroup());
-        return budgetItem;
+        return BudgetItem.builder()
+                .user(operation.getUser())
+                .userGroup(operation.getUserGroup())
+                .kind(operation.getKind())
+                .dateAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
+                .description(operation.getDescription())
+                .price(operation.getPrice())
+                .currency(operation.getCurrency())
+                .build();
     }
 }

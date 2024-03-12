@@ -21,7 +21,7 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
 
     private static final String CONTROLLER_PATH = "/dictionaries/currencies/";
 
-    private static final String ID = CURRENCY.getId();
+    private static final UUID ID = CURRENCY.getId();
 
     @Test
     void create() throws Exception {
@@ -36,7 +36,7 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
     @Test
     void edit() throws Exception {
         String path = CONTROLLER_PATH+"edit/"+ID;
-        when(currencyService.getById(ID)).thenReturn(CURRENCY);
+        when(currencyService.findById(ID)).thenReturn(CURRENCY);
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("currency", BUDGET_ITEM.getCurrency()))
@@ -51,21 +51,21 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
         CurrencyTo currencyTo = new CurrencyTo("NEW CURRENCY", false);
         currencyTo.setId(ID);
 
-        Currency newCurrency = new Currency(currencyTo.getName(), currencyTo.isHidden());
+        Currency newCurrency = new Currency(currencyTo.getName(), currencyTo.getHidden());
         newCurrency.setId(ID);
 
-        when(currencyService.getByName(currencyTo.getName())).thenReturn(null);
-        when(currencyService.getById(ID)).thenReturn(CURRENCY);
+        when(currencyService.findByName(currencyTo.getName())).thenReturn(null);
+        when(currencyService.findById(ID)).thenReturn(CURRENCY);
         when(currencyService.save(any())).thenReturn(newCurrency);
-        when(budgetItemService.getByCurrencyId(ID)).thenReturn(new ArrayList<>());
-        when(regularOperationService.getByCurrencyId(ID)).thenReturn(new ArrayList<>());
+        when(budgetItemService.findByCurrencyId(ID)).thenReturn(new ArrayList<>());
+        when(regularOperationService.findByCurrencyId(ID)).thenReturn(new ArrayList<>());
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getUserGroup()).thenReturn(TEST_USER.getId());
 
             mockMvc.perform(post(path).with(CSRF).params(PARAMS_CSRF_TOKEN)
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .param("id", ID)
+                            .param("id", ID.toString())
                             .param("name", currencyTo.getName())
                             .param("hidden", "False"))
                     //.andDo(print())
@@ -77,14 +77,14 @@ class CurrencyControllerTest extends AbstractWebControllerTest{
     void deleteCurrency() throws Exception {
         String path = CONTROLLER_PATH+ID;
         Currency defCurrency = new Currency("TEST", false);
-        defCurrency.setId(UUID.randomUUID().toString());
+        defCurrency.setId(UUID.randomUUID());
 
-        when(currencyService.getById(ID)).thenReturn(CURRENCY);
-        when(budgetItemService.getByCurrencyId(ID)).thenReturn(List.of());
-        when(regularOperationService.getByCurrencyId(ID)).thenReturn(List.of());
+        when(currencyService.findById(ID)).thenReturn(CURRENCY);
+        when(budgetItemService.findByCurrencyId(ID)).thenReturn(List.of());
+        when(regularOperationService.findByCurrencyId(ID)).thenReturn(List.of());
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(defCurrency);
+            utils.when(SecurityUtil::getCurrencyDefault).thenReturn(defCurrency);
             mockMvc.perform(delete(path)).andExpect(status().isOk());
         }
     }

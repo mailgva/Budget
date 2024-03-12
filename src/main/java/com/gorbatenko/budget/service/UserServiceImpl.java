@@ -9,7 +9,7 @@ import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.repository.UserRepository;
 import com.gorbatenko.budget.util.SecurityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,20 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.UserUtil.prepareToSave;
 
 @Service("userService")
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private final UserRepository repository;
+
+    private final KindRepository kindRepository;
+
+    private final CurrencyRepository currencyRepository;
+
+    private final PasswordEncoder passwordEncoder;
     private final Map<String, Type> mapStartKinds = new HashMap<>();
     private final List<String> listStartCurrencies = new ArrayList<>();
-
     {
         mapStartKinds.put("Зарплата", Type.PROFIT);
         mapStartKinds.put("Доп. доход", Type.PROFIT);
@@ -45,33 +49,6 @@ public class UserServiceImpl implements UserService {
         listStartCurrencies.add("грн");
         listStartCurrencies.add("usd");
         listStartCurrencies.add("eur");
-    }
-
-    private UserRepository repository;
-
-    private KindRepository kindRepository;
-
-    private CurrencyRepository currencyRepository;
-
-    private PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepository repository) {
-        this.repository = repository;
-    }
-
-    @Autowired
-    public void setKindRepository(KindRepository kindRepository) {
-        this.kindRepository = kindRepository;
-    }
-
-    @Autowired
-    public void setCurrencyRepository(CurrencyRepository currencyRepository) {
-        this.currencyRepository = currencyRepository;
-    }
-
-    @Autowired
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -88,27 +65,30 @@ public class UserServiceImpl implements UserService {
         Assert.notNull(user, "User must not be null");
         User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
         createStartKindsForUser(newUser);
-        createStartCurrenciesForUser(newUser);
-        newUser.setCurrencyDefault(currencyRepository.getByUserGroupAndName(newUser.getGroup(),"грн"));
+        List<Currency> currenciesForUser = createStartCurrenciesForUser(newUser);
+        newUser.setCurrencyDefault(currenciesForUser.get(0));
         return save(newUser);
     }
 
+    @Transactional
     public User save(User user) {
         return repository.save(user);
     }
 
     private void createStartKindsForUser(User user) {
-        String userGroupId = user.getGroup();
+        UUID userGroup = user.getUserGroup();
         for (HashMap.Entry<String, Type> entry : mapStartKinds.entrySet()) {
-            kindRepository.save(new Kind(entry.getValue(), entry.getKey(), userGroupId));
+            kindRepository.save(new Kind(entry.getValue(), entry.getKey(), userGroup));
         }
     }
 
-    private void createStartCurrenciesForUser(User user) {
-        String userGroupId = user.getGroup();
+    private List<Currency> createStartCurrenciesForUser(User user) {
+        List<Currency> currencies = new ArrayList<>();
+        UUID userGroup = user.getUserGroup();
         for (String currencyName : listStartCurrencies) {
-            currencyRepository.save(new Currency(currencyName, userGroupId));
+            currencies.add(currencyRepository.save(new Currency(currencyName, userGroup)));
         }
+        return currencies;
     }
 
     @Override
@@ -116,9 +96,8 @@ public class UserServiceImpl implements UserService {
         return repository.findAll();
     }
 
-    @Override
-    public List<User> getByGroup(String name) {
-        return repository.getByGroupIgnoreCase(name);
+    public List<User> findByUserGroup(UUID userGroup) {
+        return repository.findByUserGroup(userGroup);
     }
 
     @Override
@@ -127,13 +106,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(String id) {
+    public User findById(UUID id) {
         return repository.findById(id);
     }
 
+    @Transactional
     @Override
-    public User changeDefaultCurrency(String currencyId) {
-        Currency currency = currencyRepository.getById(currencyId);
+    public User changeDefaultCurrency(UUID currencyId) {
+        Currency currency = currencyRepository.findById(currencyId);
         if (currency == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }

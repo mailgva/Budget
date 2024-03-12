@@ -55,7 +55,7 @@
                         <tr th:class="${budgetItem.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
                             <td><span th:text="${row.index+1}"> # </span></td>
                             <td><span th:text="${budgetItem.user.name}"> User </span> <br>
-                                <span class="subdate" th:text="${#temporals.format(budgetItem.createDateTime, 'yyyy-MM-dd HH:mm')}"> </span></td>
+                                <span class="subdate" th:text="${#temporals.format(budgetItem.createdAt, 'yyyy-MM-dd HH:mm')}"> </span></td>
                             <td><span th:text="${budgetItem.kind.name}"> Item </span></td>
                             <td><span th:text="${budgetItem.description}"> Description </span>
                             </td>

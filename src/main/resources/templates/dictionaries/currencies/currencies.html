@@ -29,7 +29,7 @@
                     </a>
 
                 </td>
-                <td><span class="summation"  th:text="${element.getKey().isHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
+                <td><span class="summation"  th:text="${element.getKey().getHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
                 <td>
                     <a th:href="@{'/dictionaries/currencies/edit/'+${element.getKey().getId()}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>

@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.config.httpconverter;
 
-import com.gorbatenko.budget.to.BudgetTo;
+import com.gorbatenko.budget.to.BudgetItemTo;
 
-public class BudgetToHttpConverter extends BaseHttpMessageConverter<BudgetTo> {
+public class BudgetToHttpConverter extends BaseHttpMessageConverter<BudgetItemTo> {
 }

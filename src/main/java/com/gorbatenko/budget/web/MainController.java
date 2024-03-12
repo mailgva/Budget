@@ -3,6 +3,7 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.AuthorizedUser;
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.AuthenticationException;
@@ -13,17 +14,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
 @Controller
 public class MainController extends AbstractWebController {
+
+    public MainController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                          RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
 
     @GetMapping("/")
     public String getMain(@AuthenticationPrincipal AuthorizedUser authUser) {
@@ -70,13 +75,17 @@ public class MainController extends AbstractWebController {
     }
 
     @GetMapping("/menu")
-    public String getMenu(Model model, HttpServletRequest request) {
-        LocalDateTime maxDate = budgetItemService.getMaxDate();
-        LocalDate lastActivity = maxDate.toLocalDate();
-        String lastCurrencyId = budgetItemService.getLastCurrencyIdByDate(lastActivity);
+    public String getMenu(Model model) {
+        LocalDate lastActivity =  budgetItemService.findMaxDate();
+        UUID lastCurrencyId = null;
+        String lastGroupActivityDate = "";
+        String lastGroupActivityDateCustom = "";
+        if (!lastActivity.isEqual(LocalDate.MIN)) {
+            lastCurrencyId = budgetItemService.findLastCurrencyIdByDate(lastActivity);
+            lastGroupActivityDate = dateToStr(lastActivity);
+            lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
+        }
 
-        String lastGroupActivityDate = dateToStr(lastActivity);
-        String lastGroupActivityDateCustom = dateToStrCustom(lastActivity, "dd-MM-yyyy");
 
         Double profit = budgetItemService.getSumPriceByDefaultCurrencyAndType(Type.PROFIT);
         Double spending = budgetItemService.getSumPriceByDefaultCurrencyAndType(Type.SPENDING);
@@ -84,24 +93,19 @@ public class MainController extends AbstractWebController {
         model.addAttribute("spending", spending);
         model.addAttribute("remain", profit-spending);
 
-        int sumTimeZoneOffsetMinutes = BudgetItemController.getSumTimeZoneOffsetMinutes(request);
-
-        LocalDateTime timeZoneOffset = LocalDateTime.now().plusMinutes(sumTimeZoneOffsetMinutes);
-
-        LocalDateTime startLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
-        LocalDateTime endLocalDate = setTimeZoneOffset(timeZoneOffset.toLocalDate());
+        LocalDate today = LocalDate.now();
 
         List<BudgetItem> listBudgetItems =
-                budgetItemService.getForSelectedPeriod(startLocalDate, endLocalDate)
+                budgetItemService.findBySelectedPeriod(today, today)
                 .stream()
-                .sorted(Comparator.comparing(BudgetItem::getCreateDateTime))
+                .sorted(Comparator.comparing(BudgetItem::getCreatedAt))
                 .collect(Collectors.toList());
 
-        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems, request);
+        TreeMap<LocalDate, List<BudgetItem>> map = listBudgetToTreeMap(listBudgetItems);
 
         model.addAttribute("lastCurrencyId", lastCurrencyId);
-        model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDate));
-        model.addAttribute("lastGroupActivityDateCustom", (LocalDate.MIN.equals(lastActivity) ? "" : lastGroupActivityDateCustom));
+        model.addAttribute("lastGroupActivityDate", (LocalDate.MIN.isEqual(lastActivity) ? "" : lastGroupActivityDate));
+        model.addAttribute("lastGroupActivityDateCustom", (LocalDate.MIN.isEqual(lastActivity) ? "" : lastGroupActivityDateCustom));
         model.addAttribute("listBudgetItems", map);
         model.addAttribute("joinRequests", joinRequestService.getNewJoinRequests());
         return "menu";

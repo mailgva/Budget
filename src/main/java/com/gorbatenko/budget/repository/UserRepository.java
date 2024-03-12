@@ -1,23 +1,19 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepository {
-
-    private IUserRepository repository;
-
-    @Autowired
-    public void setRepository(IUserRepository repository) {
-        this.repository = repository;
-    }
+    private final IUserRepository repository;
 
     public User getByEmail(String email) {
-        return repository.getByEmail(email);
+        return repository.getByEmail(email.toLowerCase());
     }
 
 
@@ -33,11 +29,11 @@ public class UserRepository {
         return repository.findAll();
     }
 
-    public List<User> getByGroupIgnoreCase(String name) {
-        return repository.getByGroupIgnoreCase(name);
+    public List<User> findByUserGroup(UUID userGroup) {
+        return repository.findByUserGroup(userGroup);
     }
 
-    public User findById(String id) {
+    public User findById(UUID id) {
         return repository.findById(id).orElse(null);
     }
 }

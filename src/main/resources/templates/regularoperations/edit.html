@@ -97,7 +97,7 @@
                                 <option th:each="currency : ${currencies}"
                                         th:value="${currency.getId()}"
                                         th:text="${currency.getName()}"
-                                        th:selected="${operation.getCurrency() != null && operation.getCurrency().getId().equals(currency.getId()) }"
+                                        th:selected="${operation.getCurrency() != null && operation.getCurrency().getId().toString().equals(currency.getId().toString()) }"
                                 ></option>
                             </select>
                         </div>

@@ -1,8 +1,5 @@
 package com.gorbatenko.budget.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document(collection = "every")
 public enum Every {
     DEFINITE_DAY_OF_MONTH(0, "В указанный день (число) месяца"),
     DAY(1, "Каждый день"),

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -20,9 +21,9 @@ import java.time.LocalDate;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExchangeTo extends BaseEntity {
     @NotNull
-    private String fromCurrencyId;
+    private UUID fromCurrencyId;
     @NotNull
-    private String toCurrencyId;
+    private UUID toCurrencyId;
     @NotNull
     private Double fromAmount;
     @NotNull

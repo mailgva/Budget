@@ -2,15 +2,13 @@ package com.gorbatenko.budget.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.service.*;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.to.RegularOperationTo;
-import com.gorbatenko.budget.util.KindTotals;
 import com.gorbatenko.budget.util.Response;
 import com.gorbatenko.budget.util.SecurityUtil;
-import com.gorbatenko.budget.web.charts.MdbChart;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +22,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
-import static com.gorbatenko.budget.web.BudgetItemController.getSumTimeZoneOffsetMinutes;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("/regularoperations/")
 public class RegularOperationController extends AbstractWebController{
 
+    public RegularOperationController(CurrencyService currencyService, KindService kindService,
+                                      BudgetItemService budgetItemService, RegularOperationService regularOperationService,
+                                      UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
+
     @GetMapping
-    String getRegularOperations(Model model) {
+    public String getRegularOperations(Model model) {
         model.addAttribute("operations", regularOperationService.getAll());
         model.addAttribute("pageName", "Регулярные операции");
         return "regularoperations/operations";
@@ -44,14 +46,14 @@ public class RegularOperationController extends AbstractWebController{
     public String create(Model model) {
         RegularOperation operation = new RegularOperation();
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindService.getAll();
+        List<Kind> kinds = kindService.findAll();
         TreeMap<Type, List<KindTo>> mapKind = new TreeMap(
                 kinds.stream()
-                        .filter(kind -> !kind.isHidden())
+                        .filter(kind -> !kind.getHidden())
                         .map(kind -> new KindTo(kind.getId(), kind.getType(), kind.getName(), true))
                         .toList().stream()
                 .collect(groupingBy(KindTo::getType)));
-        List<Currency> currencies = currencyService.getVisibled();
+        List<Currency> currencies = currencyService.findAllVisible();
 
         operation.setCurrency(getCurrencyDefault());
 
@@ -67,8 +69,8 @@ public class RegularOperationController extends AbstractWebController{
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
-        RegularOperation operation = regularOperationService.getById(id);
+    public ResponseEntity<Response> delete(@PathVariable("id") UUID id) {
+        RegularOperation operation = regularOperationService.findById(id);
         if (operation == null) {
             String message = "Невозможно удалить операцию, так как она не найдена";
             return ResponseEntity.badRequest().body(new Response(400, message));
@@ -79,19 +81,19 @@ public class RegularOperationController extends AbstractWebController{
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String editCreateRegularOperation(@Valid @RequestBody RegularOperationTo regularOperationTo,
-                                 @RequestParam(name="referer", defaultValue = "") String referer, HttpServletRequest request,
+                                 @RequestParam(name="referer", defaultValue = "") String referer,
                                  RedirectAttributes rm) {
 
-        if(regularOperationTo.getId().isEmpty()) {
+        if(regularOperationTo.getId() == null) {
             regularOperationTo.setId(null);
         } else {
-            if(regularOperationService.getById(regularOperationTo.getId()) == null) {
+            if(regularOperationService.findById(regularOperationTo.getId()) == null) {
                 rm.addFlashAttribute("error", "Невозможно изменить операцию, так как она не найдена");
                 return String.format("redirect:/regularoperations/edit/%s", regularOperationTo.getId());
             }
         }
 
-        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo, request);
+        RegularOperation regularOperation = createRegularOperationFromTo(regularOperationTo);
         regularOperation.setId(regularOperationTo.getId());
         regularOperationService.save(regularOperation);
 
@@ -100,19 +102,19 @@ public class RegularOperationController extends AbstractWebController{
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) throws Exception {
-        RegularOperation regularOperation = regularOperationService.getById(id);
+    public String edit(@PathVariable("id") UUID id, Model model) throws Exception {
+        RegularOperation regularOperation = regularOperationService.findById(id);
         if (regularOperation == null) {
             throw new Exception("Запись не найдена!");
         }
         List<Every> everies = Arrays.stream(Every.values()).sorted(Comparator.comparingInt(Every::getPosit)).collect(Collectors.toList());
-        List<Kind> kinds = kindService.getAll();
+        List<Kind> kinds = kindService.findAll();
         TreeMap<Type, List<KindTo>> mapKind = new TreeMap(
                 kinds.stream()
-                        .filter(kind -> !kind.isHidden())
+                        .filter(kind -> !kind.getHidden())
                         .map(kind -> new KindTo(kind.getId(), kind.getType(), kind.getName(), true))
                         .toList().stream()
-                        .collect(groupingBy(KindTo::getType)));        List<Currency> currencies = currencyService.getVisibled();
+                        .collect(groupingBy(KindTo::getType)));        List<Currency> currencies = currencyService.findAllVisible();
 
         model.addAttribute("operation", regularOperation);
         model.addAttribute("editKindId", "'" + regularOperation.getKind().getId() + "'");
@@ -126,15 +128,13 @@ public class RegularOperationController extends AbstractWebController{
         return "regularoperations/edit";
     }
 
-    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo, HttpServletRequest request) {
+    private RegularOperation createRegularOperationFromTo(RegularOperationTo regularOperationTo) {
         User user = SecurityUtil.get().getUser();
-        int countTimeZoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
-        Kind kind = kindService.getById(regularOperationTo.getKindId());
-        Currency currency = currencyService.getById(regularOperationTo.getCurrencyId());
+        Kind kind = kindService.findById(regularOperationTo.getKindId());
+        Currency currency = currencyService.findById(regularOperationTo.getCurrencyId());
         return new RegularOperation(
                 user,
-                user.getGroup(),
-                countTimeZoneOffsetMinutes,
+                user.getUserGroup(),
                 regularOperationTo.getEvery(),
                 regularOperationTo.getDayOfMonth(),
                 kind,

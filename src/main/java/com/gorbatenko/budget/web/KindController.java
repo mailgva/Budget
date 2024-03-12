@@ -4,6 +4,7 @@ import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.service.*;
 import com.gorbatenko.budget.to.KindTo;
 import com.gorbatenko.budget.util.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,14 +20,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
+import static com.gorbatenko.budget.util.Utils.equalsUUID;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/kinds/")
 public class KindController extends AbstractWebController{
+
+    public KindController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                          RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
 
     @GetMapping("create/{type}")
     public String create(@PathVariable("type") String type, Model model, HttpServletRequest request) {
@@ -40,8 +48,8 @@ public class KindController extends AbstractWebController{
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) throws Exception {
-        Kind kind = kindService.getById(id);
+    public String edit(@PathVariable("id") UUID id, Model model) throws Exception {
+        Kind kind = kindService.findById(id);
         if (kind == null) {
             throw new Exception("Запись не найдена!");
         }
@@ -51,9 +59,9 @@ public class KindController extends AbstractWebController{
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
+    public ResponseEntity<Response> delete(@PathVariable("id") UUID id) {
         String errorMessage = "Невозможно удалить статью, так как она %s";
-        Kind kind = kindService.getById(id);
+        Kind kind = kindService.findById(id);
 
         if (kind == null) {
             String message = String.format(errorMessage, "не найдена");
@@ -65,12 +73,12 @@ public class KindController extends AbstractWebController{
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!budgetItemService.getByKindId(id).isEmpty()) {
+        if (!budgetItemService.findByKindId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в бюджете");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!regularOperationService.getByKindId(id).isEmpty()) {
+        if (!regularOperationService.findByKindId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в регулярных операциях");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
@@ -84,19 +92,15 @@ public class KindController extends AbstractWebController{
     public String editKind(@Valid @RequestBody KindTo kindTo,
                                  @RequestParam(name="referer", defaultValue = "") String referer,
                                  RedirectAttributes rm) {
-        if(kindTo.getId().isEmpty()) {
-            kindTo.setId(null);
-        }
         Kind kind = createKindFromKindTo(kindTo);
         kind.setUserGroup(getUserGroup());
 
-        List<Kind> filteredData = kindService.getKindsByNameAndType(kindTo.getName(), kindTo.getType());
-        if(!filteredData.isEmpty()) {
-            Kind firstKind = filteredData.get(0);
-            if (Objects.deepEquals(kind, firstKind)) {
+        Kind kindExists = kindService.findByNameAndType(kindTo.getType(), kindTo.getName());
+        if(kindExists != null) {
+            if (Objects.deepEquals(kind, kindExists)) {
                 return (referer.isEmpty() ? "redirect:/dictionaries/kinds" : "redirect:" + referer);
             }
-            if (kindTo.getId() != null && !kindTo.getId().equals(firstKind.getId())) {
+            if (kindTo.getId() != null && !equalsUUID(kindTo.getId(), kindExists.getId())) {
                 rm.addFlashAttribute("error", "Статья с наименованием '" + kindTo.getName() + "'" +
                         " уже используется в '" + kindTo.getType().getValue() + "'!");
                 if (referer.isEmpty()) {
@@ -108,7 +112,7 @@ public class KindController extends AbstractWebController{
         }
 
         if (kindTo.getId() != null) {
-            Kind kindById = kindService.getById(kindTo.getId());
+            Kind kindById = kindService.findById(kindTo.getId());
             String message = "";
             if (kindById == null) {
                 message = "Невозможно изменить, статья не найдена!";
@@ -125,13 +129,13 @@ public class KindController extends AbstractWebController{
         kind = kindService.save(kind);
         rm.addFlashAttribute("kindId", kind.getId());
 
-        List<BudgetItem> budgetItems = budgetItemService.getByKindId(kind.getId());
+        List<BudgetItem> budgetItems = budgetItemService.findByKindId(kind.getId());
         for(BudgetItem budgetItem : budgetItems) {
             budgetItem.setKind(kind);
             budgetItemService.save(budgetItem);
         }
 
-        List<RegularOperation> operations = regularOperationService.getByKindId(kind.getId());
+        List<RegularOperation> operations = regularOperationService.findByKindId(kind.getId());
         for(RegularOperation operation : operations) {
             operation.setKind(kind);
             regularOperationService.save(operation);
@@ -141,6 +145,6 @@ public class KindController extends AbstractWebController{
     }
 
     private Kind createKindFromKindTo(KindTo kindTo) {
-        return new Kind(kindTo.getId(), kindTo.getType(), kindTo.getName(), kindTo.isHidden());
+        return new Kind(kindTo.getId(), kindTo.getType(), kindTo.getName(), kindTo.getHidden());
     }
 }

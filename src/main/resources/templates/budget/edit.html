@@ -37,18 +37,18 @@
                             <option th:each="kind : ${kinds}"
                                     th:value="${kind.id}"
                                     th:text="${kind.name}"
-                                    th:selected="${budgetItem.kind.getName().equalsIgnoreCase(kind.getName()) }"> <!--|| kind.id.equalsIgnoreCase(kindId)-->
+                                    th:selected="${budgetItem.kind.getName().equalsIgnoreCase(kind.getName()) }">
                             </option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="date">Дата</label>
+                    <label for="dateAt">Дата</label>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                         </div>
-                        <input type="date" name="date" id="date" class="form-control" th:value="${budgetItem.getStrDate()}">
+                        <input type="date" name="dateAt" id="dateAt" class="form-control" th:value="${budgetItem.getStrDate()}">
                     </div>
                 </div>
                 <div class="form-group">
@@ -82,7 +82,7 @@
                                 <option th:each="currency : ${currencies}"
                                         th:value="${currency.id}"
                                         th:text="${currency.name}"
-                                        th:selected="${currency.id.equals(budgetItem.getCurrency().getId())}"
+                                        th:selected="${currency.id.toString().equals(budgetItem.getCurrency().getId().toString())}"
                                 ></option>
                             </select>
                         </div>

@@ -17,7 +17,7 @@
         <span class="input-group-text" style="width: 300px;" th:text="${'Последняя активность'}"></span>
       </div>
       <input class="form-control col-4" type="text" readonly th:value="${lastGroupActivityDateCustom}"
-             th:data-path="${'budget/statistic?startDate=' + lastGroupActivityDate + '&amp;endDate=' + lastGroupActivityDate + (lastCurrencyId.equals('') ? '' : '&amp;currencyId=' + lastCurrencyId)}"
+             th:data-path="${'budget/statistic?startDate=' + lastGroupActivityDate + '&amp;endDate=' + lastGroupActivityDate + (lastCurrencyId == null ? '' : '&amp;currencyId=' + lastCurrencyId)}"
              onclick="location.href = (this.getAttribute('data-path'));">
     </div>
     <div class="menu-container">
@@ -89,7 +89,7 @@
                   <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
                   <td style="width: 15%"><span th:text="${request.user.name}"> User </span></td>
                   <td style="width: 15%"><span th:text="${request.user.email}"> Email </span></td>
-                  <td style="width: 10%"><span th:text="${#temporals.format(request.created, 'yyyy-MM-dd HH:mm')}"> </span>
+                  <td style="width: 10%"><span th:text="${#temporals.format(request.getCreatedAt, 'yyyy-MM-dd HH:mm')}"> </span>
                   </td>
                   <td style="width: 5%">
                     <a th:href="${'javascript:joinGroupAccept(&quot;' + request.id + '&quot;)'}" class="btn btn-warning" role="button"

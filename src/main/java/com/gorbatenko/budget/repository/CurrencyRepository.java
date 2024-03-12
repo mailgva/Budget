@@ -1,32 +1,18 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.Currency;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
-import static java.util.Objects.requireNonNull;
 
 @Repository
-public class CurrencyRepository extends AbstractRepository {
-    private MongoTemplate mongoRepository;
-
-    private ICurrencyRepository repository;
-
-    @Autowired
-    public void setMongoRepository(MongoTemplate mongoRepository) {
-        this.mongoRepository = mongoRepository;
-    }
-    @Autowired
-    public void setRepository(ICurrencyRepository repository) {
-        this.repository = repository;
-    }
+@RequiredArgsConstructor
+public class CurrencyRepository {
+    private final ICurrencyRepository repository;
 
     public Currency save(Currency currency) {
         if (currency.getUserGroup() == null) {
@@ -35,56 +21,24 @@ public class CurrencyRepository extends AbstractRepository {
         return repository.save(currency);
     }
 
-    public void deleteById(String id) {
-        repository.delete(this.getById(id));
+    public void deleteById(UUID id) {
+        repository.deleteByUserGroupAndId(getUserGroup(), id);
     }
 
-    public List<Currency> getAll() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
-        return findAll(null, sort, Currency.class);
+    public List<Currency> findAll() {
+        return repository.findAllByUserGroupOrderByName(getUserGroup());
     }
 
-    public List<Currency> getVisibled() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
-        Criteria criteria = new Criteria();
-        criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
-        return findAll(criteria, sort, Currency.class);
+    public List<Currency> findAllVisible() {
+        return repository.findAllVisibleByUserGroupOrderByName(getUserGroup());
     }
 
-    public Currency getById(String id) {
-        return findById(id, Currency.class);
+    public Currency findById(UUID id) {
+        return repository.findByUserGroupAndId(getUserGroup(), id);
     }
 
-    public Currency getByName(String name) {
-        requireNonNull(name, "Argument 'name' can not be null!");
-        Criteria criteria = new Criteria();
-        criteria.and("name").is(name);
-        return findOne(criteria, Currency.class);
+    public Currency findByName(String name) {
+        return repository.findByUserGroupAndName(getUserGroup(), name);
     }
 
-    public Currency getByUserGroupAndName(String userGroup, String name) {
-        Criteria criteria = new Criteria();
-        criteria.and("userGroup").is(userGroup);
-        criteria.and("name").is(name);
-        Query query = new Query(criteria);
-        return mongoRepository.findOne(query, Currency.class);
-    }
-
-    public List<Currency> getFilteredData(String id, String name, boolean hidden) {
-        Criteria criteria = new Criteria();
-
-        if (!isBlank(id)) {
-            criteria.and("id").is(id);
-        }
-        if (!isBlank(name)) {
-            criteria.and("name").is(name);
-        }
-        if (hidden) {
-            criteria.and("hidden").is(hidden);
-        } else {
-            criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
-        }
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
-        return findAll(criteria, sort, Currency.class);
-    }
 }

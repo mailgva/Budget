@@ -38,12 +38,12 @@
                             <div class="col-sm">
                                 <label for="userId">Пользователь</label>
                                 <select id="userId" name="userId" class="form-control">
-                                    <option th:value="-1"> Все</option>
+                                    <option th:value="${defaultUuid}"> Все</option>
                                     <option
                                         th:each="user : ${users}"
                                         th:value="${user.getId()}"
                                         th:text="${user.getName()}"
-                                        th:selected="${user.getId().equals(userId)}">
+                                        th:selected="${user.getId().toString().equals(userId == null ? '' : userId.toString())}">
                                     </option>
                                 </select>
                             </div>
@@ -66,11 +66,11 @@
                             <div class="col-sm">
                                 <label for="kindId">Вид</label>
                                 <select id="kindId" name="kindId" class="form-control">
-                                    <option th:value="-1"> Все</option>
+                                    <option th:value="${defaultUuid}"> Все</option>
                                     <option th:each="kind : ${kindList}"
                                             th:value="${kind.id}"
                                             th:text="${(kind.type.equals(T(com.gorbatenko.budget.model.Type).PROFIT) ? ' + ' : ' - ') +  kind.name}"
-                                            th:selected="${kind.getId().equals(kindId)}">
+                                            th:selected="${kind.getId().toString().equals(kindId == null ? '' : kindId.toString())}">
                                     </option>
                                 </select>
                             </div>

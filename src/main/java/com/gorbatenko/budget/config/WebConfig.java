@@ -4,10 +4,11 @@ import com.gorbatenko.budget.BaseEntity;
 import com.gorbatenko.budget.config.httpconverter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
@@ -21,6 +22,10 @@ import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -58,7 +63,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "classpath:/static/css/",
                         "classpath:/static/js/",
                         "classpath:/static/images/");
-
     }
 
     private ISpringTemplateEngine templateEngine(ITemplateResolver templateResolver) {
@@ -68,8 +72,4 @@ public class WebConfig implements WebMvcConfigurer {
         return engine;
     }
 
-    @Bean
-    public MongoMappingContext springDataMongoMappingContext() {
-        return new MongoMappingContext();
-    }
 }

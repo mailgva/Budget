@@ -1,39 +1,28 @@
 package com.gorbatenko.budget.service;
 
-import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.repository.BudgetItemRepository;
-import com.gorbatenko.budget.repository.CurrencyRepository;
 import com.gorbatenko.budget.repository.KindRepository;
 import com.gorbatenko.budget.util.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gorbatenko.budget.model.Type.PROFIT;
 import static com.gorbatenko.budget.model.Type.SPENDING;
-import static com.gorbatenko.budget.util.BaseUtil.setTimeZoneOffset;
 import static com.gorbatenko.budget.util.TypePeriod.*;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
+@RequiredArgsConstructor
 public class BudgetItemService {
-    private BudgetItemRepository budgetItemRepository;
-    private KindRepository kindRepository;
-    private CurrencyRepository currencyRepository;
-
-    public BudgetItemService(BudgetItemRepository budgetItemRepository, KindRepository kindRepository, CurrencyRepository currencyRepository) {
-        this.budgetItemRepository = budgetItemRepository;
-        this.kindRepository = kindRepository;
-        this.currencyRepository = currencyRepository;
-    }
+    private final BudgetItemRepository budgetItemRepository;
+    private final KindRepository kindRepository;
 
     public BudgetItem save(BudgetItem budgetItem) {
         return budgetItemRepository.save(budgetItem);
@@ -43,44 +32,31 @@ public class BudgetItemService {
         budgetItemRepository.saveAll(budgetItems);
     }
 
-    public List<KindTotals> getTotalsByKindsForPeriod(LocalDateTime startDate, LocalDateTime endDate, TypePeriod period) {
+    public List<KindTotals> getTotalsByKindsForPeriod(LocalDate startDate, LocalDate endDate, TypePeriod period) {
         return budgetItemRepository.getTotalsByKindsForPeriod(startDate, endDate, period);
     }
 
-    public List<BudgetItem> getByCurrencyId(String id) {
-        return budgetItemRepository.getByCurrencyId(id);
+    public List<BudgetItem> findByCurrencyId(UUID id) {
+        return budgetItemRepository.findByCurrencyId(id);
     }
 
-    public List<BudgetItem> getByKindId(String id) {
-        return budgetItemRepository.getByKindId(id);
+    public List<BudgetItem> findByKindId(UUID id) {
+        return budgetItemRepository.findByKindId(id);
+    }
+    public List<BudgetItem> findAll() {
+        return budgetItemRepository.findAll();
     }
 
-    public List<BudgetItem> getPopularByTypeForPeriod(LocalDateTime startDate, LocalDateTime endDate, String typeName) {
-        return budgetItemRepository.getFilteredData(startDate, endDate, null, typeName, null, null, null, SELECTED_PERIOD);
+    public BudgetItem getById(UUID id) {
+        return budgetItemRepository.findById(id);
     }
 
-    public List<BudgetItem> getBeforeDate(LocalDateTime endDate) {
-        return budgetItemRepository.getFilteredData(null, endDate, null, null, null, null, null, SELECTED_PERIOD);
-    }
-
-    public List<BudgetItem> getAll() {
-        return budgetItemRepository.getAll();
-    }
-
-    public BudgetItem getById(String id) {
-        return budgetItemRepository.getById(id);
-    }
-
-    public List<CurrencyCount> getCurrencyCounts() {
+    public TreeMap<Currency, Long> getCurrencyCounts() {
         return budgetItemRepository.getCurrencyCounts();
     }
 
-    public List<BudgetItem> getByUserId(String id) {
-        return budgetItemRepository.getFilteredData(null,null, id, null, null, null, null, TypePeriod.ALL_TIME);
-    }
-
-    public List<BudgetItem> getForSelectedPeriod(LocalDateTime startLocalDate, LocalDateTime endLocalDate) {
-        return budgetItemRepository.getFilteredData(startLocalDate, endLocalDate, null, null, null, null, null, SELECTED_PERIOD);
+    public List<BudgetItem> findBySelectedPeriod(LocalDate startLocalDate, LocalDate endLocalDate) {
+        return budgetItemRepository.findBySelectedPeriod(startLocalDate, endLocalDate);
     }
 
     public Double getSumPriceByCurrencyAndType(Currency currency, Type type) {
@@ -95,14 +71,14 @@ public class BudgetItemService {
         return budgetItemRepository.getRemainByDefaultCurrencyForDate(date);
     }
 
-    public LocalDateTime getMaxDate() {
+    public LocalDate findMaxDate() {
         return budgetItemRepository.getMaxDate();
     }
 
-    public String getLastCurrencyIdByDate(LocalDate date) {
-        return budgetItemRepository.getLastCurrencyIdByDate(date);
+    public UUID findLastCurrencyIdByDate(LocalDate date) {
+        return budgetItemRepository.findLastCurrencyId(date);
     }
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         budgetItemRepository.deleteById(id);
     }
 
@@ -110,45 +86,35 @@ public class BudgetItemService {
         GroupStatisticData result = new GroupStatisticData();
 
         LocalDate now = LocalDate.now();
-        LocalDateTime offSetStartDate;
-        LocalDateTime offSetEndDate;
         TreeMap<Type, Map<Kind, Double>> mapKind;
 
         if ((startDate == null) || (period.equals(CURRENT_MONTH))) {
-            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
-            startDate = offSetStartDate.toLocalDate();
-            offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
-            endDate = offSetEndDate.toLocalDate();
+            startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
+            endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
         }
 
         if (period.equals(CURRENT_YEAR)) {
-            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), 1, 1), LocalTime.MIN);
-            startDate = offSetStartDate.toLocalDate();
-            offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), 12, 31), LocalTime.MAX);
-            endDate = offSetEndDate.toLocalDate();
+            startDate = LocalDate.of(now.getYear(), 1, 1);
+            endDate = LocalDate.of(now.getYear(), 12, 31);
         }
 
-        offSetStartDate = setTimeZoneOffset(startDate);
-        offSetEndDate = setTimeZoneOffset(endDate);
-
-        List<KindTotals> totals = getTotalsByKindsForPeriod(offSetStartDate, offSetEndDate, period);
+        List<KindTotals> totals = getTotalsByKindsForPeriod(startDate, endDate, period);
 
         if (period.equals(ALL_TIME) && totals.size() > 0) {
-            offSetStartDate = totals.stream()
-                    .map(total -> total.getMinCreateDateTime())
-                    .min(LocalDateTime::compareTo)
+            startDate = totals.stream()
+                    .map(total -> total.getMinCreateDate())
+                    .min(LocalDate::compareTo)
                     .get();
         }
 
         if (sortType.isEmpty() || sortType.equalsIgnoreCase("byName")) {
             mapKind = new TreeMap(totals.stream()
-                    .collect(groupingBy(
-                            total ->
-                                    total.getKind().getType(), (
-                                    groupingBy(
-                                            KindTotals::getKind,
-                                            TreeMap::new,
-                                            Collectors.summingDouble(KindTotals::getSumPrice)))
+                    .collect(groupingBy(total ->
+                            total.getKind().getType(), (
+                            groupingBy(
+                                    KindTotals::getKind,
+                                    TreeMap::new,
+                                    Collectors.summingDouble(KindTotals::getSumPrice)))
                     )));
         } else { /* sort by price */
             mapKind = new TreeMap(totals.stream()
@@ -175,41 +141,28 @@ public class BudgetItemService {
 
         if (period.equals(TypePeriod.ALL_TIME)) {
             startDate = totals.stream()
-                    .map(KindTotals::getMinCreateDateTime)
-                    .min(LocalDateTime::compareTo)
-                    .get()
-                    .toLocalDate();
+                    .map(KindTotals::getMinCreateDate)
+                    .min(LocalDate::compareTo)
+                    .get();
 
             endDate = totals.stream()
-                    .map(KindTotals::getMaxCreateDateTime)
-                    .max(LocalDateTime::compareTo)
-                    .get()
-                    .toLocalDate();
+                    .map(KindTotals::getMaxCreateDate)
+                    .max(LocalDate::compareTo)
+                    .get();
         }
 
         GroupPeriod groupPeriod = getGroupPeriod(startDate, endDate);
 
-        Map<String, Double> mapDateProfit =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, PROFIT, period, groupPeriod);
+        Map<String, Double> mapDateProfit = budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(
+                startDate, endDate, PROFIT, period, groupPeriod);
 
-        Map<String, Double> mapDateSpending =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, SPENDING, period, groupPeriod);
+        Map<String, Double> mapDateSpending = budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(
+                startDate, endDate, SPENDING, period, groupPeriod);
 
         TreeMap<String, TreeMap<Type, Double>> totalMap = new TreeMap<>();
+        fillTotalMap(totalMap, mapDateProfit, PROFIT);
+        fillTotalMap(totalMap, mapDateSpending, SPENDING);
 
-        for(Map.Entry<String, Double> entry : mapDateProfit.entrySet()) {
-            TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
-            double value = map.getOrDefault(PROFIT, 0.00D) + entry.getValue();
-            map.put(PROFIT, value);
-            totalMap.put(entry.getKey(), map);
-        }
-
-        for(Map.Entry<String, Double> entry : mapDateSpending.entrySet()) {
-            TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
-            double value = map.getOrDefault(SPENDING, 0.00D) + entry.getValue();
-            map.put(SPENDING, value);
-            totalMap.put(entry.getKey(), map);
-        }
 
         Map<Kind, Long> mapKindCount = totals.stream()
                 .collect(Collectors.toMap(KindTotals::getKind, KindTotals::getCount));
@@ -240,8 +193,8 @@ public class BudgetItemService {
                 .mapToDouble(KindTotals::getSumPrice)
                 .sum();
 
-        Double remainOnStartPeriod = getRemainByDefaultCurrencyForDate(offSetStartDate.toLocalDate());
-        Double remainOnEndPeriod = getRemainByDefaultCurrencyForDate(offSetEndDate.toLocalDate());
+        Double remainOnStartPeriod = period.equals(ALL_TIME) ? 0.0D : getRemainByDefaultCurrencyForDate(startDate);
+        Double remainOnEndPeriod = getRemainByDefaultCurrencyForDate(endDate);
         Double remain = remainOnStartPeriod;
         TreeSet<String> keys = new TreeSet<>() {{
             addAll(mapDateProfit.keySet());
@@ -257,8 +210,6 @@ public class BudgetItemService {
 
         result.setStartDate(startDate);
         result.setEndDate(endDate);
-        result.setOffSetStartDate(offSetStartDate);
-        result.setOffSetEndDate(offSetEndDate);
         result.setMapKind(mapKind);
         result.setMapKindCount(mapKindCount);
         result.setMapMaxPrice(mapMaxPrice);
@@ -273,52 +224,33 @@ public class BudgetItemService {
         return result;
     }
 
-    public StatisticData statisticCollectData(LocalDate startDate, LocalDate endDate, String userId, String typeStr,
-                                              String kindId, String priceStr, String description, TypePeriod period) {
+    private void fillTotalMap(TreeMap<String, TreeMap<Type, Double>> totalMap, Map<String, Double> inputMap, Type type) {
+        for(Map.Entry<String, Double> entry : inputMap.entrySet()) {
+            TreeMap<Type, Double> map = totalMap.getOrDefault(entry.getKey(), new TreeMap<>());
+            double value = map.getOrDefault(type, 0.00D) + entry.getValue();
+            map.put(type, value);
+            totalMap.put(entry.getKey(), map);
+        }
+    }
+
+    public StatisticData statisticCollectData(LocalDate startDate, LocalDate endDate, UUID userId, Type type,
+                                              UUID kindId, String priceStr, String description, TypePeriod period) {
         StatisticData result = new StatisticData();
 
-        List<com.gorbatenko.budget.model.doc.User> users = new HashSet<>(budgetItemRepository.getUsersForAllPeriod())
-                .stream()
-                .sorted(Comparator.comparing(com.gorbatenko.budget.model.doc.User::getName))
-                .collect(Collectors.toList());
+        List<User> users = budgetItemRepository.getUsersForAllPeriod();
 
-        LocalDateTime offSetStartDate;
-        LocalDateTime offSetEndDate;
-
-        LocalDate now = LocalDate.now();
-
-        if (startDate == null) {
-            offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
-            startDate = offSetStartDate.toLocalDate();
-        }
-        offSetStartDate = setTimeZoneOffset(startDate);
-
-        if (endDate == null) {
-            offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
-            endDate = offSetEndDate.toLocalDate();
-        }
-        offSetEndDate = setTimeZoneOffset(endDate);
-
-        List<BudgetItem> listBudgetItems = budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, userId, typeStr, kindId, priceStr, description, period);
+        List<BudgetItem> listBudgetItems = budgetItemRepository.getFilteredData(startDate, endDate, userId, type, kindId, priceStr, description, period);
 
         result.setStartDate(startDate);
         result.setEndDate(endDate);
-        result.setOffSetStartDate(offSetStartDate);
-        result.setOffSetEndDate(offSetEndDate);
         result.setListBudgetItems(listBudgetItems);
         result.setUsers(users);
         return result;
     }
 
     public DynamicStatisticData dynamicStatisticCollectData(LocalDate startDate, LocalDate endDate,
-                                                            String kindId, Type type, GroupPeriod groupPeriod) {
+                                                            UUID kindId, Type type, GroupPeriod groupPeriod) {
         DynamicStatisticData result = new DynamicStatisticData();
-
-        LocalDateTime offSetStartDate;
-        LocalDateTime offSetEndDate;
-
-        offSetStartDate = setTimeZoneOffset(startDate);
-        offSetEndDate = setTimeZoneOffset(endDate).plusDays(1);
 
         String positionName;
         double positionSum;
@@ -329,17 +261,12 @@ public class BudgetItemService {
             groupPeriod = getGroupPeriod(startDate, endDate);
         }
 
-        if (!kindId.isEmpty()) {
-            Kind kind = kindRepository.getById(kindId);
-
-            listBudgetItems =
-                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, null, kind.getId(), null, null, SELECTED_PERIOD);
-
+        if (kindId != null) {
+            Kind kind = kindRepository.findById(kindId);
+            listBudgetItems = budgetItemRepository.findByKindIdAndSelectedPeriod(kind.getId(), startDate, endDate);
             positionName = kind.getName();
         } else {
-            listBudgetItems =
-                    budgetItemRepository.getFilteredData(offSetStartDate, offSetEndDate, null, type.name(), null, null, null, SELECTED_PERIOD);
-
+            listBudgetItems = budgetItemRepository.findByTypeAndSelectedPeriod(type, startDate, endDate);
             positionName = type.getValue();
         }
 
@@ -355,8 +282,6 @@ public class BudgetItemService {
 
         result.setStartDate(startDate);
         result.setEndDate(endDate);
-        result.setOffSetStartDate(offSetStartDate);
-        result.setOffSetEndDate(offSetEndDate);
         result.setMapKindSort(new TreeMap<>(mapKind));
         result.setPositionName(positionName);
         result.setPositionSum(positionSum);
@@ -378,16 +303,15 @@ public class BudgetItemService {
     }
 
     public TreeMap<String, Double> createDynamicRemainStatistic(LocalDate startDate, LocalDate endDate, GroupPeriod groupPeriod) {
-        LocalDateTime offSetStartDate  = setTimeZoneOffset(startDate);
-        LocalDateTime offSetEndDate = setTimeZoneOffset(endDate);
-
         Map<String, Double> mapDateProfit =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, PROFIT, SELECTED_PERIOD, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(
+                        startDate, endDate, PROFIT, SELECTED_PERIOD, groupPeriod);
 
         Map<String, Double> mapDateSpending =
-                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(offSetStartDate, offSetEndDate, SPENDING, SELECTED_PERIOD, groupPeriod);
+                budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(
+                        startDate, endDate, SPENDING, SELECTED_PERIOD, groupPeriod);
 
-        Double remain = getRemainByDefaultCurrencyForDate(offSetStartDate.toLocalDate());
+        Double remain = getRemainByDefaultCurrencyForDate(endDate);
         TreeSet<String> keys = new TreeSet<>() {{
             addAll(mapDateProfit.keySet());
             addAll(mapDateSpending.keySet());}};
@@ -402,4 +326,9 @@ public class BudgetItemService {
 
         return dynamicRemain;
     }
+
+    public List<Kind> getPopularKindByTypeForPeriod(Type type, LocalDate startDate, LocalDate endDate, int popularCount) {
+        return budgetItemRepository.getPopularKindByTypeForPeriod(type, startDate, endDate, popularCount);
+    }
+
 }

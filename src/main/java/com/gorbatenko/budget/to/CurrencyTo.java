@@ -1,7 +1,9 @@
 package com.gorbatenko.budget.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gorbatenko.budget.BaseEntity;
+import com.gorbatenko.budget.config.Deserializer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,19 +16,11 @@ public class CurrencyTo extends BaseEntity {
   @NotNull
   private String name;
 
-  private boolean hidden;
+  @JsonDeserialize(using = Deserializer.OnOffDeserializer.class)
+  private Boolean hidden = false;
 
-  public CurrencyTo(String name, boolean hidden) {
+  public CurrencyTo(String name, Boolean hidden) {
     this.name = name;
     this.hidden = hidden;
-  }
-
-  @Override
-  public String toString() {
-    return "CurrencyTo{" +
-            "id='" + getId() + '\'' +
-            ", name='" + name + '\'' +
-            ", hidden='" + hidden + '\'' +
-            '}';
   }
 }

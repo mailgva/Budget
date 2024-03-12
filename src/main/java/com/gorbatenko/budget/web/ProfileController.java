@@ -2,6 +2,7 @@ package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.service.*;
 import com.gorbatenko.budget.to.RemainderTo;
 import com.gorbatenko.budget.to.UserTo;
 import com.gorbatenko.budget.util.SecurityUtil;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,9 +24,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.gorbatenko.budget.util.Utils.equalsUUID;
+
 @Controller
 @RequestMapping(value = "/profile/")
 public class ProfileController extends AbstractWebController {
+
+    public ProfileController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                             RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -34,20 +41,19 @@ public class ProfileController extends AbstractWebController {
         reloadUserContext(SecurityUtil.get().getUser());
         User user = SecurityUtil.get().getUser();
 
-        List<User> usersGroup = userService.getByGroup(user.getGroup()).stream()
+        List<User> usersGroup = userService.findByUserGroup(user.getUserGroup()).stream()
                 .sorted(Comparator.comparing(User::getName))
                 .collect(Collectors.toList());
         String groupMembers = usersGroup.stream()
-                .map(u -> u.getName() + (u.getId().equals(u.getGroup()) ? " (Админ)" : ""))
+                .map(u -> u.getName() + (equalsUUID(u.getId(), u.getUserGroup()) ? " (Админ)" : ""))
                 .sorted()
                 .collect(Collectors.joining(", "));
 
         Map<Currency, Boolean> mapCurrencies = new HashMap<>();
 
-        currencyService.getVisibled()
+        currencyService.findAllVisible()
                 .forEach(currency ->
-                        mapCurrencies.put(currency,
-                                currency.getId().equals(user.getCurrencyDefault().getId())));
+                        mapCurrencies.put(currency, equalsUUID(currency.getId(), user.getCurrencyDefault().getId())));
 
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
@@ -82,14 +88,14 @@ public class ProfileController extends AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("jointogroup/{groupId}")
-    public String joinToGroup(@PathVariable("groupId") String groupId, RedirectAttributes rm) throws Exception {
+    public String joinToGroup(@PathVariable("groupId") UUID groupId, RedirectAttributes rm) throws Exception {
         User user = SecurityUtil.get().getUser();
-        List<User> groupUser = userService.getByGroup(groupId);
-        if (groupUser.size() == 0 && !user.getId().equals(groupId)) {
+        List<User> groupUser = userService.findByUserGroup(groupId);
+        if (groupUser.size() == 0 && !equalsUUID(user.getId(), groupId)) {
             throw new Exception(String.format("Невозможно присоедиться к группе!<br>Группы с идентификатором [%s] не существует!", groupId));
         }
 
-        if (!user.getId().equals(groupId)) {
+        if (!equalsUUID(user.getId(), groupId)) {
             if (!joinRequestService.isExistsNoAnsweredRequest(groupId)) {
                 JoinRequest joinRequest = new JoinRequest();
                 joinRequest.setUserGroup(groupId);
@@ -97,7 +103,7 @@ public class ProfileController extends AbstractWebController {
             }
             rm.addFlashAttribute("info", "Отправлен запрос на присоединение к группе. Ожидайте решения администратора группы.");
         } else {
-            user.setGroup(groupId);
+            user.setUserGroup(groupId);
             userService.save(user);
             reloadUserContext(user);
         }
@@ -106,9 +112,9 @@ public class ProfileController extends AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("removefromgroup/{userId}")
-    public ResponseEntity removeFromGroup(@PathVariable("userId") String userId) {
+    public ResponseEntity removeFromGroup(@PathVariable("userId") UUID userId) {
         User user = userService.findById(userId);
-        user.setGroup(userId);
+        user.setUserGroup(userId);
         userService.save(user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -123,17 +129,17 @@ public class ProfileController extends AbstractWebController {
     @Transactional
     @PreAuthorize("isAuthenticated()")
     @GetMapping("joinrequest/{id}/accept")
-    public ResponseEntity joinToGroupAccept(@PathVariable("id") String id) {
+    public ResponseEntity joinToGroupAccept(@PathVariable("id") UUID id) {
         User userAdmin = SecurityUtil.get().getUser();
         JoinRequest joinRequest = joinRequestService.getById(id);
-        if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
+        if (!equalsUUID(userAdmin.getId(), joinRequest.getUserGroup())) {
             return ResponseEntity.badRequest().build();
         }
-        joinRequest.setAccepted(LocalDateTime.now());
+        joinRequest.setAcceptedAt(LocalDateTime.now());
         joinRequestService.save(joinRequest);
 
         User user = joinRequest.getUser();
-        user.setGroup(joinRequest.getUserGroup());
+        user.setUserGroup(joinRequest.getUserGroup());
         user.setCurrencyDefault(userService.findById(joinRequest.getUserGroup()).getCurrencyDefault());
         userService.save(user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -141,20 +147,20 @@ public class ProfileController extends AbstractWebController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("joinrequest/{id}/decline")
-    public ResponseEntity joinToGroupDecline(@PathVariable("id") String id) {
+    public ResponseEntity joinToGroupDecline(@PathVariable("id") UUID id) {
         User userAdmin = SecurityUtil.get().getUser();
         JoinRequest joinRequest = joinRequestService.getById(id);
-        if (!userAdmin.getId().equals(joinRequest.getUserGroup())) {
+        if (!equalsUUID(userAdmin.getId(), joinRequest.getUserGroup())) {
             return ResponseEntity.badRequest().build();
         }
-        joinRequest.setDeclined(LocalDateTime.now());
+        joinRequest.setDeclinedAt(LocalDateTime.now());
         joinRequestService.save(joinRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("changedefcurrency")
-    public String changeDefaultCurrency(@RequestParam(value="currencyId") String currencyId) {
+    public String changeDefaultCurrency(@RequestParam(value="currencyId") UUID currencyId) {
         userService.changeDefaultCurrency(currencyId);
         return "redirect:/profile/";
     }
@@ -162,7 +168,7 @@ public class ProfileController extends AbstractWebController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("changedefcurrency")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void changeDefaultCurrencyGet(@RequestParam(value="currencyId") String currencyId) {
+    public void changeDefaultCurrencyGet(@RequestParam(value="currencyId") UUID currencyId) {
         userService.changeDefaultCurrency(currencyId);
     }
 
@@ -173,17 +179,12 @@ public class ProfileController extends AbstractWebController {
         User user = SecurityUtil.get().getUser();
         user.setName(name);
         userService.save(user);
-        List<BudgetItem> budgetItems = budgetItemService.getByUserId(user.getId());
-        for(BudgetItem budgetItem : budgetItems) {
-            budgetItem.setUser(new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName()));
-            budgetItemService.save(budgetItem);
-        }
         return "redirect:/profile/";
     }
 
     private Map<String, RemainderTo> getCurrencyRemainders() {
         Map<String, RemainderTo> result = new HashMap<>();
-        for (Currency currency : currencyService.getVisibled()) {
+        for (Currency currency : currencyService.findAllVisible()) {
             Double profit = budgetItemService.getSumPriceByCurrencyAndType(currency, Type.PROFIT);
             Double spending = budgetItemService.getSumPriceByCurrencyAndType(currency, Type.SPENDING);
             result.put(currency.getName(), new RemainderTo(profit, spending));

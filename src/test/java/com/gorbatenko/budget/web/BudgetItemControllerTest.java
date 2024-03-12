@@ -12,7 +12,6 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -29,8 +28,8 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
     void createBudgetItemPost() throws Exception {
         String path = CONTROLLER_PATH;
         when(budgetItemService.save(any())).thenReturn(BUDGET_ITEM);
-        when(kindService.getById(any())).thenReturn(BUDGET_ITEM.getKind());
-        when(currencyService.getById(any())).thenReturn(BUDGET_ITEM.getCurrency());
+        when(kindService.findById(any())).thenReturn(BUDGET_ITEM.getKind());
+        when(currencyService.findById(any())).thenReturn(BUDGET_ITEM.getCurrency());
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
@@ -40,9 +39,9 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .param("id", "")
                             .param("type", BUDGET_ITEM.getKind().getType().getValue())
-                            .param("kindId", BUDGET_ITEM.getKind().getId())
-                            .param("currencyId", BUDGET_ITEM.getCurrency().getId())
-                            .param("date", BUDGET_ITEM.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                            .param("kindId", BUDGET_ITEM.getKind().getId().toString())
+                            .param("currencyId", BUDGET_ITEM.getCurrency().getId().toString())
+                            .param("date", BUDGET_ITEM.getDateAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                             .param("description", BUDGET_ITEM.getDescription())
                             .param("price", BUDGET_ITEM.getPrice().toString())
                     )
@@ -58,8 +57,6 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         GroupStatisticData result = new GroupStatisticData();
         result.setStartDate(LocalDate.now());
         result.setEndDate(LocalDate.now());
-        result.setOffSetStartDate(LocalDateTime.now());
-        result.setOffSetEndDate(LocalDateTime.now());
         result.setProfit(1000.00);
         result.setSpending(0.0);
         result.setMapKindCount(Map.of(BUDGET_ITEM.getKind(), 1L));
@@ -72,7 +69,7 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         TreeMap<Type, Map<Kind, Double>> mapKind = new TreeMap<>();
         mapKind.put(BUDGET_ITEM.getKind().getType(), Map.of(BUDGET_ITEM.getKind(), result.getProfit()));
         result.setMapKind(mapKind);
-        result.setUsers(List.of(DOC_USER));
+        result.setUsers(List.of(TEST_USER));
 
         when(budgetItemService.groupStatisticCollectData(any(), any(), any(), any())).thenReturn(result);
 
@@ -89,10 +86,8 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         StatisticData result = new StatisticData();
         result.setStartDate(LocalDate.now());
         result.setEndDate(LocalDate.now());
-        result.setOffSetStartDate(LocalDateTime.now());
-        result.setOffSetEndDate(LocalDateTime.now());
         result.setListBudgetItems(List.of(BUDGET_ITEM));
-        result.setUsers(List.of(DOC_USER));
+        result.setUsers(List.of(TEST_USER));
 
         when(budgetItemService.statisticCollectData(any(), any(), any(), any(),any(), any(), any(), any())).thenReturn(result);
 
@@ -110,8 +105,6 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         DynamicStatisticData result = new DynamicStatisticData();
         result.setStartDate(LocalDate.now());
         result.setEndDate(LocalDate.now());
-        result.setOffSetStartDate(LocalDateTime.now());
-        result.setOffSetEndDate(LocalDateTime.now());
         result.setPositionSum(BUDGET_ITEM.getPrice());
         result.setPositionName(BUDGET_ITEM.getKind().getName());
         TreeMap<String, Double> mapKindSort = new TreeMap<>();
@@ -121,7 +114,6 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         when(budgetItemService.dynamicStatisticCollectData(any(), any(), any(), any(),any())).thenReturn(result);
 
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
-                //.andDo(print())
                 .andExpect(model().attribute("pageName", "Динамика"))
                 .andExpect(view().name("budget/dynamicstatistic"));
     }
@@ -131,9 +123,9 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         String path = CONTROLLER_PATH+"create/PROFIT";
         List<Kind> kinds = Arrays.asList(BUDGET_ITEM.getKind());
 
-        when(kindService.getKindsByType(any())).thenReturn(kinds);
-        when(budgetItemService.getPopularByTypeForPeriod(any(), any(), any())).thenReturn(new ArrayList<>());
-        when(currencyService.getByHidden(false)).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
+        when(kindService.findByType(any())).thenReturn(kinds);
+        when(budgetItemService.getPopularKindByTypeForPeriod(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+        when(currencyService.findAllVisible()).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
@@ -150,8 +142,8 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         String path = CONTROLLER_PATH+"edit/"+BUDGET_ITEM.getId();
 
         when(budgetItemService.getById(BUDGET_ITEM.getId())).thenReturn(BUDGET_ITEM);
-        when(kindService.getKindsByType(BUDGET_ITEM.getKind().getType())).thenReturn(Arrays.asList(BUDGET_ITEM.getKind()));
-        when(currencyService.getByHidden(false)).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
+        when(kindService.findByType(BUDGET_ITEM.getKind().getType())).thenReturn(Arrays.asList(BUDGET_ITEM.getKind()));
+        when(currencyService.findAllVisible()).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());

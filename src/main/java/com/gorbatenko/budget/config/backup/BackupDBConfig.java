@@ -1,3 +1,4 @@
+/*
 package com.gorbatenko.budget.config.backupdatabase;
 
 import lombok.extern.slf4j.Slf4j;
@@ -116,3 +117,4 @@ public class BackupDBConfig {
         return result;
     }
 }
+*/

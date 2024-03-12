@@ -2,27 +2,26 @@ package com.gorbatenko.budget.service;
 
 import com.gorbatenko.budget.model.JoinRequest;
 import com.gorbatenko.budget.repository.JoinRequestRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class JoinRequestService {
-    private JoinRequestRepository joinRequestRepository;
-
-    public JoinRequestService(JoinRequestRepository joinRequestRepository) {
-        this.joinRequestRepository = joinRequestRepository;
-    }
+    private final JoinRequestRepository joinRequestRepository;
 
     public JoinRequest save(JoinRequest joinRequest) {
         return joinRequestRepository.save(joinRequest);
     }
 
-    public JoinRequest getById(String id) {
+    public JoinRequest getById(UUID id) {
         return joinRequestRepository.findById(id);
     }
 
-    public boolean isExistsNoAnsweredRequest(String groupId) {
+    public boolean isExistsNoAnsweredRequest(UUID groupId) {
         return joinRequestRepository.isExistsNoAnsweredRequest(groupId);
     }
 

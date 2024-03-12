@@ -1,30 +1,37 @@
 package com.gorbatenko.budget.model;
 
 import com.gorbatenko.budget.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "join_requests")
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "join_requests")
 public class JoinRequest extends BaseEntity {
-
     @NotNull
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @NotNull
-    private String userGroup;
+    @Column(name = "user_group")
+    private UUID userGroup;
 
     @NotNull
-    private LocalDateTime created;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    private LocalDateTime accepted;
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
 
-    private LocalDateTime declined;
+    @Column(name = "declined_at")
+    private LocalDateTime declinedAt;
 }

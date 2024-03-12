@@ -2,44 +2,39 @@ package com.gorbatenko.budget.service;
 
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.repository.CurrencyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CurrencyService {
 
-    private CurrencyRepository currencyRepository;
-
-    public CurrencyService(CurrencyRepository currencyRepository) {
-        this.currencyRepository = currencyRepository;
-    }
+    private final CurrencyRepository currencyRepository;
 
     public Currency save(Currency currency) {
         return currencyRepository.save(currency);
     }
 
-    public Currency getById(String id) {
-        return currencyRepository.getById(id);
+    public Currency findById(UUID id) {
+        return currencyRepository.findById(id);
     }
 
-    public List<Currency> getAll() {
-        return currencyRepository.getAll();
+    public List<Currency> findAll() {
+        return currencyRepository.findAll();
     }
 
-    public List<Currency> getVisibled() {
-        return currencyRepository.getVisibled();
+    public List<Currency> findAllVisible() {
+        return currencyRepository.findAllVisible();
     }
 
-    public List<Currency> getByHidden(boolean hidden) {
-        return currencyRepository.getFilteredData(null, null, hidden);
-    }
-
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         currencyRepository.deleteById(id);;
     }
 
-    public Currency getByName(String name) {
-        return currencyRepository.getByName(name);
+    public Currency findByName(String name) {
+        return currencyRepository.findByName(name);
     }
 }

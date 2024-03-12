@@ -1,24 +1,24 @@
 package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.User;
-import java.util.List;
-
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Component
-public interface IUserRepository extends MongoRepository<User, String> {
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface IUserRepository extends JpaRepository<User, UUID> {
 
     default User saveUser(User s) throws Exception {
+        s.setEmail(s.getEmail().toLowerCase());
         if(getByEmail(s.getEmail()) != null) {
             throw new Exception("Пользователь с таким email (" + s.getEmail() + ") уже существует!");
         }
 
         User user = save(s);
-        if(user.getGroup() == null) {
-            user.setGroup(user.getId());
+        if(user.getUserGroup() == null) {
+            user.setUserGroup(user.getId());
             user = save(user);
         }
         return save(user);
@@ -26,5 +26,5 @@ public interface IUserRepository extends MongoRepository<User, String> {
 
     User getByEmail(String email);
 
-    List<User> getByGroupIgnoreCase(String name);
+    List<User> findByUserGroup(UUID userGroup);
 }

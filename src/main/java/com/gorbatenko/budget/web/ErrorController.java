@@ -1,6 +1,7 @@
 package com.gorbatenko.budget.web;
 
 
+import com.gorbatenko.budget.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
@@ -10,16 +11,20 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.UndeclaredThrowableException;
 
 @Slf4j
 @ControllerAdvice
 public class ErrorController extends AbstractWebController {
 
+    public ErrorController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                           RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
+
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String exception(final Throwable throwable, final Model model, HttpServletRequest request) {
+    public String exception(final Throwable throwable, final Model model) {
         log.error("Exception during execution BudgetItem application", throwable);
 
         String errorMessage = (throwable != null ? throwable.getLocalizedMessage() : "Unknown error");

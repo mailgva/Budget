@@ -25,8 +25,8 @@ class DictionaryControllerTest  extends AbstractWebControllerTest {
     @Test
     void getDictionaryKinds() throws Exception {
         String path = CONTROLLER_PATH+"kinds";
-        when(kindService.getAll()).thenReturn(List.of(KIND));
-        when(budgetItemService.getAll()).thenReturn(List.of(BUDGET_ITEM));
+        when(kindService.findAll()).thenReturn(List.of(KIND));
+        when(budgetItemService.findAll()).thenReturn(List.of(BUDGET_ITEM));
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("pageName", "Виды приходов//расходов"))
@@ -37,8 +37,8 @@ class DictionaryControllerTest  extends AbstractWebControllerTest {
     @Test
     void getDictionaryCurrencies() throws Exception {
         String path = CONTROLLER_PATH+"currencies";
-        when(currencyService.getAll()).thenReturn(List.of(CURRENCY));
-        when(budgetItemService.getAll()).thenReturn(List.of(BUDGET_ITEM));
+        when(currencyService.findAll()).thenReturn(List.of(CURRENCY));
+        when(budgetItemService.findAll()).thenReturn(List.of(BUDGET_ITEM));
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("pageName", "Валюты"))

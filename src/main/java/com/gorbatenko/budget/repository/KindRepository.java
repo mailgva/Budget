@@ -2,23 +2,18 @@ package com.gorbatenko.budget.repository;
 
 import com.gorbatenko.budget.model.Kind;
 import com.gorbatenko.budget.model.Type;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
 
 @Repository
-public class KindRepository extends AbstractRepository {
-
-    private IKindRepository repository;
-    @Autowired
-    public void setRepository(IKindRepository repository) {
-        this.repository = repository;
-    }
+@RequiredArgsConstructor
+public class KindRepository {
+    private final IKindRepository repository;
 
     public Kind save(Kind kind) {
         if (kind.getUserGroup() == null) {
@@ -27,37 +22,23 @@ public class KindRepository extends AbstractRepository {
         return repository.save(kind);
     }
 
-    public void deleteById(String id) {
-        repository.delete(this.getById(id));
+    public void deleteById(UUID id) {
+        repository.deleteByUserGroupAndId(getUserGroup(), id);
     }
 
-    public List<Kind> getAll() {
-        Sort sort = Sort.by("type").ascending().and(Sort.by("name")).ascending();
-        return findAll(null, sort, Kind.class);
+    public List<Kind> findAll() {
+        return repository.findAllByUserGroupOrderByTypeAscNameAsc(getUserGroup());
     }
 
-    public List<Kind> getFilteredData(String id, String name, Type type, Boolean hidden) {
-        Criteria criteria = new Criteria();
-
-        if (!isBlank(id)) {
-            criteria.and("id").is(id);
-        }
-        if (type != null) {
-            criteria.and("type").is(type);
-        }
-        if (!isBlank(name)) {
-            criteria.and("name").is(name);
-        }
-        if (hidden != null) {
-            criteria.and("hidden").is(hidden);
-        } else {
-            criteria.orOperator(new Criteria().and("hidden").is(false), new Criteria().and("hidden").is(null));
-        }
-        Sort sort = Sort.by("type").ascending().and(Sort.by("name")).ascending();
-        return findAll(criteria, sort, Kind.class);
+    public Kind findById(UUID id) {
+        return repository.findByUserGroupAndId(getUserGroup(), id);
     }
 
-    public Kind getById(String id) {
-        return findById(id, Kind.class);
+    public Kind findByTypeAndName(Type type, String name) {
+        return repository.findByUserGroupAndTypeAndName(getUserGroup(), type.name(), name).orElse(null);
+    }
+
+    public List<Kind> findByType(Type type) {
+        return repository.findByUserGroupAndType(getUserGroup(), type.name());
     }
 }

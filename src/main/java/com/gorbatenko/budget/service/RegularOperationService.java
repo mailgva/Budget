@@ -2,39 +2,38 @@ package com.gorbatenko.budget.service;
 
 import com.gorbatenko.budget.model.RegularOperation;
 import com.gorbatenko.budget.repository.RegularOperationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RegularOperationService {
-    private RegularOperationRepository regularOperationRepository;
-
-    public RegularOperationService(RegularOperationRepository regularOperationRepository) {
-        this.regularOperationRepository = regularOperationRepository;
-    }
+    private final RegularOperationRepository regularOperationRepository;
 
     public RegularOperation save(RegularOperation regularOperation) {
         return regularOperationRepository.save(regularOperation);
     }
 
-    public RegularOperation getById(String id) {
-        return regularOperationRepository.getById(id);
+    public RegularOperation findById(UUID id) {
+        return regularOperationRepository.findById(id);
     }
 
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         regularOperationRepository.deleteById(id);;
     }
 
-    public List<RegularOperation> getByCurrencyId(String id) {
-        return regularOperationRepository.getByCurrencyId(id);
+    public List<RegularOperation> findByCurrencyId(UUID id) {
+        return regularOperationRepository.findByCurrencyId(id);
     }
 
-    public List<RegularOperation> getByKindId(String id) {
-        return regularOperationRepository.getByKindId(id);
+    public List<RegularOperation> findByKindId(UUID id) {
+        return regularOperationRepository.findByKindId(id);
     }
 
     public List<RegularOperation> getAll() {
-        return regularOperationRepository.getAll();
+        return regularOperationRepository.findAll();
     }
 }

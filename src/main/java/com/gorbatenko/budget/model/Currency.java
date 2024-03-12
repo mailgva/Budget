@@ -1,29 +1,31 @@
 package com.gorbatenko.budget.model;
 
 import com.gorbatenko.budget.BaseEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.ToString;
 
-import java.util.Objects;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "currencies")
-public class Currency extends BaseEntity implements Comparable {
-  @Indexed
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "currencies")
+public class Currency extends BaseEntity implements Comparable<Currency> {
   private String name;
-
-  private String userGroup;
-
-  private boolean hidden = false;
+  private UUID userGroup;
+  private Boolean hidden = false;
 
   public Currency(String name) {
     this.name = name;
   }
 
-  public Currency(String name, String userGroup) {
+  public Currency(String name, UUID userGroup) {
     this.name = name;
     this.userGroup = userGroup;
   }
@@ -34,9 +36,8 @@ public class Currency extends BaseEntity implements Comparable {
   }
 
   @Override
-  public int compareTo(Object o) {
-    Currency other = (Currency) o;
-    return this.getName().compareTo(other.getName());
+  public int compareTo(Currency o) {
+    return this.getName().compareTo(o.getName());
   }
 
   @Override
@@ -47,19 +48,5 @@ public class Currency extends BaseEntity implements Comparable {
             ", userGroup='" + userGroup + '\'' +
             ", hidden='" + hidden + '\'' +
             '}';
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
-    Currency currency = (Currency) o;
-    return super.getId().equals(currency.getId());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode());
   }
 }

@@ -3,6 +3,7 @@ package com.gorbatenko.budget.web;
 import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
 import com.gorbatenko.budget.model.RegularOperation;
+import com.gorbatenko.budget.service.*;
 import com.gorbatenko.budget.to.CurrencyTo;
 import com.gorbatenko.budget.util.Response;
 import jakarta.validation.Valid;
@@ -17,14 +18,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 import static com.gorbatenko.budget.util.SecurityUtil.getUserGroup;
+import static com.gorbatenko.budget.util.Utils.equalsUUID;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/currencies/")
 public class CurrencyController extends AbstractWebController {
+
+    public CurrencyController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                              RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
 
     @GetMapping("create")
     public String create(Model model) {
@@ -34,8 +42,8 @@ public class CurrencyController extends AbstractWebController {
     }
 
     @GetMapping("edit/{id}")
-    public String edit(@PathVariable("id") String id, Model model) throws Exception {
-        Currency currency = currencyService.getById(id);
+    public String edit(@PathVariable("id") UUID id, Model model) throws Exception {
+        Currency currency = currencyService.findById(id);
         if (currency == null) {
             throw new Exception("Запись не найдена!");
         }
@@ -45,26 +53,26 @@ public class CurrencyController extends AbstractWebController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Response> delete(@PathVariable("id") String id) {
+    public ResponseEntity<Response> delete(@PathVariable("id") UUID id) {
         String errorMessage = "Невозможно удалить валюту, так как она %s";
-        Currency currency = currencyService.getById(id);
+        Currency currency = currencyService.findById(id);
 
         if (currency == null) {
             String message = String.format(errorMessage, "не найдена");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!budgetItemService.getByCurrencyId(id).isEmpty()) {
+        if (!budgetItemService.findByCurrencyId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в бюджете");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (!regularOperationService.getByCurrencyId(id).isEmpty()) {
+        if (!regularOperationService.findByCurrencyId(id).isEmpty()) {
             String message = String.format(errorMessage, "используется в регулярных операциях");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
 
-        if (getCurrencyDefault().getId().equals(id)) {
+        if (equalsUUID(getCurrencyDefault().getId(), id)) {
             String message = String.format(errorMessage, "установлена как валюта по умолчанию");
             return ResponseEntity.badRequest().body(new Response(400, message));
         }
@@ -76,29 +84,25 @@ public class CurrencyController extends AbstractWebController {
     @Transactional
     @PostMapping(value = "edit", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String editCurrency(@Valid @RequestBody CurrencyTo currencyTo, RedirectAttributes rm) {
-        if (currencyTo.getId().isEmpty()) {
-            currencyTo.setId(null);
-        }
-
-        Currency currency = new Currency(currencyTo.getName(), currencyTo.isHidden());
+        Currency currency = new Currency(currencyTo.getName(), currencyTo.getHidden());
         currency.setId(currencyTo.getId());
         currency.setUserGroup(getUserGroup());
 
-        Currency currencyByName = currencyService.getByName(currencyTo.getName());
+        Currency currencyByName = currencyService.findByName(currencyTo.getName());
 
         if (Objects.deepEquals(currency, currencyByName)) {
             return "redirect:/dictionaries/currencies";
         }
 
         if (currencyByName != null &&
-                (currencyTo.getId() != null && !currencyTo.getId().equals(currencyByName.getId()))) {
+                (currencyTo.getId() != null && !equalsUUID(currencyTo.getId(), currencyByName.getId()))) {
             rm.addFlashAttribute("error", "Валюта с наименованием '" + currencyTo.getName() + "'" +
                     " уже используется!");
             return String.format("redirect:/dictionaries/currencies/edit/%s", currencyTo.getId());
         }
 
         if (currencyTo.getId() != null) {
-            if (currencyService.getById(currencyTo.getId()) == null) {
+            if (currencyService.findById(currencyTo.getId()) == null) {
                 rm.addFlashAttribute("error", "Невозможно изменить, валюта не найдена!");
                 return "redirect:/dictionaries/kinds/currencies/";
             }
@@ -106,13 +110,13 @@ public class CurrencyController extends AbstractWebController {
 
         currency = currencyService.save(currency);
 
-        List<BudgetItem> budgetItems = budgetItemService.getByCurrencyId(currency.getId());
+        List<BudgetItem> budgetItems = budgetItemService.findByCurrencyId(currency.getId());
         for (BudgetItem budgetItem : budgetItems) {
             budgetItem.setCurrency(currency);
             budgetItemService.save(budgetItem);
         }
 
-        List<RegularOperation> operations = regularOperationService.getByCurrencyId(currency.getId());
+        List<RegularOperation> operations = regularOperationService.findByCurrencyId(currency.getId());
         for (RegularOperation operation : operations) {
             operation.setCurrency(currency);
             regularOperationService.save(operation);

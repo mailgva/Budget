@@ -3,7 +3,6 @@ package com.gorbatenko.budget.web;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -25,10 +24,10 @@ public class MainControllerTest extends AbstractWebControllerTest {
     void getMenu() throws Exception {
         String path = "/menu";
 
-        when(budgetItemService.getMaxDate()).thenReturn(LocalDateTime.now());
-        when(budgetItemService.getLastCurrencyIdByDate(LocalDate.now())).thenReturn(CURRENCY.getId());
+        when(budgetItemService.findMaxDate()).thenReturn(LocalDate.now());
+        when(budgetItemService.findLastCurrencyIdByDate(LocalDate.now())).thenReturn(CURRENCY.getId());
         when(budgetItemService.getSumPriceByDefaultCurrencyAndType(any())).thenReturn(1000.00);
-        when(budgetItemService.getForSelectedPeriod(any(), any())).thenReturn(List.of(BUDGET_ITEM));
+        when(budgetItemService.findBySelectedPeriod(any(), any())).thenReturn(List.of(BUDGET_ITEM));
         when(joinRequestService.getNewJoinRequests()).thenReturn(List.of());
 
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))

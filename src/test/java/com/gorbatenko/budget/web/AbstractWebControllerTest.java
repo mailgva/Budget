@@ -1,11 +1,7 @@
 package com.gorbatenko.budget.web;
 
 import com.gorbatenko.budget.AuthorizedUser;
-import com.gorbatenko.budget.model.BudgetItem;
-import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.doc.User;
+import com.gorbatenko.budget.model.*;
 import com.gorbatenko.budget.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,6 +14,7 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -61,32 +58,27 @@ public class AbstractWebControllerTest {
 
     public static final Currency CURRENCY = new Currency("VALUTA", false);
     static {
-        CURRENCY.setId(UUID.randomUUID().toString());
+        CURRENCY.setId(UUID.randomUUID());
     }
 
-    public static final com.gorbatenko.budget.model.User TEST_USER = new com.gorbatenko.budget.model.User(
-            UUID.randomUUID().toString(), "TEST USER", "user@user.com", "123456");
+    public static final User TEST_USER = new User(UUID.randomUUID(), "TEST USER", "user@user.com", "123456");
     static {
-        TEST_USER.setGroup(TEST_USER.getId());
+        TEST_USER.setUserGroup(TEST_USER.getId());
         TEST_USER.setCurrencyDefault(CURRENCY);
         CURRENCY.setUserGroup(TEST_USER.getId());
     }
-
-    public static final User DOC_USER = new User(TEST_USER.getId(), TEST_USER.getName());
-
     public static final AuthorizedUser AUTHORIZED_USER = new AuthorizedUser(TEST_USER);
 
-    public static final Kind KIND = new Kind(UUID.randomUUID().toString(), Type.PROFIT, "Test", false);
+    public static final Kind KIND = new Kind(UUID.randomUUID(), Type.PROFIT, "Test", false);
 
     public static final BudgetItem BUDGET_ITEM = new BudgetItem();
     static {
-        LocalDateTime dateTime = LocalDateTime.of(2023, 6, 4, 0, 0);
-        BUDGET_ITEM.setId(UUID.randomUUID().toString());
-        BUDGET_ITEM.setUser(DOC_USER);
+        BUDGET_ITEM.setId(UUID.randomUUID());
+        BUDGET_ITEM.setUser(TEST_USER);
         BUDGET_ITEM.setKind(KIND);
         BUDGET_ITEM.setCurrency(CURRENCY);
-        BUDGET_ITEM.setDate(dateTime);
-        BUDGET_ITEM.setCreateDateTime(dateTime);
+        BUDGET_ITEM.setDateAt(LocalDate.now());
+        BUDGET_ITEM.setCreatedAt(LocalDateTime.now());
         BUDGET_ITEM.setDescription("TEST Description");
         BUDGET_ITEM.setPrice(1000.00);
     }

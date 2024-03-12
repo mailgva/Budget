@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,13 +18,13 @@ public class RegularOperationTo extends BaseEntity {
 
     private Integer dayOfMonth = 1;
 
-    private String kindId;
+    private UUID kindId;
 
     private String description;
 
     @NotNull
     private Double price;
 
-    private String currencyId;
+    private UUID currencyId;
 
 }

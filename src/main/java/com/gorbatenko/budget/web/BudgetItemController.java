@@ -1,16 +1,13 @@
 package com.gorbatenko.budget.web;
 
 
-import com.gorbatenko.budget.model.BudgetItem;
 import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.model.doc.User;
-import com.gorbatenko.budget.to.BudgetTo;
+import com.gorbatenko.budget.model.*;
+import com.gorbatenko.budget.service.*;
+import com.gorbatenko.budget.to.BudgetItemTo;
 import com.gorbatenko.budget.to.ExchangeTo;
 import com.gorbatenko.budget.util.*;
 import com.gorbatenko.budget.web.charts.ChartType;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,19 +16,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.*;
 
 import static com.gorbatenko.budget.model.Kind.EXCHANGE_NAME;
-import static com.gorbatenko.budget.util.BaseUtil.*;
+import static com.gorbatenko.budget.util.BaseUtil.dateToStr;
+import static com.gorbatenko.budget.util.BaseUtil.listBudgetToTreeMap;
+import static com.gorbatenko.budget.util.SecurityUtil.get;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
+import static com.gorbatenko.budget.util.Utils.DEFAULT_UUID;
+import static com.gorbatenko.budget.util.Utils.equalsUUID;
 
 
 @Controller
@@ -39,21 +38,20 @@ import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
 @RequestMapping(value = "/budget/")
 public class BudgetItemController extends AbstractWebController {
 
+    public BudgetItemController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
+                                RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public String createBudget(@Valid @RequestBody BudgetTo budgetTo, HttpServletRequest request) {
+    public String createBudget(@Valid @RequestBody BudgetItemTo budgetItemTo) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
-        if (budgetTo.getId().isEmpty()) {
-            budgetTo.setId(null);
-        }
-
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
-
-        BudgetItem budgetItem = createBudgetFromBudgetTo(budgetTo);
-        budgetItem.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
-        budgetItem.setId(budgetTo.getId());
+        BudgetItem budgetItem = createBudgetFromBudgetTo(budgetItemTo);
+        budgetItem.setCreatedAt(LocalDateTime.now());
+        budgetItem.setId(budgetItemTo.getId());
         budgetItemService.save(budgetItem);
 
-        LocalDate date = budgetItem.getDate().toLocalDate();
+        LocalDate date = budgetItem.getDateAt();
 
         LocalDate now = LocalDate.now();
         LocalDate startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
@@ -65,19 +63,19 @@ public class BudgetItemController extends AbstractWebController {
             endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
         }
 
-        if (!budgetTo.getCurrencyId().equals(SecurityUtil.getCurrencyDefault().getId())) {
-            userService.changeDefaultCurrency(budgetTo.getCurrencyId());
+        if (!equalsUUID(budgetItemTo.getCurrencyId(), SecurityUtil.getCurrencyDefault().getId())) {
+            userService.changeDefaultCurrency(budgetItemTo.getCurrencyId());
         }
 
         return String.format(formatLink, dateToStr(startDate), dateToStr(endDate), dateToStr(date));
     }
 
-    private BudgetItem createBudgetFromBudgetTo(BudgetTo b) {
-        Kind kind = kindService.getById(b.getKindId());
-        Currency currency = currencyService.getById(b.getCurrencyId());
-        return new BudgetItem(toDocUser(SecurityUtil.get().getUser()),
+    private BudgetItem createBudgetFromBudgetTo(BudgetItemTo b) {
+        Kind kind = kindService.findById(b.getKindId());
+        Currency currency = currencyService.findById(b.getCurrencyId());
+        return new BudgetItem(get().getUser(),
                 kind,
-                LocalDateTime.of(b.getDate(), LocalTime.MIN),
+                b.getDateAt(),
                 b.getDescription(),
                 b.getPrice(),
                 currency);
@@ -130,15 +128,15 @@ public class BudgetItemController extends AbstractWebController {
     @GetMapping("statistic")
     public String getStatistic(@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                               @RequestParam(value = "userId", defaultValue = "-1") String userId,
-                               @RequestParam(value = "kindId", defaultValue = "-1") String kindId,
+                               @RequestParam(value = "userId", required = false) UUID userId,
+                               @RequestParam(value = "kindId", required = false) UUID kindId,
                                @RequestParam(value = "type", defaultValue = "allTypes") String typeStr,
-                               @RequestParam(value = "price", defaultValue = "") String priceStr,
-                               @RequestParam(value = "description", defaultValue = "") String description,
-                               @RequestParam(value = "period", required = false, defaultValue = "") TypePeriod period,
-                               @RequestParam(value = "currencyId", required = false) String currencyId,
-                               Model model, HttpServletRequest request) {
-        if (currencyId != null) {
+                               @RequestParam(value = "price", required = false) String priceStr,
+                               @RequestParam(value = "description", required = false) String description,
+                               @RequestParam(value = "period", required = false) TypePeriod period,
+                               @RequestParam(value = "currencyId", required = false) UUID currencyId,
+                               Model model) {
+        if (currencyId != null && !equalsUUID(get().getUser().getCurrencyDefault().getId(), currencyId)) {
             userService.changeDefaultCurrency(currencyId);
             return createRedirectStatisticLink(startDate, endDate, userId, kindId, typeStr, priceStr, description, period);
         }
@@ -147,19 +145,42 @@ public class BudgetItemController extends AbstractWebController {
             period = TypePeriod.SELECTED_PERIOD;
         }
 
-        StatisticData result = budgetItemService.statisticCollectData(startDate, endDate, userId, typeStr, kindId,
+        LocalDate now = LocalDate.now();
+
+        if (startDate == null) {
+            startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
+        }
+
+        if (endDate == null) {
+            endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
+        }
+
+        if (userId != null && DEFAULT_UUID.compareTo(userId) == 0) {
+            userId = null;
+        }
+
+        if (kindId != null && DEFAULT_UUID.compareTo(kindId) == 0) {
+            kindId = null;
+        }
+
+        Type type = "allTypes".equalsIgnoreCase(typeStr) ? null : Type.valueOf(typeStr);
+
+        description = !StringUtils.hasText(description) ? null : description;
+        priceStr = !StringUtils.hasText(priceStr) ? null : priceStr;
+
+        StatisticData result = budgetItemService.statisticCollectData(startDate, endDate, userId, type, kindId,
                 priceStr, description, period);
 
-        getBalanceParts(model, result.getListBudgetItems(),
-                result.getOffSetStartDate().minusDays(1), result.getOffSetEndDate());
+        getBalanceParts(model, result.getListBudgetItems(), startDate, endDate);
 
-        if ((typeStr != null) && (!("allTypes".equals(typeStr)))) {
-            model.addAttribute("typeName", Type.valueOf(typeStr).getValue());
+        if (type != null) {
+            model.addAttribute("typeName", type.getValue());
         }
+        model.addAttribute("defaultUuid", DEFAULT_UUID);
 
         model.addAttribute("startDate", dateToStr(result.getStartDate()));
         model.addAttribute("endDate", dateToStr(result.getEndDate()));
-        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems(), request));
+        model.addAttribute("listBudgetItems", listBudgetToTreeMap(result.getListBudgetItems()));
         model.addAttribute("users", result.getUsers());
         model.addAttribute("userId", userId);
         model.addAttribute("kindList", getKinds());
@@ -174,7 +195,7 @@ public class BudgetItemController extends AbstractWebController {
         return "budget/statistic";
     }
 
-    private String createRedirectStatisticLink(LocalDate startDate, LocalDate endDate, String userId, String kindId, String typeStr, String priceStr, String description, TypePeriod period) {
+    private String createRedirectStatisticLink(LocalDate startDate, LocalDate endDate, UUID userId, UUID kindId, String typeStr, String priceStr, String description, TypePeriod period) {
         StringBuilder link = new StringBuilder("redirect:/budget/statistic?");
         if (startDate != null) {
             link.append("startDate="+dateToStr(startDate));
@@ -182,19 +203,19 @@ public class BudgetItemController extends AbstractWebController {
         if (endDate != null) {
             link.append("&endDate="+dateToStr(endDate));
         }
-        if (!userId.equals("-1")) {
+        if (userId != null && !equalsUUID(DEFAULT_UUID, userId)) {
             link.append("&userId="+userId);
         }
-        if (!kindId.equals("-1")) {
+        if (kindId != null && !equalsUUID(DEFAULT_UUID, kindId)) {
             link.append("&kindId="+kindId);
         }
         if (!typeStr.equals("&allTypes")) {
             link.append("&type="+typeStr);
         }
-        if (!priceStr.equals("")) {
+        if (StringUtils.hasText(priceStr)) {
             link.append("&price="+priceStr);
         }
-        if (!description.equals("")) {
+        if (StringUtils.hasText(description)) {
             link.append("&description="+description);
         }
         if (period != null) {
@@ -207,7 +228,7 @@ public class BudgetItemController extends AbstractWebController {
     public String getDynamicStatistic(
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-            @RequestParam(value = "kindId", defaultValue = "") String kindId,
+            @RequestParam(value = "kindId", defaultValue = "") UUID kindId,
             @RequestParam(value = "type", required = false, defaultValue = "") Type type,
             @RequestParam(value = "groupPeriod", required = false, defaultValue = "BY_DEFAULT") GroupPeriod groupPeriod,
             Model model) {
@@ -216,7 +237,7 @@ public class BudgetItemController extends AbstractWebController {
             return "redirect:budget/groupstatistic";
         }
 
-        if ((kindId.isEmpty() && type == null)) {
+        if ((kindId == null && type == null)) {
             return "redirect:budget/groupstatistic";
         }
 
@@ -236,12 +257,10 @@ public class BudgetItemController extends AbstractWebController {
     }
 
     @GetMapping("create/{type}")
-    public String createBudgetItemByType(@PathVariable("type") String typeStr, Model model, HttpServletRequest request) {
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
-
+    public String createBudgetItemByType(@PathVariable("type") String typeStr, Model model) {
         BudgetItem budgetItem = new BudgetItem();
         Type type = Type.valueOf(typeStr.toUpperCase());
-        List<Kind> kinds = kindService.getKindsByType(type);
+        List<Kind> kinds = kindService.findByType(type);
 
         if (kinds.size() == 0) {
             return "redirect:/dictionaries/kinds/create/"+typeStr;
@@ -249,33 +268,26 @@ public class BudgetItemController extends AbstractWebController {
 
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        LocalDateTime offSetStartDate;
-        LocalDateTime offSetEndDate;
         LocalDate now = LocalDate.now();
+        LocalDate startDate = LocalDate.of(now.getYear(), now.getMonth(), 1);
+        LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
 
-        offSetStartDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), 1), LocalTime.MIN);
-        offSetStartDate = setTimeZoneOffset(offSetStartDate.toLocalDate()).minusDays(1);
-
-        offSetEndDate = LocalDateTime.of(LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth()), LocalTime.MAX);
-        offSetEndDate = setTimeZoneOffset(offSetEndDate.toLocalDate()).plusDays(1);
-
-        kinds = sortKindsByPopular(kinds, type, offSetStartDate, offSetEndDate);
-
+        kinds = sortKindsByPopular(kinds, type, startDate, endDate);
         budgetItem.setKind(kinds.get(0));
 
-        String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
+        UUID kindId = (model.asMap().containsKey("kindId") ? (UUID) model.asMap().get("kindId") : null);
 
-        if(!kindId.isEmpty()) {
+        if(kindId != null) {
             budgetItem.setKind(kinds.stream()
-                    .filter(k -> k.getId().equals(kindId)).findFirst().get());
+                    .filter(kind -> equalsUUID(kind.getId(), kindId))
+                    .findFirst().get()
+            );
         }
 
-        budgetItem.setDate(LocalDateTime.of(
-                LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
-                LocalTime.of(0,0)));
+        budgetItem.setDateAt(now);
         budgetItem.setCurrency(getCurrencyDefault());
 
-        List<Currency> currencies = currencyService.getByHidden(false);
+        List<Currency> currencies = currencyService.findAllVisible();
 
         model.addAttribute("budgetItem", budgetItem);
         model.addAttribute("type", type);
@@ -289,23 +301,25 @@ public class BudgetItemController extends AbstractWebController {
     }
 
     @GetMapping("edit/{id}")
-    public String editBudgetItem(@PathVariable("id") String id, Model model) throws Exception {
+    public String editBudgetItem(@PathVariable("id") UUID id, Model model) throws Exception {
         BudgetItem budgetItem = budgetItemService.getById(id);
         if (budgetItem == null) {
             throw new Exception("Запись не найдена!");
         }
         Type type = budgetItem.getKind().getType();
 
-        List<Kind> kinds = kindService.getKindsByType(type);
+        List<Kind> kinds = kindService.findByType(type);
         kinds.sort(Comparator.comparing(Kind::getName));
 
-        List<Currency> currencies = currencyService.getByHidden(false);
+        List<Currency> currencies = currencyService.findAllVisible();
 
-        String kindId = (model.asMap().containsKey("kindId") ? (String) model.asMap().get("kindId") : "");
+        UUID kindId = (model.asMap().containsKey("kindId") ? (UUID) model.asMap().get("kindId") : null);
 
-        if(!kindId.isEmpty()) {
+        if(kindId != null) {
             budgetItem.setKind(kinds.stream()
-                    .filter(k -> k.getId().equals(kindId)).findFirst().get());
+                    .filter(k -> equalsUUID(k.getId(), kindId))
+                    .findFirst().get()
+            );
         }
 
         model.addAttribute("budgetItem", budgetItem);
@@ -320,21 +334,18 @@ public class BudgetItemController extends AbstractWebController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Response> deleteBudgetItem(@PathVariable("id") String id) {
+    public ResponseEntity<Response> deleteBudgetItem(@PathVariable("id") UUID id) {
         budgetItemService.deleteById(id);
         return ResponseEntity.ok(new Response(200, null));
     }
 
     @GetMapping("exchange")
-    public String exchange(Model model, HttpServletRequest request) {
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
-        LocalDateTime currentDate = LocalDateTime.of(
-                LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes).toLocalDate(),
-                LocalTime.of(0, 0));
+    public String exchange(Model model) {
+        LocalDateTime currentDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         model.addAttribute("currentDate", currentDate.format(formatter));
-        model.addAttribute("currencies", currencyService.getByHidden(false));
+        model.addAttribute("currencies", currencyService.findAllVisible());
         model.addAttribute("defaultCurrency", getCurrencyDefault());
         model.addAttribute("pageName", "Обмен валюты");
         return "budget/exchange";
@@ -344,28 +355,27 @@ public class BudgetItemController extends AbstractWebController {
     public String doExchange(@Valid @RequestBody ExchangeTo exchange, HttpServletRequest request) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
 
-        LocalDateTime commonDate = LocalDateTime.of(exchange.getDate(), LocalTime.MIN);
-        User commonUser = toDocUser(SecurityUtil.get().getUser());
-
-        int sumTimezoneOffsetMinutes = getSumTimeZoneOffsetMinutes(request);
+        LocalDate commonDate = exchange.getDate();
+        LocalDateTime commonDateTime = LocalDateTime.now();
+        User commonUser = get().getUser();
 
         BudgetItem from = new BudgetItem();
-        from.setDate(commonDate);
+        from.setDateAt(commonDate);
         from.setUser(commonUser);
-        from.setKind(kindService.getKindsByNameAndType(EXCHANGE_NAME, Type.SPENDING).get(0));
-        from.setCurrency(currencyService.getById(exchange.getFromCurrencyId()));
+        from.setKind(kindService.findByNameAndType(Type.SPENDING, EXCHANGE_NAME));
+        from.setCurrency(currencyService.findById(exchange.getFromCurrencyId()));
         from.setDescription(exchange.getDescription());
         from.setPrice(exchange.getFromAmount());
-        from.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
+        from.setCreatedAt(commonDateTime);
 
         BudgetItem to = new BudgetItem();
-        to.setDate(commonDate);
+        to.setDateAt(commonDate);
         to.setUser(commonUser);
-        to.setKind(kindService.getKindsByNameAndType(EXCHANGE_NAME, Type.PROFIT).get(0));
-        to.setCurrency(currencyService.getById(exchange.getToCurrencyId()));
+        to.setKind(kindService.findByNameAndType(Type.SPENDING, EXCHANGE_NAME));
+        to.setCurrency(currencyService.findById(exchange.getToCurrencyId()));
         to.setDescription(exchange.getDescription());
         to.setPrice(exchange.getToAmount());
-        to.setCreateDateTime(LocalDateTime.now().plusMinutes(sumTimezoneOffsetMinutes));
+        to.setCreatedAt(commonDateTime);
 
         List<BudgetItem> list = new ArrayList<>();
         list.add(from);
@@ -385,7 +395,7 @@ public class BudgetItemController extends AbstractWebController {
             endDate = LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth());
         }
 
-        if (!exchange.getToCurrencyId().equals(SecurityUtil.getCurrencyDefault().getId())) {
+        if (!equalsUUID(exchange.getToCurrencyId(), getCurrencyDefault().getId())) {
             userService.changeDefaultCurrency(exchange.getToCurrencyId());
         }
 
@@ -403,27 +413,18 @@ public class BudgetItemController extends AbstractWebController {
         return json;
     }
 
-    private com.gorbatenko.budget.model.doc.User toDocUser(com.gorbatenko.budget.model.User user) {
-        return new com.gorbatenko.budget.model.doc.User(user.getId(), user.getName());
-    }
+    private List<Kind> sortKindsByPopular(List<Kind> listKind, Type type, LocalDate startDate, LocalDate endDate) {
+        final int POPULAR_KIND_COUNT = 5;
 
-    public static int getSumTimeZoneOffsetMinutes(HttpServletRequest request) {
-        int userTimezoneOffsetMinutes = getUserTimezoneOffsetMinutes(request);
-        int currentTimeZoneOffsetMinutes = OffsetDateTime.now().getOffset().get(ChronoField.OFFSET_SECONDS) / 60;
-        return (userTimezoneOffsetMinutes + currentTimeZoneOffsetMinutes) * -1;
-    }
+        List<Kind> result = budgetItemService.getPopularKindByTypeForPeriod(type, startDate, endDate, POPULAR_KIND_COUNT) ;
 
-    private static int getUserTimezoneOffsetMinutes(HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-
-        String cookieName = "userTimezoneOffset";
-
-        int defaultValue = 1;
-
-        for (Cookie cookie : cookies) {
-            if (cookieName.equals(cookie.getName()))
-                return (Integer.parseInt(cookie.getValue()));
+        for(Kind kind : listKind) {
+            if (!result.contains(kind)) {
+                result.add(kind);
+            }
         }
-        return(defaultValue);
+
+        return result;
     }
+
 }

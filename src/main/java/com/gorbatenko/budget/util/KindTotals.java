@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +14,6 @@ public class KindTotals {
     private Kind kind;
     private Double sumPrice;
     private Long count;
-    private LocalDateTime minCreateDateTime;
-    private LocalDateTime maxCreateDateTime;
+    private LocalDate minCreateDate;
+    private LocalDate maxCreateDate;
 }

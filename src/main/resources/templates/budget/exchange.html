@@ -54,7 +54,7 @@
                                 <option th:each="currency : ${currencies}"
                                         th:value="${currency.id}"
                                         th:text="${currency.name}"
-                                        th:selected="${currency.id.equals(defaultCurrency.getId())}"
+                                        th:selected="${currency.id.toString().equals(defaultCurrency.getId().toString())}"
                                 ></option>
                             </select>
                         </div>

@@ -22,17 +22,16 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
 
     private static final RegularOperation OPERATION = new RegularOperation();
     static {
-        OPERATION.setId(UUID.randomUUID().toString());
+        OPERATION.setId(UUID.randomUUID());
         OPERATION.setCurrency(CURRENCY);
         OPERATION.setKind(KIND);
         OPERATION.setUser(TEST_USER);
         OPERATION.setUserGroup(TEST_USER.getId());
         OPERATION.setDescription("Test description");
         OPERATION.setEvery(Every.DAY);
-        OPERATION.setCountUserTimezomeOffsetMinutes(0);
     }
 
-    private static final String ID = OPERATION.getId();
+    private static final UUID ID = OPERATION.getId();
 
 
     @Test
@@ -50,8 +49,8 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
     @Test
     void create() throws Exception {
         String path = CONTROLLER_PATH+"create";
-        when(kindService.getAll()).thenReturn(List.of(KIND));
-        when(currencyService.getVisibled()).thenReturn(List.of(CURRENCY));
+        when(kindService.findAll()).thenReturn(List.of(KIND));
+        when(currencyService.findAllVisible()).thenReturn(List.of(CURRENCY));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(CURRENCY);
@@ -67,7 +66,7 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
     @Test
     void deleteRegularOperation() throws Exception {
         String path = CONTROLLER_PATH+ID;
-        when(regularOperationService.getById(ID)).thenReturn(OPERATION);
+        when(regularOperationService.findById(ID)).thenReturn(OPERATION);
         mockMvc.perform(delete(path)).andExpect(status().isOk());
     }
 
@@ -82,16 +81,16 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
         regularOperationTo.setDescription("Modify description");
         regularOperationTo.setPrice(5000.00);
 
-        when(regularOperationService.getById(ID)).thenReturn(OPERATION);
+        when(regularOperationService.findById(ID)).thenReturn(OPERATION);
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
             utils.when(() -> SecurityUtil.get()).thenReturn(AUTHORIZED_USER);
 
             when(regularOperationService.save(OPERATION)).thenReturn(OPERATION);
             mockMvc.perform(post(path).with(CSRF).params(PARAMS_CSRF_TOKEN)
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .param("id", ID)
-                            .param("kindId", regularOperationTo.getKindId())
-                            .param("currencyId", regularOperationTo.getCurrencyId())
+                            .param("id", ID.toString())
+                            .param("kindId", regularOperationTo.getKindId().toString())
+                            .param("currencyId", regularOperationTo.getCurrencyId().toString())
                             .param("every", regularOperationTo.getEvery().name())
                             .param("description", regularOperationTo.getDescription())
                             .param("price", regularOperationTo.getPrice().toString())
@@ -104,9 +103,9 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
     @Test
     void edit() throws Exception {
         String path = CONTROLLER_PATH+"edit/"+ID;
-        when(regularOperationService.getById(ID)).thenReturn(OPERATION);
-        when(kindService.getAll()).thenReturn(List.of(KIND));
-        when(currencyService.getVisibled()).thenReturn(List.of(CURRENCY));
+        when(regularOperationService.findById(ID)).thenReturn(OPERATION);
+        when(kindService.findAll()).thenReturn(List.of(KIND));
+        when(currencyService.findAllVisible()).thenReturn(List.of(CURRENCY));
         mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                 //.andDo(print())
                 .andExpect(model().attribute("pageName", "Изменение"))
