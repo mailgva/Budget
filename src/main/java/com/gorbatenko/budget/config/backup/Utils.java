@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class Utils {
     private static final List<String> tables = List.of(
-            "budget_items",
+            "budget_items order by created_at",
             "currencies",
             "join_requests",
             "kinds",
@@ -60,6 +60,7 @@ public class Utils {
     protected void createBackUp(JdbcTemplate jdbcTemplate, String pathToBackupFile) throws IOException {
         final String sql = "select * from %s";
         for(String table : tables) {
+            log.info("Fetch data from: {}", table);
             jdbcTemplate.query(String.format(sql, table), (rs) -> {
                 saveTableDataToFile(rs, table, pathToBackupFile);
             });
@@ -107,6 +108,7 @@ public class Utils {
             });
             result.put(row);
         }
+        log.info("  ... count rows: {}", result.length());
         return result.toString();
     }
 

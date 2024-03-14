@@ -58,7 +58,7 @@ public class BackupDBConfig {
     }
 
     private boolean doBackupOperations() {
-        log.info("Backup database started at {}!", LocalDateTime.now());
+        log.info("Backup database started at {}", LocalDateTime.now());
         Utils utils = new Utils();
         java.io.File folder = new java.io.File(PATH_TO_BACKUP_FOLDER);
         if (folder.exists()) {
@@ -69,13 +69,13 @@ public class BackupDBConfig {
         try {
             utils.createBackUp(jdbcTemplate, PATH_TO_BACKUP_FILE);
         } catch (IOException e) {
-            log.error("Backup database. Error during get data from database!", e);
+            log.error("Backup database. Error during get data from database", e);
             return false;
         }
         try {
             utils.zipFolder(PATH_TO_BACKUP_FOLDER, PATH_TO_BACKUP_ZIP);
         } catch (IOException e) {
-            log.error("Backup database. Error during zip data!",e);
+            log.error("Backup database. Error during zip data",e);
             return false;
         }
 
@@ -85,12 +85,12 @@ public class BackupDBConfig {
             utils.uploadFileToGoogleDrive(PATH_TO_BACKUP_ZIP, APPLICATION_NAME,
                     gdriveFolderId, gdriveClientId, gdriveSecret, gdriveRefreshToken);
         } catch (Exception e) {
-            log.error("Backup database. Error during upload file to Google Drive!", e);
+            log.error("Backup database. Error during upload file to Google Drive", e);
             return false;
         }
         java.io.File zipArchive = new java.io.File(PATH_TO_BACKUP_ZIP);
         zipArchive.delete();
-        log.info("Backup database successfully completed at {}!", LocalDateTime.now());
+        log.info("Backup database successfully completed at {}", LocalDateTime.now());
         return true;
     }
 
