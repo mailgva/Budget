@@ -190,7 +190,7 @@ public class BudgetItemRepository {
         String sql = """
                 select k.id, k.user_group, k."name", k."type", k.hidden, count(*) cnt
                 from budget_items bi
-                join kinds k on bi.kind_id = k.id
+                join kinds k on bi.kind_id = k.id and k.type = :type
                 where bi.user_group = :userGroup and bi.currency_id = :currencyId
                   and bi.date_at between :startDate and :endDate
                 group by k.id, k.user_group, k."name", k."type", k.hidden
@@ -327,7 +327,7 @@ public class BudgetItemRepository {
             }
         }
 
-        sql.append("order by bi.date_at");
+        sql.append("order by bi.date_at asc, bi.created_at asc");
 
         return npjTemplate.query(sql.toString(), params, (rs, rowNum) -> {
             BudgetItem budgetItem = new BeanPropertyRowMapper<>(BudgetItem.class).mapRow(rs, rowNum);
