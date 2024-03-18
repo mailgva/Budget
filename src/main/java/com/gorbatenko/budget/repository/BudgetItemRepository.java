@@ -306,8 +306,8 @@ public class BudgetItemRepository {
         }
 
         if (description != null) {
-            sql.append("and upper(coalesce(bi.description, '')) like '%:description%'\n");
-            params.addValue("description", description.toUpperCase());
+            sql.append("and upper(coalesce(bi.description, '')) like :description\n");
+            params.addValue("description", "%"+description.toUpperCase()+"%");
         }
 
         if (priceStr != null) {
