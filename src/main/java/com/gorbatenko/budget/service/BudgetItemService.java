@@ -311,7 +311,7 @@ public class BudgetItemService {
                 budgetItemRepository.getSumPriceForPeriodByDateAndDefaultCurrency(
                         startDate, endDate, SPENDING, SELECTED_PERIOD, groupPeriod);
 
-        Double remain = getRemainByDefaultCurrencyForDate(endDate);
+        Double remain = getRemainByDefaultCurrencyForDate(startDate);
         TreeSet<String> keys = new TreeSet<>() {{
             addAll(mapDateProfit.keySet());
             addAll(mapDateSpending.keySet());}};
