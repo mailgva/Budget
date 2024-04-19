@@ -29,11 +29,14 @@ import static com.gorbatenko.budget.util.Utils.equalsUUID;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/kinds/")
-public class KindController extends AbstractWebController{
+public class KindController extends BaseWebController {
+
+    private final RegularOperationService regularOperationService;
 
     public KindController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                          RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+                          RegularOperationService regularOperationService) {
+        super(currencyService, kindService, budgetItemService);
+        this.regularOperationService = regularOperationService;
     }
 
     @GetMapping("create/{type}")

@@ -23,11 +23,14 @@ import java.util.stream.Collectors;
 import static com.gorbatenko.budget.util.BaseUtil.*;
 
 @Controller
-public class MainController extends AbstractWebController {
+public class MainController extends BaseWebController {
+
+    private final JoinRequestService joinRequestService;
 
     public MainController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                          RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+                          JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService);
+        this.joinRequestService = joinRequestService;
     }
 
     @GetMapping("/")

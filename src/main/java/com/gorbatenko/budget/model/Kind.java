@@ -62,7 +62,15 @@ public class Kind extends BaseEntity implements Comparable<Kind> {
 
     @Override
     public int compareTo(Kind o) {
-        return this.getName().compareTo(o.getName());
+        int typeCompare = this.getType().compareTo(o.getType());
+        if (typeCompare != 0) {
+            return typeCompare;
+        }
+        int nameCompare = this.getName().compareTo(o.getName());
+        if (nameCompare != 0) {
+            return nameCompare;
+        }
+        return this.getId().compareTo(o.getId());
     }
 
 }

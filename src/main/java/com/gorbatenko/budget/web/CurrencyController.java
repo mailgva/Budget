@@ -27,11 +27,14 @@ import static com.gorbatenko.budget.util.Utils.equalsUUID;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/currencies/")
-public class CurrencyController extends AbstractWebController {
+public class CurrencyController extends BaseWebController {
 
-    public CurrencyController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                              RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    private final RegularOperationService regularOperationService;
+
+    public CurrencyController(CurrencyService currencyService, KindService kindService,
+                              BudgetItemService budgetItemService, RegularOperationService regularOperationService) {
+        super(currencyService, kindService, budgetItemService);
+        this.regularOperationService = regularOperationService;
     }
 
     @GetMapping("create")

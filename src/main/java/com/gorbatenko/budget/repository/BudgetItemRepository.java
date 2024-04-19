@@ -153,6 +153,32 @@ public class BudgetItemRepository {
         return result;
     }
 
+    public TreeMap<Kind, Long> getKindCounts() {
+        TreeMap<Kind, Long> result = new TreeMap<>();
+        String sql = """
+              select k.id, k.user_group userGroup, k.name, k.hidden, k.type, count(bi.kind_id) cnt
+              from kinds k
+              left join budget_items bi on k.id = bi.kind_id and bi.currency_id = :currencyId
+              where k.user_group = :userGroup
+              group by k.id, k.user_group, k."name", k.hidden, k.type
+              order by k.type, k.name""";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userGroup", getUserGroup())
+                .addValue("currencyId", getCurrencyDefault().getId());
+
+        npjTemplate.query(sql, params, rs -> {
+            Kind kind = new Kind();
+            kind.setId(UUID.fromString(rs.getString("id")));
+            kind.setUserGroup(UUID.fromString(rs.getString("userGroup")));
+            kind.setName(rs.getString("name"));
+            kind.setHidden(rs.getBoolean("hidden"));
+            kind.setType(Type.valueOf(rs.getString("type")));
+            result.put(kind, rs.getLong("cnt"));
+        });
+
+        return result;
+    }
+
     public List<KindTotals> getTotalsByKindsForPeriod(LocalDate startDate, LocalDate endDate, TypePeriod period){
         String sql = """
                 select k.id, k.name, k.type, sum(bi.price) sumPrice, count(*) "count",

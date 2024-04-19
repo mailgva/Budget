@@ -17,19 +17,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class AbstractWebController {
+public class BaseWebController {
 
     protected final CurrencyService currencyService;
 
     protected final KindService kindService;
 
     protected final BudgetItemService budgetItemService;
-
-    protected final RegularOperationService regularOperationService;
-
-    protected final UserService userService;
-
-    protected final JoinRequestService joinRequestService;
 
     @ModelAttribute("userName")
     protected String getUserName(@AuthenticationPrincipal AuthorizedUser authUser){

@@ -36,11 +36,13 @@ import static com.gorbatenko.budget.util.Utils.equalsUUID;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/budget/")
-public class BudgetItemController extends AbstractWebController {
+public class BudgetItemController extends BaseWebController {
+    private final UserService userService;
 
-    public BudgetItemController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                                RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    public BudgetItemController(CurrencyService currencyService, KindService kindService,
+                                BudgetItemService budgetItemService, UserService userService) {
+        super(currencyService, kindService, budgetItemService);
+        this.userService = userService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

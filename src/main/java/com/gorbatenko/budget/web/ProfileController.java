@@ -29,11 +29,16 @@ import static com.gorbatenko.budget.util.Utils.equalsUUID;
 
 @Controller
 @RequestMapping(value = "/profile/")
-public class ProfileController extends AbstractWebController {
+public class ProfileController extends BaseWebController {
+
+    private final UserService userService;
+    private final JoinRequestService joinRequestService;
 
     public ProfileController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                             RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+                             UserService userService, JoinRequestService joinRequestService) {
+        super(currencyService, kindService, budgetItemService);
+        this.userService = userService;
+        this.joinRequestService = joinRequestService;
     }
 
     @GetMapping
@@ -97,7 +102,7 @@ public class ProfileController extends AbstractWebController {
     public String joinToGroup(@PathVariable("groupId") UUID groupId, RedirectAttributes rm) throws Exception {
         User user = SecurityUtil.get().getUser();
         List<User> groupUser = userService.findByUserGroup(groupId);
-        if (groupUser.size() == 0 && !equalsUUID(user.getId(), groupId)) {
+        if (groupUser.isEmpty() && !equalsUUID(user.getId(), groupId)) {
             throw new Exception(String.format("Невозможно присоедиться к группе!<br>Группы с идентификатором [%s] не существует!", groupId));
         }
 

@@ -21,10 +21,9 @@ import java.util.stream.Collectors;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping(value = "/dictionaries/")
-public class DictionaryController extends AbstractWebController {
-    public DictionaryController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                                RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+public class DictionaryController extends BaseWebController {
+    public DictionaryController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService) {
+        super(currencyService, kindService, budgetItemService);
     }
 
     @GetMapping
@@ -38,15 +37,17 @@ public class DictionaryController extends AbstractWebController {
         Dictionary dictionary = Dictionary.valueOf(name.toUpperCase());
         switch(dictionary) {
             case KINDS:
-                List<BudgetItem> budgetItems = budgetItemService.findAll();
-                TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(getKinds().stream()
+                TreeMap<Kind, Long> mapKindCount = budgetItemService.getKindCounts();
+                TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(mapKindCount.keySet().stream()
                         .collect(Collectors.groupingBy(Kind::getType)));
 
+/*                List<BudgetItem> budgetItems = budgetItemService.findAll();
+
                 Map<UUID, Long> mapCountKind = budgetItems.stream()
-                        .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));
+                        .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));*/
 
                 model.addAttribute("mapKind", mapKind);
-                model.addAttribute("mapCountKind", mapCountKind);
+                model.addAttribute("mapKindCount", mapKindCount);
                 model.addAttribute("pageName", "Виды приходов//расходов");
                 return "dictionaries/kinds/kinds";
             case CURRENCIES:

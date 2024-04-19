@@ -15,11 +15,10 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 @Slf4j
 @ControllerAdvice
-public class ErrorController extends AbstractWebController {
+public class ErrorController extends BaseWebController {
 
-    public ErrorController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService,
-                           RegularOperationService regularOperationService, UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+    public ErrorController(CurrencyService currencyService, KindService kindService, BudgetItemService budgetItemService) {
+        super(currencyService, kindService, budgetItemService);
     }
 
     @ExceptionHandler(Throwable.class)

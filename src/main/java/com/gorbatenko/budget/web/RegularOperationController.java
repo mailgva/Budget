@@ -27,12 +27,14 @@ import static java.util.stream.Collectors.groupingBy;
 @Controller
 @PreAuthorize("isAuthenticated()")
 @RequestMapping("/regularoperations/")
-public class RegularOperationController extends AbstractWebController{
+public class RegularOperationController extends BaseWebController {
+
+    private final RegularOperationService regularOperationService;
 
     public RegularOperationController(CurrencyService currencyService, KindService kindService,
-                                      BudgetItemService budgetItemService, RegularOperationService regularOperationService,
-                                      UserService userService, JoinRequestService joinRequestService) {
-        super(currencyService, kindService, budgetItemService, regularOperationService, userService, joinRequestService);
+                                      BudgetItemService budgetItemService, RegularOperationService regularOperationService) {
+        super(currencyService, kindService, budgetItemService);
+        this.regularOperationService = regularOperationService;
     }
 
     @GetMapping

@@ -55,6 +55,8 @@ public class BudgetItemService {
         return budgetItemRepository.getCurrencyCounts();
     }
 
+    public TreeMap<Kind, Long> getKindCounts() {return budgetItemRepository.getKindCounts(); }
+
     public List<BudgetItem> findBySelectedPeriod(LocalDate startLocalDate, LocalDate endLocalDate) {
         return budgetItemRepository.findBySelectedPeriod(startLocalDate, endLocalDate);
     }

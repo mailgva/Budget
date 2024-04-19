@@ -23,7 +23,7 @@
                             <a class="text-dark"
                                th:href="@{/budget/statistic(period='ALL_TIME',
                                                     kindId=${kind.getId()})}">
-                                <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapCountKind.getOrDefault(kind.getId(),0)  + ')'} "></span>
+                                <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapKindCount.getOrDefault(kind,0)  + ')'} "></span>
                             </a>
                         </td>
                         <td><span class="summation"  th:text="${kind.getHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
