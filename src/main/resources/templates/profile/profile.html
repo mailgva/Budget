@@ -105,9 +105,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-user-plus"></i></span>
                     </div>
-                    <input id="joingroup" class="form-control" type="text" data-clipboard-text="Copy Me!"
-                           th:with="urlBuilder=${T(org.springframework.web.servlet.support.ServletUriComponentsBuilder)}"
-                           th:value='${urlBuilder.fromCurrentRequest().toUriString().concat("jointogroup/")}+${user.getUserGroup().toString()}'>
+                    <input id="joingroup" class="form-control" type="text" data-clipboard-text="Copy Me!" th:value='${linkToJoin}'>
                     <div class="input-group-append">
                         <button id="copy-joinbutton" class="btn btn-outline-secondary" data-clipboard-target="#joingroup" type="button" title="Копировать ссылку" >
                             <i class="fa fa-copy"></i>

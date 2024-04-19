@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -55,6 +56,11 @@ public class ProfileController extends AbstractWebController {
                 .forEach(currency ->
                         mapCurrencies.put(currency, equalsUUID(currency.getId(), user.getCurrencyDefault().getId())));
 
+        String linkToJoin = ServletUriComponentsBuilder.fromCurrentRequest().toUriString()
+                .concat("jointogroup/")
+                .concat(user.getUserGroup().toString());
+
+        model.addAttribute("linkToJoin", linkToJoin);
         model.addAttribute("user", user);
         model.addAttribute("groupMembers", groupMembers);
         model.addAttribute("usersGroup", usersGroup);
