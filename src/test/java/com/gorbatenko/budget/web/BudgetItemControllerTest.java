@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class BudgetItemControllerTest extends AbstractWebControllerTest{
+class BudgetItemControllerTest extends BaseWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/budget/";
 
@@ -29,8 +29,8 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         when(currencyService.findById(any())).thenReturn(BUDGET_ITEM.getCurrency());
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
-            utils.when(() -> SecurityUtil.get()).thenReturn(AUTHORIZED_USER);
+            utils.when(SecurityUtil::getCurrencyDefault).thenReturn(BUDGET_ITEM.getCurrency());
+            utils.when(SecurityUtil::get).thenReturn(AUTHORIZED_USER);
             LocalDate now = LocalDate.now();
             LocalDate firstDay = LocalDate.of(now.getYear(), now.getMonth(), 1);
             LocalDate lastDay = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
@@ -127,14 +127,14 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
     @Test
     void createBudgetItemByType() throws Exception {
         String path = CONTROLLER_PATH+"create/PROFIT";
-        List<Kind> kinds = Arrays.asList(BUDGET_ITEM.getKind());
+        List<Kind> kinds = Collections.singletonList(BUDGET_ITEM.getKind());
 
         when(kindService.findByType(any())).thenReturn(kinds);
         when(budgetItemService.getPopularKindByTypeForPeriod(Type.SPENDING, LocalDate.now(), LocalDate.now(), 1)).thenReturn(kinds);
         when(currencyService.findAllVisible()).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
+            utils.when(SecurityUtil::getCurrencyDefault).thenReturn(BUDGET_ITEM.getCurrency());
 
             mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                     //.andDo(print())
@@ -148,11 +148,11 @@ class BudgetItemControllerTest extends AbstractWebControllerTest{
         String path = CONTROLLER_PATH+"edit/"+BUDGET_ITEM.getId();
 
         when(budgetItemService.getById(BUDGET_ITEM.getId())).thenReturn(BUDGET_ITEM);
-        when(kindService.findByType(BUDGET_ITEM.getKind().getType())).thenReturn(Arrays.asList(BUDGET_ITEM.getKind()));
+        when(kindService.findByType(BUDGET_ITEM.getKind().getType())).thenReturn(Collections.singletonList(BUDGET_ITEM.getKind()));
         when(currencyService.findAllVisible()).thenReturn(List.of(BUDGET_ITEM.getCurrency()));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(BUDGET_ITEM.getCurrency());
+            utils.when(SecurityUtil::getCurrencyDefault).thenReturn(BUDGET_ITEM.getCurrency());
 
             mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                     //.andDo(print())

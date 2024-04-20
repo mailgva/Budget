@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class KindControllerTest extends AbstractWebControllerTest {
+class KindControllerTest extends BaseWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/dictionaries/kinds/";
 

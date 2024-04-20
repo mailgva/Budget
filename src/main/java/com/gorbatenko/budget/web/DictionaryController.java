@@ -41,11 +41,6 @@ public class DictionaryController extends BaseWebController {
                 TreeMap<Type, List<Kind>> mapKind = new TreeMap<>(mapKindCount.keySet().stream()
                         .collect(Collectors.groupingBy(Kind::getType)));
 
-/*                List<BudgetItem> budgetItems = budgetItemService.findAll();
-
-                Map<UUID, Long> mapCountKind = budgetItems.stream()
-                        .collect(Collectors.groupingBy(b -> b.getKind().getId(), Collectors.counting()));*/
-
                 model.addAttribute("mapKind", mapKind);
                 model.addAttribute("mapKindCount", mapKindCount);
                 model.addAttribute("pageName", "Виды приходов//расходов");

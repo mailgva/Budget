@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class CurrencyControllerTest extends AbstractWebControllerTest{
+class CurrencyControllerTest extends BaseWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/dictionaries/currencies/";
 

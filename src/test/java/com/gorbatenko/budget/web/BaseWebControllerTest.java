@@ -23,7 +23,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = MOCK)
 @AutoConfigureMockMvc(addFilters = false)
-public class AbstractWebControllerTest {
+public class BaseWebControllerTest {
     @Autowired
     protected MockMvc mockMvc;
 

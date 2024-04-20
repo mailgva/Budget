@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class RegularOperationControllerTest extends AbstractWebControllerTest {
+class RegularOperationControllerTest extends BaseWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/regularoperations/";
 
@@ -32,7 +32,6 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
     }
 
     private static final UUID ID = OPERATION.getId();
-
 
     @Test
     void getRegularOperations() throws Exception {
@@ -53,7 +52,7 @@ class RegularOperationControllerTest extends AbstractWebControllerTest {
         when(currencyService.findAllVisible()).thenReturn(List.of(CURRENCY));
 
         try (MockedStatic<SecurityUtil> utils = Mockito.mockStatic(SecurityUtil.class)) {
-            utils.when(() -> SecurityUtil.getCurrencyDefault()).thenReturn(CURRENCY);
+            utils.when(SecurityUtil::getCurrencyDefault).thenReturn(CURRENCY);
 
             mockMvc.perform(get(path).with(CSRF).params(PARAMS_CSRF_TOKEN))
                     //.andDo(print())

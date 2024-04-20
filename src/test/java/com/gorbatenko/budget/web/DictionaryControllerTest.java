@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class DictionaryControllerTest  extends AbstractWebControllerTest {
+class DictionaryControllerTest  extends BaseWebControllerTest {
 
     private static final String CONTROLLER_PATH = "/dictionaries/";
 

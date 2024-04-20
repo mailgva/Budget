@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-public class MainControllerTest extends AbstractWebControllerTest {
+public class MainControllerTest extends BaseWebControllerTest {
     @Test
     void getMain() throws Exception {
         String path = "/";
