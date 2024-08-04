@@ -164,7 +164,7 @@ span.fontgreen{
 span.subdate{
   display: block;
   color: #494b49;
-  font-size: 60%;
+  font-size: 0.9rem;
   margin-top: 5px;
   margin-bottom: -10px;
 }
