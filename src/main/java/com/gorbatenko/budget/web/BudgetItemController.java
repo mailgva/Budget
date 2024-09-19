@@ -354,7 +354,7 @@ public class BudgetItemController extends BaseWebController {
     }
 
     @PostMapping("exchange")
-    public String doExchange(@Valid @RequestBody ExchangeTo exchange, HttpServletRequest request) {
+    public String doExchange(@Valid @RequestBody ExchangeTo exchange) {
         String formatLink = "redirect:/budget/statistic?startDate=%s&endDate=%s#d_%s";
 
         LocalDate commonDate = exchange.getDate();
@@ -373,7 +373,7 @@ public class BudgetItemController extends BaseWebController {
         BudgetItem to = new BudgetItem();
         to.setDateAt(commonDate);
         to.setUser(commonUser);
-        to.setKind(kindService.findByNameAndType(Type.SPENDING, EXCHANGE_NAME));
+        to.setKind(kindService.findByNameAndType(Type.PROFIT, EXCHANGE_NAME));
         to.setCurrency(currencyService.findById(exchange.getToCurrencyId()));
         to.setDescription(exchange.getDescription());
         to.setPrice(exchange.getToAmount());
