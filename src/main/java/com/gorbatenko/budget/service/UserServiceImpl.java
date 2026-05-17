@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
         User newUser = repository.saveUser(prepareToSave(user, passwordEncoder));
         createStartKindsForUser(newUser);
         List<Currency> currenciesForUser = createStartCurrenciesForUser(newUser);
-        newUser.setCurrencyDefault(currenciesForUser.get(0));
+        newUser.setCurrencyDefault(currenciesForUser.getFirst());
         return save(newUser);
     }
 

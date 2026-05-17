@@ -275,7 +275,7 @@ public class BudgetItemController extends BaseWebController {
         LocalDate endDate = LocalDate.of(now.getYear(), now.getMonth(), now.lengthOfMonth());
 
         kinds = sortKindsByPopular(kinds, type, startDate, endDate);
-        budgetItem.setKind(kinds.get(0));
+        budgetItem.setKind(kinds.getFirst());
 
         UUID kindId = (model.asMap().containsKey("kindId") ? (UUID) model.asMap().get("kindId") : null);
 
