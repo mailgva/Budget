@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-  <div class="jumbotron" style="background: #c2ff8e">
+  <div class="jumbotron shadow-sm">
     <div>
       <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
       <h2 th:text="${(currency.id == null ? 'Добавление' : 'Изменение') + ' валюты'}"> </h2>
@@ -23,9 +23,12 @@
             <input type="text" name="name" id="name" class="form-control" th:value="${currency.getName()}"
                    placeholder="Наименование" required minlength="3">
           </div>
-          <label for="hidden">Скрыто</label>
-          <div class="input-group mb-3">
-            <input type="checkbox" name="hidden" id="hidden" class="form-control" th:checked="${currency.getHidden()}">
+          <div class="mb-4">
+              <label class="modern-switch">
+                  <input type="checkbox" name="hidden" id="hidden" th:checked="${currency.getHidden()}">
+                  <span class="modern-switch-slider"></span>
+                  <span style="color: var(--text-color);">Скрыто</span>
+              </label>
           </div>
         </div>
         <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>

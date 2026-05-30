@@ -5,12 +5,12 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron"  style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <h2 th:text="'Регулярные операции'"> </h2>
 
         <a href="/regularoperations/create" class="btn btn-primary mobx" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
         <table id="operations"
-               class="table table-active">
+               class="table table-hover">
             <thead>
             <tr>
                 <th data-field="every" data-sortable="true">Периодичность</th>
@@ -25,7 +25,7 @@
             </thead>
             <tbody>
             <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
-            <tr th:class="${'bg-success'}"  th:each="operation : ${operations}">
+            <tr class="table-info"  th:each="operation : ${operations}">
                 <td><span th:text="${operation.getEvery().getValue()}"> Every </span></td>
                 <td><span th:text="${operation.getEvery().equals(T(com.gorbatenko.budget.model.Every).DEFINITE_DAY_OF_MONTH) ? operation.getDayOfMonth() : ''}"> DayOfMonth </span></td>
                 <td><span th:text="${operation.getUser().getName()}"> User </span></td>
@@ -34,7 +34,7 @@
                 <td><span th:text="${#numbers.formatDecimal(operation.getPrice(),1,'DEFAULT',0,'DEFAULT')}" > Price </span></td>
                 <td><span th:text="${operation.getCurrency().getName()}"> Currency </span></td>
                 <td>
-                    <a th:href="@{'/regularoperations/edit/'+${operation.getId()}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                    <a th:href="@{'/regularoperations/edit/'+${operation.getId()}}"  class="btn btn-primary btn-sm" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
                 </td>
             </tr>
         </table>

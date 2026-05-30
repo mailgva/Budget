@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron" style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <div>
             <h2 th:text="'Профиль'"></h2>
             <!--/*--><!--@thymesVar id="profile" type="com.gorbatenko.budget.model.User"--><!--*/-->
@@ -52,23 +52,23 @@
             <!--group admin-->
             <div class="form-group" th:if="${(user.id.toString().equals(user.getUserGroup().toString()) && usersGroup.size() > 1)}">
                 <label>Группа</label>
-                <table class="table">
+                <table class="table table-hover">
                     <tbody>
-                    <tr class="border border-warning budget_detail">
-                        <td style="padding-top: 0px; padding-bottom: 12px;">
-                            <table class="table table-active ">
+                    <tr class="budget_detail">
+                        <td style="padding-top: 0px; padding-bottom: 12px; border-top: 0;">
+                            <table class="table table-hover">
                                 <thead>
                                 <tr class="table-active">
-                                    <th style="width: 5%"> #</th>
-                                    <th style="width: 25%"> Пользователь</th>
-                                    <th style="width: 20%"> Email</th>
-                                    <th style="width: 10%"> Удалить</th>
+                                    <th style="width: 5%; color: var(--universal-table-text) !important;"> #</th>
+                                    <th style="width: 25%; color: var(--universal-table-text) !important;"> Пользователь</th>
+                                    <th style="width: 20%; color: var(--universal-table-text) !important;"> Email</th>
+                                    <th style="width: 10%; color: var(--universal-table-text) !important;"> Удалить</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <!--/*--><!--@thymesVar id="budget" type="com.gorbatenko.budget.model.JoinRequest"--><!--*/-->
                                 <th:block th:each="member,row : ${usersGroup}">
-                                    <tr th:id="${member.id}">
+                                    <tr th:id="${member.id}" class="table-info">
                                         <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
                                         <td style="width: 15%"><span th:text="${member.name +
                                             (user.id.toString().equals(member.id.toString()) ? ' (Вы)' : '') }"> User </span></td>
@@ -76,7 +76,7 @@
                                         <td style="width: 5%">
                                             <a th:href="${'javascript:removeFromGroup(&quot;' + member.id + '&quot;)'}"
                                                th:if="${(!member.id.toString().equals(member.getUserGroup().toString()))}"
-                                               class="btn btn-warning" role="button"
+                                               class="btn btn-danger btn-sm" role="button"
                                                aria-pressed="true"><i
                                                     class="fa fa-times"></i></a>
                                         </td>
@@ -141,23 +141,23 @@
             </form>
             <div class="form-group">
                 <label>Итоги по валютам</label>
-                <table class="table">
+                <table class="table table-hover">
                     <tbody>
-                    <tr class="border border-warning budget_detail">
-                        <td style="padding-top: 0px; padding-bottom: 12px;">
-                            <table class="table table-active ">
+                    <tr class="budget_detail">
+                        <td style="padding-top: 0px; padding-bottom: 12px; border-top: 0;">
+                            <table class="table table-hover">
                                 <thead>
                                 <tr class="table-active">
-                                    <th style="width: 5%"> #</th>
-                                    <th style="width: 35%"> Валюта</th>
-                                    <th style="width: 15%; text-align:right"> Приход</th>
-                                    <th style="width: 15%; text-align:right"> Расход</th>
-                                    <th style="width: 15%; text-align:right"> Остаток</th>
+                                    <th style="width: 5%; color: var(--universal-table-text) !important;"> #</th>
+                                    <th style="width: 35%; color: var(--universal-table-text) !important;"> Валюта</th>
+                                    <th style="width: 15%; text-align:right; color: var(--universal-table-text) !important;"> Приход</th>
+                                    <th style="width: 15%; text-align:right; color: var(--universal-table-text) !important;"> Расход</th>
+                                    <th style="width: 15%; text-align:right; color: var(--universal-table-text) !important;"> Остаток</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <th:block th:each="reminder,row : ${mapCurrencyRemainders}">
-                                    <tr>
+                                    <tr class="table-success">
                                         <td><span th:text="${row.index+1}"> # </span></td>
                                         <td><span th:text="${reminder.key}"> Валюта </span></td>
                                         <td style="text-align:right"><span th:text="${#numbers.formatDecimal(reminder.value.profit, 1, 'DEFAULT', 0, 'DEFAULT')}"> Приход </span></td>

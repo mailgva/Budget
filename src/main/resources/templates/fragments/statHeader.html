@@ -1,26 +1,30 @@
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
-<table class="table">
-    <tr class="bg-warning-dark border border-warning">
-        <td colspan="3" style="font-weight: bold; padding-left: 10px;">
-            <div style="display: inline-block; width: 48%">
-                <h4 style="display: inline" th:text="'Остаток на начало: ' + ${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
-            </div>
-            <div align="right" style="display: inline-block; width: 48%">
-                <h4 style="display: inline; text-align: right;" th:text="'Остаток на конец: ' + ${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
+<table class="table border-0" style="background-color: transparent !important;">
+    <tr class="table-active">
+        <td colspan="3" style="font-weight: bold; padding: 10px; border: 0;">
+            <div class="d-flex justify-content-between flex-wrap align-items-center" style="width: 100%;">
+                <div style="flex: 1; min-width: 280px; margin: 5px 0;">
+                    <h4 style="display: inline; color: inherit !important;" th:text="'Остаток на начало: ' + ${#numbers.formatDecimal(remainOnStartPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
+                </div>
+                <div style="flex: 1; min-width: 280px; margin: 5px 0; text-align: right;">
+                    <h4 style="display: inline; text-align: right; color: inherit !important;" th:text="'Остаток на конец: ' + ${#numbers.formatDecimal(remainOnEndPeriod,1,'DEFAULT',0,'DEFAULT')}"></h4>
+                </div>
             </div>
         </td>
     </tr>
-    <tr class="bg-warning border border-warning">
-        <td style="width: 30%; font-weight: bold">
-            <div align="left"><h4 th:text="'Приходы: ' + ${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></h4>
-            </div>
-        </td>
-        <td style="width: 30%; font-weight: bold">
-            <div align="center"><h4 th:text="'Расходы: ' + ${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></h4>
-            </div>
-        </td>
-        <td style="width: 30%; font-weight: bold">
-            <div align="right"><h4 th:text="'Итого: ' + ${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"></h4>
+    <tr class="table-secondary">
+        <td colspan="3" style="border: 0; padding: 10px;">
+            <div class="d-flex justify-content-between flex-wrap align-items-center" style="width: 100%;">
+                <div style="flex: 1; min-width: 200px; margin: 5px 0;">
+                    <h4 style="font-weight: 600; color: inherit !important; margin-bottom: 0;" th:text="'Приходы: ' + ${#numbers.formatDecimal(profit,1,'DEFAULT',0,'DEFAULT')}"></h4>
+                </div>
+                <div style="flex: 1; min-width: 200px; margin: 5px 0; text-align: center;">
+                    <h4 style="font-weight: 600; color: inherit !important; margin-bottom: 0;" th:text="'Расходы: ' + ${#numbers.formatDecimal(spending,1,'DEFAULT',0,'DEFAULT')}"></h4>
+                </div>
+                <div style="flex: 1; min-width: 200px; margin: 5px 0; text-align: right;">
+                    <h4 style="font-weight: 600; margin-bottom: 0;" th:text="'Итого: ' + ${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}"
+                        th:class="${remain > 0 ? 'fontgreen' : (remain < 0 ? 'fontred' : '')}"></h4>
+                </div>
             </div>
         </td>
     </tr>

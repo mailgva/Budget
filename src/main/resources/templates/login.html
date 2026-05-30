@@ -5,51 +5,56 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="col-sm-8 mx-auto">
-      <h2 th:text="'Логин'"></h2>
+    <div class="jumbotron shadow-sm">
+      <h2 class="mb-4 text-center" th:text="'Вход'"></h2>
       <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
-      <div class="error rounded-sm" th:if="${errorMessage}" th:text="${errorMessage}">
+      <div class="error rounded-sm mb-3" th:if="${errorMessage}" th:text="${errorMessage}">
       </div>
       <form id="form" name="form" th:action="@{/login}" method="post">
-        <div class="form-group">
-          <label for="username">Email</label>
-          <input type="email" class="form-control" id="username" name="username" placeholder="Enter email">
+        <div class="form-group mb-3">
+          <label for="username" class="form-label">Email</label>
+          <input type="email" class="form-control form-control-lg" id="username" name="username">
         </div>
-        <div class="form-group">
-          <label for="password">Пароль</label>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+        <div class="form-group mb-3">
+          <label for="password" class="form-label">Пароль</label>
+          <input type="password" class="form-control form-control-lg" id="password" name="password">
         </div>
-        <div class="form-check"> 
-	        <input type="checkbox" name="remember-me" class="form-check-input" id="remember-me"> 
-	        <label class="form-check-label" for="remember-me">Запомнить меня</label> 
+        <div class="mb-4">
+            <label class="modern-switch">
+                <input type="checkbox" name="remember-me" id="remember-me">
+                <span class="modern-switch-slider"></span>
+                <span style="font-size: 1.1rem; color: var(--text-color);">Запомнить меня</span>
+            </label>
         </div>
-        <button class="btn btn-primary" style="width: 30%;" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
-        <button class="btn btn-warning" style="width: 30%;" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"></i> Войти как Гость</button>
-        <button class="btn btn-primary" style="width: 30%;" type="button" onclick="location.href='profile/register'"><i class="fa fa-list-alt"></i> Регистрация</button>
+        <div class="d-flex justify-content-between flex-wrap">
+            <button class="btn btn-primary mb-2" style="flex: 1; margin: 5px;" name="submit" type="submit"><i class="fa fa-sign-in"></i> Вход</button>
+            <button class="btn btn-warning mb-2" style="flex: 1; margin: 5px;" type="button" onclick="login('guest@gmail.com', 'password')"><i class="fa fa-user-secret"></i> Гость</button>
+            <button class="btn btn-outline-primary mb-2" style="flex: 1; margin: 5px;" type="button" onclick="location.href='profile/register'"><i class="fa fa-list-alt"></i> Регистрация</button>
+        </div>
       </form>
-    </div>
 
-    <pre>
-      Приложение <b>Бюджет</b> предназначено для ведения, управления и планирования семейного бюджета.
-      Функции:
-        - Содержит 2 типа операций: Приход и Расход.
-        - Раздел <b>Справочники</b> содержит: виды операций и виды валют.
-           После регистрации, пользователь имеет автоматически созданные:
-           - несколько видов операций;
-           - несколько видов валют (гривны, usd, euro).
-        - Раздел <b>Статистика</b> - показывает операции по дням, с возможностью фильтрации.
-        - Раздел <b>Групповая статистика</b>:
-           - показывает сумму по операциям за период, и также может показать:
-               * количество операций по виду;
-               * процент от общей суммы по типу (белая линия);
-               * проценты от максимальной суммы вида (желтая линия);
-               * детали для вида;
-               * диаграммы: круглая, горизонтальная;
-               * вертикальная диаграмма для показа динамики по виду.
-        - Для объединения в группу пользователей - в разделе <b>Профиль</b> есть ссылка для присоединения к группе.
-        - Смена валюты может осуществляться либо на верхней панели, либо в разделе <b>Профиль</b>.
-          Одновременно отображаются данные только по одному виду валюты.
-    </pre>
+      <hr class="my-4 border-light">
+
+      <div class="description-text">
+          <p class="lead text-center mb-4">Приложение <strong>Бюджет</strong> предназначено для ведения, управления и планирования семейного бюджета.</p>
+          <div class="row">
+              <div class="col-md-6">
+                  <ul class="list-unstyled">
+                      <li><i class="fa fa-check-circle text-success"></i> 2 типа операций: Приход и Расход</li>
+                      <li><i class="fa fa-check-circle text-success"></i> Справочники валют и видов операций</li>
+                      <li><i class="fa fa-check-circle text-success"></i> Статистика по дням с фильтрацией</li>
+                  </ul>
+              </div>
+              <div class="col-md-6">
+                  <ul class="list-unstyled">
+                      <li><i class="fa fa-check-circle text-success"></i> Групповая статистика и диаграммы</li>
+                      <li><i class="fa fa-check-circle text-success"></i> Объединение пользователей в группы</li>
+                      <li><i class="fa fa-check-circle text-success"></i> Поддержка различных валют</li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+    </div>
 
   <script>
     function login(username, password) {

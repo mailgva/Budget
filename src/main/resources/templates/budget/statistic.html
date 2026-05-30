@@ -5,9 +5,9 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron" style="background: #c2ff8e">
-        <div class="card bg-warning">
-            <div class="card-body" id="filteredparams" style="display: none">
+    <div class="jumbotron shadow-sm">
+        <div class="card border-0 mb-4">
+            <div class="card-body bg-light" id="filteredparams" style="display: none; border-radius: 8px;">
 
                 <div class="form-group" >
                     <!--/*--><!--@thymesVar id="user" type="com.gorbatenko.budget.model.User"-->
@@ -89,9 +89,9 @@
                                        th:value="${price}">
                             </div>
 
-                            <div class="form-group col-1 flex-bottom">
-                                <button id="btnsub" type="submit" class="btn btn-dark fiterbtn">
-                                    <i class="fa fa-filter"></i>
+                            <div class="col-sm d-flex align-items-end" style="padding-top: 32px;">
+                                <button id="btnsub" type="submit" class="btn btn-dark fiterbtn w-100 mb-0">
+                                    <i class="fa fa-filter"></i> Фильтр
                                 </button>
                             </div>
                         </div>
@@ -108,25 +108,15 @@
         </table>
 
     </div>
-    <div class="footer menu-container paddingsides">
-        <div class="menu-item">
-            <a href="/budget/create/profit" class="btn btn-success btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                    class="fa fa-plus"></i> Создать приход</a>
-        </div>
-        <div class="menu-item">
-            <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                    class="fa fa-minus"></i> Создать расход</a>
-        </div>
+    <div class="floating-container">
+        <a href="/budget/create/profit" class="btn btn-primary floating-btn" role="button">
+            <i class="fa fa-plus"></i>&nbsp; Создать приход
+        </a>
+        <a href="/budget/create/spending" class="btn btn-expense floating-btn" role="button">
+            <i class="fa fa-minus"></i>&nbsp; Создать расход
+        </a>
     </div>
 
-    <div class="leftmenu">
-        <div class="menu-itemleft">
-            <a href="/budget/create/profit" class="btn btn-success btn-lg btn-block menubtn" role="button" aria-pressed="true">Приход</a>
-        </div>
-        <div class="menu-itemleft">
-            <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true">Расход</a>
-        </div>
-    </div>
 </main>
 </body>
 </html>

@@ -8,43 +8,48 @@
 
     <th:block th:each="element : ${listBudgetItems}">
         <tr th:id="${'d_' + #temporals.format(element.key, 'yyyy-MM-dd')}"
-              th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'day bg-warning' : 'day bg-warning-light')}" onclick="hideDetail(this);" style="cursor: pointer;">
+              th:class="${(#temporals.dayOfWeek(element.key) < 6 ? 'day table-secondary' : 'day bg-warning-light')}" onclick="hideDetail(this);" style="cursor: pointer;">
             <td colspan="7">
-                <h4 style="display:inline-block; width : 35%" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h4>
-                <div style="display:inline-block;font-weight: bold; width : 64%;" align="right">
-                    <div style="display:inline-block; width: 30%;" align="left"><h5 style="display:inline-block;">Приход: </h5>
-                        <h4 style="display:inline-block;">
-                        <span style="font-weight: bold" th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)]),1,'DEFAULT',0,'DEFAULT')}"></span>
-                        </h4>
+                <div class="d-flex justify-content-between align-items-center flex-wrap" style="color: inherit !important;">
+                    <div style="flex: 1; min-width: 150px; padding: 5px 0;">
+                        <h5 style="margin-bottom: 0; font-weight: bold;" th:text="${#temporals.format(element.key, 'dd-MM-yyyy') + ' - ' + #temporals.dayOfWeekName(element.key)}"> Date </h5>
                     </div>
-
-                    <div style="display:inline-block; width: 30%;" align="left"><h5 style="display:inline-block;">Расход: </h5>
-                        <h4 style="display:inline-block;">
-                        <span style="font-weight: bold" th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)]),1,'DEFAULT',0,'DEFAULT')}"></span>
-                        </h4>
-                    </div>
-
-                    <div style="display:inline-block; width: 30%" align="left"><h5 style="display:inline-block;">Итог: </h5>
-                        <h4 style="display:inline-block;">
-                        <span style="font-weight: bold" th:class="${#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]) > 0  ? 'fontgreen' : 'fontred'}"
-                              th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]),1,'DEFAULT',0,'DEFAULT')}"></span>
-                        </h4>
+                    <div class="d-flex justify-content-end flex-wrap align-items-center" style="flex: 2; padding: 5px 0;">
+                        <div class="mx-2 my-1" style="white-space: nowrap;">
+                            <h6 style="display:inline-block; color: inherit !important; font-weight: bold; margin-bottom: 0;">Приход: </h6>
+                            <h5 style="display:inline-block; margin-bottom: 0;">
+                                <span style="font-weight: bold; color: var(--income-color);" th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : 0)]),1,'DEFAULT',0,'DEFAULT')}"></span>
+                            </h5>
+                        </div>
+                        <div class="mx-2 my-1" style="white-space: nowrap;">
+                            <h6 style="display:inline-block; color: inherit !important; font-weight: bold; margin-bottom: 0;">Расход: </h6>
+                            <h5 style="display:inline-block; margin-bottom: 0;">
+                                <span style="font-weight: bold; color: var(--expense-color);" th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? 0 : price)]),1,'DEFAULT',0,'DEFAULT')}"></span>
+                            </h5>
+                        </div>
+                        <div class="mx-2 my-1" style="white-space: nowrap;">
+                            <h6 style="display:inline-block; color: inherit !important; font-weight: bold; margin-bottom: 0;">Итог: </h6>
+                            <h5 style="display:inline-block; font-weight: 600; margin-bottom: 0;">
+                                <span style="font-weight: 600" th:class="${#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]) > 0  ? 'fontgreen' : (#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]) < 0 ? 'fontred' : '')}"
+                                      th:text="*{#numbers.formatDecimal(#aggregates.sum(element.value.![(kind.getType().name().equals('PROFIT') ? price : -price)]),1,'DEFAULT',0,'DEFAULT')}"></span>
+                            </h5>
+                        </div>
                     </div>
                 </div>
             </td>
         </tr>
 
 
-        <tr class="border border-warning budget_detail">
-            <td colspan="7" style="padding-top: 0px; padding-bottom: 12px;">
-                <table class="table table-active ">
+        <tr class="budget_detail">
+            <td colspan="7" style="padding-top: 0px; padding-bottom: 12px; border-top: 0; background-color: transparent !important;">
+                <table class="table table-hover" style="background-color: var(--bg-color) !important;">
                     <thead>
-                    <tr class="table-active">
-                        <th style="width: 5%"> #</th>
-                        <th style="width: 20%"> Пользователь</th>
-                        <th style="width: 20%"> Вид</th>
-                        <th style="width: 25%"> Описание</th>
-                        <th style="width: 10%; text-align:right"> Сумма</th>
+                    <tr class="table-active stat-detail-row">
+                        <th style="width: 5%; color: var(--universal-table-text) !important;"> #</th>
+                        <th style="width: 20%; color: var(--universal-table-text) !important;"> Пользователь</th>
+                        <th style="width: 20%; color: var(--universal-table-text) !important;"> Вид</th>
+                        <th style="width: 25%; color: var(--universal-table-text) !important;"> Описание</th>
+                        <th style="width: 10%; text-align:right; color: var(--universal-table-text) !important;"> Сумма</th>
                         <th style="width: 5%"></th>
                     </tr>
                     </thead>
@@ -52,7 +57,7 @@
                     <!--/*--><!--@thymesVar id="budgetItem" type="com.gorbatenko.budget.model.BudgetItem"--><!--*/-->
                     <th:block th:each="budgetItem,row : ${element.value}">
 
-                        <tr th:class="${budgetItem.kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
+                        <tr th:class="${budgetItem.kind.getType().name().equals('PROFIT')  ? 'table-success' : 'table-info'}" class="stat-detail-row">
                             <td><span th:text="${row.index+1}"> # </span></td>
                             <td><span th:text="${budgetItem.user.name}"> User </span> <br>
                                 <span class="subdate" th:text="${#temporals.format(budgetItem.createdAt, 'yyyy-MM-dd HH:mm')}"> </span></td>
@@ -61,7 +66,7 @@
                             </td>
                             <td style="text-align:right"><span class="biggerprice" th:text="${#numbers.formatDecimal(budgetItem.price,1,'DEFAULT',0,'DEFAULT')}"> Price </span></td>
                             <td>
-                                <a th:href="@{'/budget/edit/'+${budgetItem.id}}" class="btn btn-warning" role="button"
+                                <a th:href="@{'/budget/edit/'+${budgetItem.id}}" class="btn btn-primary btn-sm" role="button"
                                    aria-pressed="true"><i
                                         class="fa fa-pencil"></i></a>
                             </td>

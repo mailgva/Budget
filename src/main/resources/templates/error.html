@@ -5,13 +5,13 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron" style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <div class="col-sm-8 mx-auto">
             <!--<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|">404</h1>-->
             <h2 th:text="${'Ого, у нас возникли ошибки!!!'}"></h2>
             <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
             <div class="error rounded-sm" th:if="${errorMessage}" th:utext="${errorMessage}"></div>
-            <button type="button" class="btn btn-warning" onclick="window.history.back()"/>Попробовать еще раз</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">Попробовать еще раз</button>
         </div>
     </div>
 </main>

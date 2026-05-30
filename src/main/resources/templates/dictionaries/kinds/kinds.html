@@ -5,30 +5,27 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron"  style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <h2 th:text="'Виды приходов/расходов'"> </h2>
-        <a href="/dictionaries/kinds/create/profit" class="btn btn-primary mobx" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
+        <a href="/dictionaries/kinds/create/profit" class="btn btn-primary mobx mb-4"><i class="fa fa-plus"></i> Создать</a>
 
-        <table class="table">
+        <table class="table table-hover">
             <th:block th:each="element : ${mapKind}">
-                <tr th:class="${element.key.name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                    <td ><h4 th:text="${element.key.getValue()}"></h4></td>
-                    <th >Видимость</th>
-                    <td colspan="2"></td>
+                <tr class="table-active">
+                    <td colspan="3"><h4 style="margin: 0; font-weight: 600;" th:text="${element.key.getValue()}"></h4></td>
                 </tr>
                 <!--/*--><!--@thymesVar id="kind" type="com.gorbatenko.budget.model.Kind"--><!--*/-->
                 <th:block th:each="kind,row : ${element.value}">
-                    <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'bg-success' : 'bg-info'}">
-                        <td style="padding-left: 50px; font-weight: bolder">
-                            <a class="text-dark"
-                               th:href="@{/budget/statistic(period='ALL_TIME',
+                    <tr th:class="${kind.getType().name().equals('PROFIT')  ? 'table-success' : 'table-info'}">
+                        <td style="padding-left: 50px; font-weight: 500;">
+                            <a th:href="@{/budget/statistic(period='ALL_TIME',
                                                     kindId=${kind.getId()})}">
                                 <span class="summation"  th:text="${(row.index+1) + '. ' + kind.getName() + ' (' + mapKindCount.getOrDefault(kind,0)  + ')'} "></span>
                             </a>
                         </td>
                         <td><span class="summation"  th:text="${kind.getHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
-                        <td style="padding-left: 10px; font-weight: bolder; text-align: center;">
-                            <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                        <td style="padding-left: 10px; font-weight: 500; text-align: center;">
+                            <a th:href="@{'/dictionaries/kinds/edit/'+${kind.id}}"  class="btn btn-outline-secondary btn-sm" style="min-height: auto; height: 38px; width: 40px;"><i class="fa fa-pencil"></i></a>
                         </td>
                     </tr>
                 </th:block>

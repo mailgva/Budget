@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron" style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <div>
             <!--/*--><!--@thymesVar id="operation" type="com.gorbatenko.budget.model.RegularOperation"--><!--*/-->
             <!--/*--><!--@thymesVar id="every" type="com.gorbatenko.budget.model.Every"--><!--*/-->
@@ -76,10 +76,12 @@
                     </div>
                 </div>
 
-                <div class="form-check mobchkbox">
-                    <input type="checkbox" name="autocalc" class="form-check-input mobchkbox" id="autocalc" th:checked="true"
-                           onclick="calculate()">
-                    <label class="form-check-label mob" for="autocalc">Автоматический подсчет (до разделителя "//")</label>
+                <div class="form-group">
+                    <label class="modern-switch">
+                        <input type="checkbox" name="autocalc" id="autocalc" th:checked="true" onclick="calculate()">
+                        <span class="modern-switch-slider"></span>
+                        <span style="color: var(--text-color);">Автоматический подсчет (до разделителя "//")</span>
+                    </label>
                 </div>
 
                 <div class="form-group">
@@ -103,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary mob" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
+                <button class="btn btn-primary mob" id="btn-save" name="submit" type="submit"><i class="fa fa-save"></i> Сохранить</button>
                 <button th:if="${operation.id != null}" class="btn btn-danger mob" type="button"
                         th:onclick="remove()"><i class="fa fa-trash"></i> Удалить</button>
             </form>
@@ -152,6 +154,15 @@
         mapKind[type].forEach(function(item) {
             kind.append($("<option />").val(item.id).text(item.name).prop("selected", item.id === editKindId));
         });
+
+        // Update save button color
+        var btnSave = $('#btn-save');
+        btnSave.removeClass('btn-income btn-expense btn-primary');
+        if (type === 'PROFIT') {
+            btnSave.addClass('btn-income');
+        } else {
+            btnSave.addClass('btn-expense');
+        }
     }
 
     function calculate(){

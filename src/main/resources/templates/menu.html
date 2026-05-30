@@ -5,57 +5,82 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-  <div class="jumbotron"  style="background: #c2ff8e">
-      <div class="input-group mb-3" style="margin-left: 10px">
-        <div class="input-group-prepend">
-          <span class="input-group-text" style="width: 300px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
+    <div class="jumbotron shadow-sm">
+        <div class="row mb-2">
+            <div class="col-md-12 mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="width: 280px;" th:text="${'Остаток, ' + defaultCurrencyName}"></span>
+                    </div>
+                    <input class="form-control form-control-lg" type="text" readonly th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
+                </div>
+            </div>
+            <div class="col-md-12 mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="width: 280px;" th:text="${'Последняя активность'}"></span>
+                    </div>
+                    <input class="form-control form-control-lg" type="text" readonly th:value="${lastGroupActivityDateCustom}"
+                           th:data-path="${'budget/statistic?startDate=' + lastGroupActivityDate + '&amp;endDate=' + lastGroupActivityDate + (lastCurrencyId == null ? '' : '&amp;currencyId=' + lastCurrencyId)}"
+                           onclick="location.href = (this.getAttribute('data-path'));" style="cursor: pointer;">
+                </div>
+            </div>
         </div>
-        <input class="form-control col-4" type="text" readonly th:value="${#numbers.formatDecimal(remain,1,'DEFAULT',0,'DEFAULT')}">
-      </div>
-      <div class="input-group mb-3" style="margin-left: 10px">
-      <div class="input-group-prepend">
-        <span class="input-group-text" style="width: 300px;" th:text="${'Последняя активность'}"></span>
-      </div>
-      <input class="form-control col-4" type="text" readonly th:value="${lastGroupActivityDateCustom}"
-             th:data-path="${'budget/statistic?startDate=' + lastGroupActivityDate + '&amp;endDate=' + lastGroupActivityDate + (lastCurrencyId == null ? '' : '&amp;currencyId=' + lastCurrencyId)}"
-             onclick="location.href = (this.getAttribute('data-path'));">
-    </div>
-    <div class="menu-container">
+
+        <div class="menu-container">
+            <div class="menu-item">
+                <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+                    <i class="fa fa-plus-circle fa-2x mb-2"></i>
+                    <span>Приход</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a href="/budget/create/spending" class="btn btn-expense btn-lg btn-block menubtn" role="button">
+                    <i class="fa fa-minus-circle fa-2x mb-2"></i>
+                    <span>Расход</span>
+                </a>
+            </div>
       <div class="menu-item">
-        <a href="/budget/create/profit" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-plus"></i> Приход</a>
-      </div>
-      <div class="menu-item">
-        <a href="/budget/create/spending" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-minus"></i> Расход</a>
-      </div>
-      <div class="menu-item">
-        <a href="/budget/statistic" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-list"></i> Статистика</a>
+        <a href="/budget/statistic" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-list fa-2x mb-2"></i>
+          <span>Статистика</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a href="/budget/groupstatistic" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-align-left"></i> Групповая статистика</a>
+        <a href="/budget/groupstatistic" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-align-left fa-2x mb-2"></i>
+          <span>Групповая статистика</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a href="/budget/exchange" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-exchange"></i> Обмен валюты</a>
+        <a href="/budget/exchange" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-exchange fa-2x mb-2"></i>
+          <span>Обмен валюты</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a href="/dictionaries/" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-book"></i> Справочники</a>
+        <a href="/dictionaries/" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-book fa-2x mb-2"></i>
+          <span>Справочники</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a href="/regularoperations/" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-calendar"></i> Регулярные операции</a>
+        <a href="/regularoperations/" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-calendar fa-2x mb-2"></i>
+          <span>Регулярные операции</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a href="/profile/" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-user"></i> Профиль</a>
+        <a href="/profile/" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+          <i class="fa fa-user fa-2x mb-2"></i>
+          <span>Профиль</span>
+        </a>
       </div>
       <div class="menu-item">
-        <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block menubtn" role="button" aria-pressed="true"><i
-                class="fa fa-sign-out"></i> Выход</a>
+        <a th:href="@{/logout}" class="btn btn-primary btn-lg btn-block menubtn" role="button">
+            <i class="fa fa-sign-out fa-2x mb-2"></i>
+            <span>Выход</span>
+        </a>
       </div>
     </div>
 
@@ -63,14 +88,14 @@
     </table>
 
     <div class="info" th:if="${info}" th:text="${info}"></div>
-    <table class="table" th:if="${(joinRequests.size() > 0)}">
+    <table class="table table-hover" th:if="${(joinRequests.size() > 0)}">
       <tbody>
-        <tr class="border border-warning">
+        <tr class="table-active">
           <td>Желающие присоединиться к вашей группе</td>
         </tr>
-        <tr class="border border-warning budget_detail">
-          <td style="padding-top: 0px; padding-bottom: 12px;">
-            <table class="table table-active ">
+        <tr class="budget_detail">
+          <td style="padding-top: 0px; padding-bottom: 12px; border-top: 0;">
+            <table class="table table-hover">
               <thead>
               <tr class="table-active">
                 <th style="width: 5%"> #</th>
@@ -85,19 +110,19 @@
               <!--/*--><!--@thymesVar id="budgetItem" type="com.gorbatenko.budget.model.JoinRequest"--><!--*/-->
               <th:block th:each="request,row : ${joinRequests}">
 
-                <tr th:id="${request.id}">
+                <tr th:id="${request.id}" class="table-info">
                   <td style="width: 5%"><span th:text="${row.index+1}"> # </span></td>
                   <td style="width: 15%"><span th:text="${request.user.name}"> User </span></td>
                   <td style="width: 15%"><span th:text="${request.user.email}"> Email </span></td>
                   <td style="width: 10%"><span th:text="${#temporals.format(request.getCreatedAt, 'yyyy-MM-dd HH:mm')}"> </span>
                   </td>
                   <td style="width: 5%">
-                    <a th:href="${'javascript:joinGroupAccept(&quot;' + request.id + '&quot;)'}" class="btn btn-warning" role="button"
+                    <a th:href="${'javascript:joinGroupAccept(&quot;' + request.id + '&quot;)'}" class="btn btn-primary btn-sm" role="button"
                        aria-pressed="true"><i
                             class="fa fa-check"></i></a>
                   </td>
                   <td style="width: 5%">
-                    <a th:href="${'javascript:joinGroupDecline(&quot;' + request.id + '&quot;)'}" class="btn btn-warning" role="button"
+                    <a th:href="${'javascript:joinGroupDecline(&quot;' + request.id + '&quot;)'}" class="btn btn-danger btn-sm" role="button"
                        aria-pressed="true"><i
                             class="fa fa-times"></i></a>
                   </td>

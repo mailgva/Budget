@@ -56,20 +56,32 @@ public class ChartUtil {
 
     private static Map<String, Object> createOptions(ChartType chartType) {
         Map<String, Object> result = new HashMap<>();
+        Map<String, Object> legend = new HashMap<>();
+        Map<String, Object> labels = new HashMap<>();
+        labels.put("fontColor", "#f1f5f9"); // Slate 100
+        legend.put("labels", labels);
+        result.put("legend", legend);
+
         switch (chartType) {
             case BAR:
             case HORIZONTALBAR, LINE: {
-                Map<String, Boolean> beginAtZero = new HashMap<>();
-                beginAtZero.put("beginAtZero", true);
+                Map<String, Object> tickOptions = new HashMap<>();
+                tickOptions.put("beginAtZero", true);
+                tickOptions.put("fontColor", "#94a3b8"); // Slate 400
 
-                Map<String, Map<String, Boolean>> ticks = new HashMap<>();
-                ticks.put("ticks", beginAtZero);
+                Map<String, Object> ticks = new HashMap<>();
+                ticks.put("ticks", tickOptions);
+
+                Map<String, Object> gridLines = new HashMap<>();
+                gridLines.put("color", "rgba(255, 255, 255, 0.1)");
+                ticks.put("gridLines", gridLines);
 
                 Object[] arrayTicks = new Object[1];
                 arrayTicks[0] = ticks;
 
                 Map<String, Object[]> axes = new HashMap<>();
-                axes.put((chartType.equals(ChartType.BAR) ? "yAxes" : "xAxes"), arrayTicks);
+                axes.put("yAxes", arrayTicks);
+                axes.put("xAxes", arrayTicks);
 
                 result.put("scales", axes);
                 break;
@@ -175,7 +187,7 @@ public class ChartUtil {
     }
 
     private static int generateRGBColor() {
-        return 1 + (int) (Math.random() * 254);
+        return 120 + (int) (Math.random() * 135); // Lighter colors for dark theme
     }
 
 

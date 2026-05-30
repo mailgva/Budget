@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron" style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <div>
             <h2 th:text="${'Обмен валюты'}"> </h2>
             <form id="form" name="form" th:action="@{/budget/exchange}" method="post">

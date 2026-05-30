@@ -5,11 +5,11 @@
 <div th:replace="~{fragments/bodyHeader :: div}">
 </div>
 <main role="main">
-    <div class="jumbotron"  style="background: #c2ff8e">
+    <div class="jumbotron shadow-sm">
         <h2 th:text="'Валюты'"> </h2>
-        <a href="/dictionaries/currencies/create" class="btn btn-primary mobx" role="button" aria-pressed="true"><i class="fa fa-plus"></i> Создать</a>
+        <a href="/dictionaries/currencies/create" class="btn btn-primary mobx mb-4"><i class="fa fa-plus"></i> Создать</a>
         <table id="currencies"
-                class="table table-active">
+                class="table table-hover">
             <thead>
             <tr>
                 <th data-field="name" data-sortable="true">Наименование</th>
@@ -20,18 +20,17 @@
             <tbody>
             <!--/*--><!--@thymesVar id="currency" type="com.gorbatenko.budget.model.Currency"--><!--*/-->
 
-            <tr th:class="${'bg-success'}" th:each="element : ${currencies}">
+            <tr th:class="${element.getKey().getHidden() ? 'table-secondary' : 'table-success'}" th:each="element : ${currencies}">
                 <td>
-                    <a class="text-dark"
-                       th:href="@{/budget/statistic(period='ALL_TIME',
+                    <a th:href="@{/budget/statistic(period='ALL_TIME',
                                                     currencyId=${element.getKey().getId()})}">
                         <span class="summation"  th:text="${element.getKey().getName() + ' (' + element.getValue() + ')' }"> Name </span>
                     </a>
 
                 </td>
                 <td><span class="summation"  th:text="${element.getKey().getHidden() ? 'Скрыто'  : 'Видно'}"> Hidden </span></td>
-                <td>
-                    <a th:href="@{'/dictionaries/currencies/edit/'+${element.getKey().getId()}}"  class="btn btn-warning" role="button" aria-pressed="true"><i class="fa fa-pencil"></i></a>
+                <td style="text-align: center;">
+                    <a th:href="@{'/dictionaries/currencies/edit/'+${element.getKey().getId()}}"  class="btn btn-outline-secondary btn-sm" style="min-height: auto; height: 38px; width: 40px;"><i class="fa fa-pencil"></i></a>
                 </td>
             </tr>
         </table>
