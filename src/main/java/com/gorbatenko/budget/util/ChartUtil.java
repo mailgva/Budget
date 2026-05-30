@@ -1,14 +1,19 @@
 package com.gorbatenko.budget.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gorbatenko.budget.model.Kind;
-import com.gorbatenko.budget.model.Type;
-import com.gorbatenko.budget.web.charts.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.web.charts.ChartData;
+import com.gorbatenko.budget.web.charts.ChartDatasets;
+import com.gorbatenko.budget.web.charts.ChartDatasetsDoughnut;
+import com.gorbatenko.budget.web.charts.ChartDatasetsHorizont;
+import com.gorbatenko.budget.web.charts.ChartType;
+import com.gorbatenko.budget.web.charts.MdbChart;
+
+import tools.jackson.databind.ObjectMapper;
 
 public class ChartUtil {
     final static private float TRANSPARENT_VALUE = 1.0f;
@@ -46,12 +51,7 @@ public class ChartUtil {
 
     private static String mdbChartToJSON(MdbChart mdbChart){
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(mdbChart);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "";
-        }
+        return mapper.writeValueAsString(mdbChart);
     }
 
     private static Map<String, Object> createOptions(ChartType chartType) {

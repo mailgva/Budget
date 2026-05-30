@@ -1,20 +1,23 @@
 package com.gorbatenko.budget.config.backup;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
 @EnableScheduling
 @RequiredArgsConstructor
+@ConditionalOnBean(JdbcTemplate.class)
 public class BackupDBConfig {
 
     private final JdbcTemplate jdbcTemplate;

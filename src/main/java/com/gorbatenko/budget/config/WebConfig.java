@@ -11,10 +11,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
-import org.thymeleaf.spring6.ISpringTemplateEngine;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -43,10 +39,10 @@ public class WebConfig implements WebMvcConfigurer {
         MediaType mediaType = new MediaType("application", "x-www-form-urlencoded",
                 Charset.forName("UTF-8"));
         try {
-            AbstractHttpMessageConverter converter = (AbstractHttpMessageConverter) clazz.newInstance();
+            AbstractHttpMessageConverter converter = (AbstractHttpMessageConverter) clazz.getDeclaredConstructor().newInstance();
             converter.setSupportedMediaTypes(Arrays.asList(mediaType));
             return converter;
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -63,13 +59,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "classpath:/static/css/",
                         "classpath:/static/js/",
                         "classpath:/static/images/");
-    }
-
-    private ISpringTemplateEngine templateEngine(ITemplateResolver templateResolver) {
-        SpringTemplateEngine engine = new SpringTemplateEngine();
-        engine.addDialect(new Java8TimeDialect());
-        engine.setTemplateResolver(templateResolver);
-        return engine;
     }
 
 }

@@ -1,10 +1,6 @@
 package com.gorbatenko.budget.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gorbatenko.budget.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,8 +19,6 @@ public class BudgetItemTo extends BaseEntity {
     private UUID currencyId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate dateAt;
 
     private String description;

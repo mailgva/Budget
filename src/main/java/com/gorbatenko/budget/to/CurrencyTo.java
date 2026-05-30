@@ -1,7 +1,7 @@
 package com.gorbatenko.budget.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.gorbatenko.budget.BaseEntity;
 import com.gorbatenko.budget.config.Deserializer;
 import lombok.Data;

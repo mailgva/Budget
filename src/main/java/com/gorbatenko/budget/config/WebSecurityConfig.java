@@ -1,7 +1,7 @@
 package com.gorbatenko.budget.config;
 
-import com.gorbatenko.budget.service.UserService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,9 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.util.List;
+import com.gorbatenko.budget.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -29,8 +30,7 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(UserService userService) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
         authProvider.setPasswordEncoder(passwordEncoder);
         List<AuthenticationProvider> providers = List.of(authProvider);
         return new ProviderManager(providers);
@@ -38,7 +38,7 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests((requests) -> requests
+        http.authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/js/**").permitAll()
                         .requestMatchers("/css/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
@@ -56,7 +56,7 @@ public class WebSecurityConfig {
                 )
                 .logout((lg) -> lg
                         .deleteCookies("JSESSIONID")
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .permitAll()
                 )

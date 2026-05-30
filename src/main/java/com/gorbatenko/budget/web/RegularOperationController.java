@@ -1,28 +1,45 @@
 package com.gorbatenko.budget.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gorbatenko.budget.model.Currency;
-import com.gorbatenko.budget.model.*;
-import com.gorbatenko.budget.service.*;
-import com.gorbatenko.budget.to.KindTo;
-import com.gorbatenko.budget.to.RegularOperationTo;
-import com.gorbatenko.budget.util.Response;
-import com.gorbatenko.budget.util.SecurityUtil;
-import jakarta.validation.Valid;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import static java.util.stream.Collectors.groupingBy;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.gorbatenko.budget.model.Currency;
+import com.gorbatenko.budget.model.Every;
+import com.gorbatenko.budget.model.Kind;
+import com.gorbatenko.budget.model.RegularOperation;
+import com.gorbatenko.budget.model.Type;
+import com.gorbatenko.budget.model.User;
+import com.gorbatenko.budget.service.BudgetItemService;
+import com.gorbatenko.budget.service.CurrencyService;
+import com.gorbatenko.budget.service.KindService;
+import com.gorbatenko.budget.service.RegularOperationService;
+import com.gorbatenko.budget.to.KindTo;
+import com.gorbatenko.budget.to.RegularOperationTo;
+import com.gorbatenko.budget.util.Response;
+import com.gorbatenko.budget.util.SecurityUtil;
 import static com.gorbatenko.budget.util.SecurityUtil.getCurrencyDefault;
-import static java.util.stream.Collectors.groupingBy;
+
+import jakarta.validation.Valid;
+import tools.jackson.databind.ObjectMapper;
 
 @Controller
 @PreAuthorize("isAuthenticated()")
@@ -147,11 +164,6 @@ public class RegularOperationController extends BaseWebController {
 
     private static String toJson(TreeMap<Type, List<KindTo>> mapKind){
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(mapKind);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "";
-        }
+        return mapper.writeValueAsString(mapKind);
     }
 }

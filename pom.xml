@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>4.0.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.gorbatenko</groupId>
@@ -16,17 +16,14 @@
     <description>Accounting profits and spending</description>
 
     <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>25</java.version>
+        <maven.compiler.release>25</maven.compiler.release>
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
-        <jackson.version>2.16.2</jackson.version>
-        <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
-        <webjars-jquery.version>3.5.1</webjars-jquery.version>
-        <webjars-bootstrap.version>4.6.0</webjars-bootstrap.version>
+        <webjars-jquery.version>3.7.1</webjars-jquery.version>
+        <webjars-bootstrap.version>5.3.3</webjars-bootstrap.version>
         <webjars-bootstrap-table.version>1.16.0</webjars-bootstrap-table.version>
         <webjars-bootstrap-toggle.version>3.6.1</webjars-bootstrap-toggle.version>
-        <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
+        <webjars-font-awesome.version>6.5.2</webjars-font-awesome.version>
         <webjars-mdbootstrap-bootstrap-material-design.version>4.8.8</webjars-mdbootstrap-bootstrap-material-design.version>
     </properties>
 
@@ -48,49 +45,26 @@
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-java8time</artifactId>
-            <version>${thymeleaf-extras-java8time.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <version>6.1.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>5.2.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>1.18.46</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
@@ -130,7 +104,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240205</version>
+            <version>20240303</version>
         </dependency>
     </dependencies>
 
@@ -150,6 +124,22 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>--add-opens=java.base/java.time=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.46</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

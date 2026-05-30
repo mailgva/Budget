@@ -1,16 +1,14 @@
 package com.gorbatenko.budget.config;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 public class Deserializer {
-    public static class OnOffDeserializer extends JsonDeserializer<Boolean> {
+    public static class OnOffDeserializer extends ValueDeserializer<Boolean> {
         @Override
-        public Boolean deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-            return "on".equalsIgnoreCase(parser.getText());
+        public Boolean deserialize(JsonParser parser, DeserializationContext context) {
+            return "on".equalsIgnoreCase(parser.getString());
         }
     }
 }

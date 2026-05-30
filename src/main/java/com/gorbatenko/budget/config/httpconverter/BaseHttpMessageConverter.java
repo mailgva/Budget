@@ -1,6 +1,6 @@
 package com.gorbatenko.budget.config.httpconverter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.converter.AbstractHttpMessageConverter;

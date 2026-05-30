@@ -1,9 +1,27 @@
 package com.gorbatenko.budget.model;
 
 
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gorbatenko.budget.BaseEntity;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,9 +30,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.util.CollectionUtils;
-
-import java.util.*;
 
 @Data
 @NoArgsConstructor
